@@ -699,6 +699,8 @@ Window {
                             inputNombre.text = ""
                             inputCorreo.text = ""
                             inputTelefono.text = ""
+                            inputDireccion.text = ""
+                            inputAlergias.text = ""
                         }
                     }
                 }
@@ -707,29 +709,30 @@ Window {
             // FORMULARIO
             Rectangle {
                 width: parent.width
-                height: 200
+                height: 350
                 visible: mostrarFormulario
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
                 radius: 10
-                
+
                 Column {
                     anchors.fill: parent
                     anchors.margins: 20
                     spacing: 15
-                    
+
                     Text {
                         text: clienteEditando >= 0 ? "Editar Cliente" : "Nuevo Cliente"
                         font.pixelSize: 18
                         font.bold: true
                         color: "#00ffff"
                     }
-                    
+
+                    // Primera fila: Nombre, Correo, Teléfono
                     Row {
                         width: parent.width
                         spacing: 15
-                        
+
                         Column {
                             width: (parent.width - 30) / 3
                             spacing: 5
@@ -741,6 +744,7 @@ Window {
                             TextField {
                                 id: inputNombre
                                 width: parent.width
+                                placeholderText: "Nombre completo"
                                 color: "#e0e0ff"
                                 background: Rectangle {
                                     color: "transparent"
@@ -750,7 +754,7 @@ Window {
                                 }
                             }
                         }
-                        
+
                         Column {
                             width: (parent.width - 30) / 3
                             spacing: 5
@@ -762,6 +766,7 @@ Window {
                             TextField {
                                 id: inputCorreo
                                 width: parent.width
+                                placeholderText: "correo@ejemplo.com"
                                 color: "#e0e0ff"
                                 background: Rectangle {
                                     color: "transparent"
@@ -771,7 +776,7 @@ Window {
                                 }
                             }
                         }
-                        
+
                         Column {
                             width: (parent.width - 30) / 3
                             spacing: 5
@@ -783,6 +788,7 @@ Window {
                             TextField {
                                 id: inputTelefono
                                 width: parent.width
+                                placeholderText: "555-1234"
                                 color: "#e0e0ff"
                                 background: Rectangle {
                                     color: "transparent"
@@ -790,6 +796,52 @@ Window {
                                     border.width: 1
                                     radius: 4
                                 }
+                            }
+                        }
+                    }
+
+                    // Segunda fila: Dirección
+                    Column {
+                        width: parent.width
+                        spacing: 5
+                        Text {
+                            text: "Dirección:"
+                            font.pixelSize: 12
+                            color: "#8080a0"
+                        }
+                        TextField {
+                            id: inputDireccion
+                            width: parent.width
+                            placeholderText: "Calle, número, colonia, ciudad"
+                            color: "#e0e0ff"
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: "#00ffff"
+                                border.width: 1
+                                radius: 4
+                            }
+                        }
+                    }
+
+                    // Tercera fila: Alergias
+                    Column {
+                        width: parent.width
+                        spacing: 5
+                        Text {
+                            text: "Alergias:"
+                            font.pixelSize: 12
+                            color: "#8080a0"
+                        }
+                        TextField {
+                            id: inputAlergias
+                            width: parent.width
+                            placeholderText: "Lactosa, gluten, nueces, etc."
+                            color: "#e0e0ff"
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: "#00ffff"
+                                border.width: 1
+                                radius: 4
                             }
                         }
                     }
@@ -812,32 +864,42 @@ Window {
                             var datos = {
                                 nombre: inputNombre.text,
                                 correo: inputCorreo.text,
-                                telefono: inputTelefono.text
+                                telefono: inputTelefono.text,
+                                direccion: inputDireccion.text,
+                                alergias: inputAlergias.text
                             }
-                            
+
                             if (clienteEditando >= 0) {
                                 // Actualizar
                                 api.put("/clientes/" + clienteEditando, datos, function(exito, resp) {
                                     if (exito) {
-                                        notificacion.mostrar("Cliente actualizado")
+                                        notificacion.mostrar("✅ Cliente actualizado")
                                         inputNombre.text = ""
                                         inputCorreo.text = ""
                                         inputTelefono.text = ""
+                                        inputDireccion.text = ""
+                                        inputAlergias.text = ""
                                         mostrarFormulario = false
                                         clienteEditando = -1
                                         cargarClientes()
+                                    } else {
+                                        notificacion.mostrar("❌ Error al actualizar cliente")
                                     }
                                 })
                             } else {
                                 // Crear
                                 api.post("/clientes/", datos, function(exito, resp) {
                                     if (exito) {
-                                        notificacion.mostrar("Cliente creado")
+                                        notificacion.mostrar("✅ Cliente creado")
                                         inputNombre.text = ""
                                         inputCorreo.text = ""
                                         inputTelefono.text = ""
+                                        inputDireccion.text = ""
+                                        inputAlergias.text = ""
                                         mostrarFormulario = false
                                         cargarClientes()
+                                    } else {
+                                        notificacion.mostrar("❌ Error al crear cliente")
                                     }
                                 })
                             }
@@ -922,6 +984,8 @@ Window {
                                     inputNombre.text = modelData.nombre || ""
                                     inputCorreo.text = modelData.correo || ""
                                     inputTelefono.text = modelData.telefono || ""
+                                    inputDireccion.text = modelData.direccion || ""
+                                    inputAlergias.text = modelData.alergias || ""
                                     mostrarFormulario = true
                                 }
                             }
@@ -972,17 +1036,19 @@ Window {
     // ============================================
     Component {
         id: pantallaIngredientes
-        
+
         Column {
             anchors.fill: parent
             anchors.margins: 40
             spacing: 25
-            
+
             property var ingredientes: []
-            
+            property bool mostrarFormulario: false
+            property int ingredienteEditando: -1
+
             Row {
                 width: parent.width
-                
+
                 Text {
                     text: "Gestión de Ingredientes"
                     font.pixelSize: 28
@@ -990,42 +1056,257 @@ Window {
                     color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
                 }
-                
-                Item { width: parent.width - 550 }
-                
+
+                Item { width: parent.width - 400 }
+
                 Button {
-                    text: "Recargar"
-                    width: 120
+                    text: mostrarFormulario ? "Cancelar" : "+ Nuevo Ingrediente"
+                    width: 200
                     height: 40
                     background: Rectangle {
-                        color: "#00ffff"
+                        color: mostrarFormulario ? "#ff0055" : "#00ffff"
                         radius: 6
                     }
                     contentItem: Text {
                         text: parent.text
-                        color: "#050510"
+                        color: mostrarFormulario ? "#ffffff" : "#050510"
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
                     }
-                    onClicked: cargarIngredientes()
+                    onClicked: {
+                        mostrarFormulario = !mostrarFormulario
+                        if (!mostrarFormulario) {
+                            ingredienteEditando = -1
+                            inputIngNombre.text = ""
+                            inputIngUnidad.text = ""
+                            inputIngCosto.text = ""
+                            inputIngStock.text = ""
+                            inputIngMinStock.text = ""
+                        }
+                    }
                 }
             }
-            
+
+            // FORMULARIO
             Rectangle {
                 width: parent.width
-                height: parent.height - 100
+                height: 280
+                visible: mostrarFormulario
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
                 radius: 10
-                
+
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 15
+
+                    Text {
+                        text: ingredienteEditando >= 0 ? "Editar Ingrediente" : "Nuevo Ingrediente"
+                        font.pixelSize: 18
+                        font.bold: true
+                        color: "#00ffff"
+                    }
+
+                    Row {
+                        width: parent.width
+                        spacing: 15
+
+                        Column {
+                            width: (parent.width - 30) / 3
+                            spacing: 5
+                            Text {
+                                text: "Nombre:"
+                                font.pixelSize: 12
+                                color: "#8080a0"
+                            }
+                            TextField {
+                                id: inputIngNombre
+                                width: parent.width
+                                placeholderText: "Café, Leche, Azúcar..."
+                                color: "#e0e0ff"
+                                background: Rectangle {
+                                    color: "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 1
+                                    radius: 4
+                                }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 30) / 3
+                            spacing: 5
+                            Text {
+                                text: "Unidad:"
+                                font.pixelSize: 12
+                                color: "#8080a0"
+                            }
+                            TextField {
+                                id: inputIngUnidad
+                                width: parent.width
+                                placeholderText: "kg, L, unidades..."
+                                color: "#e0e0ff"
+                                background: Rectangle {
+                                    color: "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 1
+                                    radius: 4
+                                }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 30) / 3
+                            spacing: 5
+                            Text {
+                                text: "Costo por Unidad:"
+                                font.pixelSize: 12
+                                color: "#8080a0"
+                            }
+                            TextField {
+                                id: inputIngCosto
+                                width: parent.width
+                                placeholderText: "0.00"
+                                color: "#e0e0ff"
+                                background: Rectangle {
+                                    color: "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 1
+                                    radius: 4
+                                }
+                            }
+                        }
+                    }
+
+                    Row {
+                        width: parent.width
+                        spacing: 15
+
+                        Column {
+                            width: (parent.width - 15) / 2
+                            spacing: 5
+                            Text {
+                                text: "Stock Inicial:"
+                                font.pixelSize: 12
+                                color: "#8080a0"
+                            }
+                            TextField {
+                                id: inputIngStock
+                                width: parent.width
+                                placeholderText: "100"
+                                color: "#e0e0ff"
+                                background: Rectangle {
+                                    color: "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 1
+                                    radius: 4
+                                }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 15) / 2
+                            spacing: 5
+                            Text {
+                                text: "Stock Mínimo:"
+                                font.pixelSize: 12
+                                color: "#8080a0"
+                            }
+                            TextField {
+                                id: inputIngMinStock
+                                width: parent.width
+                                placeholderText: "10"
+                                color: "#e0e0ff"
+                                background: Rectangle {
+                                    color: "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 1
+                                    radius: 4
+                                }
+                            }
+                        }
+                    }
+
+                    Button {
+                        text: ingredienteEditando >= 0 ? "ACTUALIZAR INGREDIENTE" : "GUARDAR INGREDIENTE"
+                        width: 250
+                        height: 40
+                        background: Rectangle {
+                            color: "#00ff80"
+                            radius: 6
+                        }
+                        contentItem: Text {
+                            text: parent.text
+                            color: "#050510"
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        onClicked: {
+                            var datos = {
+                                nombre: inputIngNombre.text,
+                                unidad: inputIngUnidad.text,
+                                costo_por_unidad: parseFloat(inputIngCosto.text) || 0,
+                                stock: parseFloat(inputIngStock.text) || 0,
+                                min_stock: parseFloat(inputIngMinStock.text) || 0
+                            }
+
+                            if (ingredienteEditando >= 0) {
+                                // Actualizar
+                                api.put("/ingredientes/" + ingredienteEditando, datos, function(exito, resp) {
+                                    if (exito) {
+                                        notificacion.mostrar("✅ Ingrediente actualizado")
+                                        inputIngNombre.text = ""
+                                        inputIngUnidad.text = ""
+                                        inputIngCosto.text = ""
+                                        inputIngStock.text = ""
+                                        inputIngMinStock.text = ""
+                                        mostrarFormulario = false
+                                        ingredienteEditando = -1
+                                        cargarIngredientes()
+                                    } else {
+                                        notificacion.mostrar("❌ Error al actualizar")
+                                    }
+                                })
+                            } else {
+                                // Crear
+                                api.post("/ingredientes/", datos, function(exito, resp) {
+                                    if (exito) {
+                                        notificacion.mostrar("✅ Ingrediente creado")
+                                        inputIngNombre.text = ""
+                                        inputIngUnidad.text = ""
+                                        inputIngCosto.text = ""
+                                        inputIngStock.text = ""
+                                        inputIngMinStock.text = ""
+                                        mostrarFormulario = false
+                                        cargarIngredientes()
+                                    } else {
+                                        notificacion.mostrar("❌ Error al crear")
+                                    }
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // LISTA
+            Rectangle {
+                width: parent.width
+                height: mostrarFormulario ? parent.height - 410 : parent.height - 120
+                color: "#0a0a1f"
+                border.color: "#00ffff"
+                border.width: 2
+                radius: 10
+
                 ListView {
                     anchors.fill: parent
                     anchors.margins: 20
                     spacing: 12
                     clip: true
                     model: ingredientes
-                    
+
                     delegate: Rectangle {
                         width: parent.width
                         height: 80
@@ -1033,17 +1314,17 @@ Window {
                         border.color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ffff"
                         border.width: 2
                         radius: 8
-                        
+
                         Row {
                             anchors.fill: parent
                             anchors.margins: 15
-                            spacing: 20
-                            
+                            spacing: 15
+
                             Column {
-                                width: 300
+                                width: 250
                                 anchors.verticalCenter: parent.verticalCenter
                                 spacing: 5
-                                
+
                                 Text {
                                     text: modelData.nombre
                                     font.pixelSize: 16
@@ -1051,29 +1332,30 @@ Window {
                                     color: "#e0e0ff"
                                 }
                                 Text {
-                                    text: "Stock: " + modelData.stock + " " + modelData.unidad + " (Min: " + modelData.min_stock + ")"
+                                    text: "Stock: " + modelData.stock + " " + modelData.unidad + " (Mín: " + modelData.min_stock + ")"
                                     font.pixelSize: 12
                                     color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ff80"
                                 }
                             }
-                            
-                            Item { width: parent.width - 700 }
-                            
+
                             Text {
                                 text: "$" + modelData.costo_por_unidad.toFixed(2) + "/" + modelData.unidad
                                 font.pixelSize: 16
                                 font.bold: true
                                 color: "#00ffff"
                                 anchors.verticalCenter: parent.verticalCenter
-                            }
-                            
-                            Button {
-                                text: "Ajustar Stock"
                                 width: 120
+                            }
+
+                            Item { width: parent.width - 700 }
+
+                            Button {
+                                text: "Editar"
+                                width: 90
                                 height: 35
                                 anchors.verticalCenter: parent.verticalCenter
                                 background: Rectangle {
-                                    color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ff80"
+                                    color: "#00ff80"
                                     radius: 6
                                 }
                                 contentItem: Text {
@@ -1084,7 +1366,41 @@ Window {
                                     horizontalAlignment: Text.AlignHCenter
                                 }
                                 onClicked: {
-                                    notificacion.mostrar("Ajuste de stock en desarrollo")
+                                    ingredienteEditando = modelData.id
+                                    inputIngNombre.text = modelData.nombre || ""
+                                    inputIngUnidad.text = modelData.unidad || ""
+                                    inputIngCosto.text = modelData.costo_por_unidad.toString() || "0"
+                                    inputIngStock.text = modelData.stock.toString() || "0"
+                                    inputIngMinStock.text = modelData.min_stock.toString() || "0"
+                                    mostrarFormulario = true
+                                }
+                            }
+
+                            Button {
+                                text: "Eliminar"
+                                width: 90
+                                height: 35
+                                anchors.verticalCenter: parent.verticalCenter
+                                background: Rectangle {
+                                    color: "#ff0055"
+                                    radius: 6
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: "#ffffff"
+                                    font.bold: true
+                                    font.pixelSize: 11
+                                    horizontalAlignment: Text.AlignHCenter
+                                }
+                                onClicked: {
+                                    api.del("/ingredientes/" + modelData.id, function(exito, resp) {
+                                        if (exito) {
+                                            notificacion.mostrar("✅ Ingrediente eliminado")
+                                            cargarIngredientes()
+                                        } else {
+                                            notificacion.mostrar("❌ Error al eliminar")
+                                        }
+                                    })
                                 }
                             }
                         }
