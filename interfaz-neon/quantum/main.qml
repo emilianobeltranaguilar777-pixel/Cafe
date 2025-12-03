@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
+import QtGraphicalEffects 1.15
 
 Window {
     id: root
@@ -519,6 +520,20 @@ Window {
                             ColorAnimation { to: "#00ff95"; duration: 3000; easing.type: Easing.InOutSine }
                             ColorAnimation { to: "#00eaff"; duration: 3000; easing.type: Easing.InOutSine }
                         }
+
+                        layer.enabled: true
+                        layer.effect: Glow {
+                            samples: 25
+                            color: "#00eaff"
+                            spread: 0.8
+                            radius: 16
+
+                            SequentialAnimation on color {
+                                loops: Animation.Infinite
+                                ColorAnimation { to: "#00ff95"; duration: 3000; easing.type: Easing.InOutSine }
+                                ColorAnimation { to: "#00eaff"; duration: 3000; easing.type: Easing.InOutSine }
+                            }
+                        }
                     }
 
                     Item { width: parent.width - 700 }
@@ -531,7 +546,7 @@ Window {
                     color: Qt.rgba(0, 0.92, 1, 0.1)
                     radius: 25
                     border.color: "#00eaff"
-                    border.width: 2
+                    border.width: 3
                     anchors.verticalCenter: parent.verticalCenter
 
                     opacity: 1.0
@@ -547,6 +562,20 @@ Window {
                         ColorAnimation { to: "#00eaff"; duration: 2500; easing.type: Easing.InOutSine }
                     }
 
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 25
+                        color: "#00eaff"
+                        spread: 0.7
+                        radius: 14
+
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { to: "#00ff95"; duration: 2500; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#00eaff"; duration: 2500; easing.type: Easing.InOutSine }
+                        }
+                    }
+
                     Row {
                         anchors.centerIn: parent
                         spacing: 10
@@ -555,6 +584,12 @@ Window {
                             text: "🌙"
                             font.pixelSize: 22
                             anchors.verticalCenter: parent.verticalCenter
+
+                            SequentialAnimation on scale {
+                                loops: Animation.Infinite
+                                NumberAnimation { to: 1.2; duration: 2000; easing.type: Easing.InOutSine }
+                                NumberAnimation { to: 1.0; duration: 2000; easing.type: Easing.InOutSine }
+                            }
                         }
 
                         Text {
@@ -591,17 +626,45 @@ Window {
                 spacing: 20
 
                 Rectangle {
+                    id: statCard1
                     width: 260
                     height: 140
                     color: "#0a0a1f"
                     border.color: "#00ff95"
-                    border.width: 2
+                    border.width: 3
                     radius: 12
+                    scale: 1.0
+
+                    Behavior on scale {
+                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                    }
 
                     SequentialAnimation on border.color {
                         loops: Animation.Infinite
                         ColorAnimation { to: "#00eaff"; duration: 2000; easing.type: Easing.InOutSine }
                         ColorAnimation { to: "#00ff95"; duration: 2000; easing.type: Easing.InOutSine }
+                    }
+
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 20
+                        color: "#00ff95"
+                        spread: 0.6
+                        radius: 12
+
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { to: "#00eaff"; duration: 2000; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#00ff95"; duration: 2000; easing.type: Easing.InOutSine }
+                        }
+                    }
+
+                    MouseArea {
+                        id: hoverArea1
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: statCard1.scale = 1.05
+                        onExited: statCard1.scale = 1.0
                     }
 
                     Column {
@@ -634,17 +697,45 @@ Window {
                 }
 
                 Rectangle {
+                    id: statCard2
                     width: 260
                     height: 140
                     color: "#0a0a1f"
                     border.color: "#00eaff"
-                    border.width: 2
+                    border.width: 3
+                    scale: 1.0
+
+                    Behavior on scale {
+                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                    }
                     radius: 12
 
                     SequentialAnimation on border.color {
                         loops: Animation.Infinite
                         ColorAnimation { to: "#00ff95"; duration: 2200; easing.type: Easing.InOutSine }
                         ColorAnimation { to: "#00eaff"; duration: 2200; easing.type: Easing.InOutSine }
+                    }
+
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 20
+                        color: "#00eaff"
+                        spread: 0.6
+                        radius: 12
+
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { to: "#00ff95"; duration: 2200; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#00eaff"; duration: 2200; easing.type: Easing.InOutSine }
+                        }
+                    }
+
+                    MouseArea {
+                        id: hoverArea2
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: statCard2.scale = 1.05
+                        onExited: statCard2.scale = 1.0
                     }
 
                     Column {
@@ -677,18 +768,47 @@ Window {
                 }
 
                 Rectangle {
+                    id: statCard3
                     width: 260
                     height: 140
                     color: "#0a0a1f"
                     border.color: stats && stats.alertas_stock > 0 ? "#ff0055" : "#00ff95"
-                    border.width: 2
+                    border.width: 3
                     radius: 12
+                    scale: 1.0
+
+                    Behavior on scale {
+                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                    }
 
                     SequentialAnimation on border.color {
                         loops: Animation.Infinite
                         running: !(stats && stats.alertas_stock > 0)
                         ColorAnimation { to: "#00eaff"; duration: 2400; easing.type: Easing.InOutSine }
                         ColorAnimation { to: "#00ff95"; duration: 2400; easing.type: Easing.InOutSine }
+                    }
+
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 20
+                        color: stats && stats.alertas_stock > 0 ? "#ff0055" : "#00ff95"
+                        spread: 0.6
+                        radius: 12
+
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            running: !(stats && stats.alertas_stock > 0)
+                            ColorAnimation { to: "#00eaff"; duration: 2400; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#00ff95"; duration: 2400; easing.type: Easing.InOutSine }
+                        }
+                    }
+
+                    MouseArea {
+                        id: hoverArea3
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: statCard3.scale = 1.05
+                        onExited: statCard3.scale = 1.0
                     }
 
                     Column {
@@ -721,17 +841,45 @@ Window {
                 }
 
                 Rectangle {
+                    id: statCard4
                     width: 260
                     height: 140
                     color: "#0a0a1f"
                     border.color: "#00eaff"
-                    border.width: 2
+                    border.width: 3
                     radius: 12
+                    scale: 1.0
+
+                    Behavior on scale {
+                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                    }
 
                     SequentialAnimation on border.color {
                         loops: Animation.Infinite
                         ColorAnimation { to: "#00ff95"; duration: 1800; easing.type: Easing.InOutSine }
                         ColorAnimation { to: "#00eaff"; duration: 1800; easing.type: Easing.InOutSine }
+                    }
+
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 20
+                        color: "#00eaff"
+                        spread: 0.6
+                        radius: 12
+
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { to: "#00ff95"; duration: 1800; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#00eaff"; duration: 1800; easing.type: Easing.InOutSine }
+                        }
+                    }
+
+                    MouseArea {
+                        id: hoverArea4
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onEntered: statCard4.scale = 1.05
+                        onExited: statCard4.scale = 1.0
                     }
 
                     Column {
@@ -771,12 +919,33 @@ Window {
 
                 // Productos Más Vendidos
                 Rectangle {
+                    id: topProductsCard
                     width: (parent.width - 20) / 2
                     height: 280
                     color: "#0a0a1f"
                     border.color: "#00ffff"
-                    border.width: 2
+                    border.width: 3
                     radius: 12
+
+                    SequentialAnimation on border.color {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00ff95"; duration: 2500; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00ffff"; duration: 2500; easing.type: Easing.InOutSine }
+                    }
+
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 20
+                        color: "#00ffff"
+                        spread: 0.5
+                        radius: 10
+
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { to: "#00ff95"; duration: 2500; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#00ffff"; duration: 2500; easing.type: Easing.InOutSine }
+                        }
+                    }
 
                     Column {
                         anchors.fill: parent
@@ -860,12 +1029,33 @@ Window {
 
                 // Quick Stats
                 Rectangle {
+                    id: quickSummaryCard
                     width: (parent.width - 20) / 2
                     height: 280
                     color: "#0a0a1f"
                     border.color: "#00ff80"
-                    border.width: 2
+                    border.width: 3
                     radius: 12
+
+                    SequentialAnimation on border.color {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00eaff"; duration: 2300; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00ff80"; duration: 2300; easing.type: Easing.InOutSine }
+                    }
+
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 20
+                        color: "#00ff80"
+                        spread: 0.5
+                        radius: 10
+
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { to: "#00eaff"; duration: 2300; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#00ff80"; duration: 2300; easing.type: Easing.InOutSine }
+                        }
+                    }
 
                     Column {
                         anchors.fill: parent
