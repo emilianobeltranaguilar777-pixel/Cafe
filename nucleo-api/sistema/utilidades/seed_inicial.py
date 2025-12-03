@@ -4,7 +4,7 @@ Carga datos iniciales: usuarios, roles y permisos
 """
 from sqlmodel import Session, select
 from sistema.entidades import Usuario, Rol, PermisoRol, Accion
-from sistema.configuracion import hash_password
+from sistema.configuracion import hash_password, verificar_password
 
 
 def inicializar_datos(session: Session):
@@ -34,6 +34,31 @@ def inicializar_datos(session: Session):
         print("   ✅ Usuario admin creado (user: admin, pass: admin123)")
     else:
         print("   ℹ️  Usuario admin ya existe")
+        actualizado = False
+
+        try:
+            password_valida = verificar_password("admin123", admin_existente.password_hash)
+        except ValueError:
+            password_valida = False
+
+        if not password_valida:
+            print("   🔄 Restableciendo contraseña por defecto para admin")
+            admin_existente.password_hash = hash_password("admin123")
+            actualizado = True
+
+        if admin_existente.rol != Rol.ADMIN:
+            print("   🔄 Ajustando rol de admin a ADMIN")
+            admin_existente.rol = Rol.ADMIN
+            actualizado = True
+
+        if not admin_existente.activo:
+            print("   🔄 Activando usuario admin")
+            admin_existente.activo = True
+            actualizado = True
+
+        if actualizado:
+            session.add(admin_existente)
+            session.commit()
     
     # ==================== PERMISOS BASE ====================
     permisos_base = [
