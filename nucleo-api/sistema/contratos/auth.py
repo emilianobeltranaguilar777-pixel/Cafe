@@ -1,4 +1,4 @@
-"""
+"
 📋 CONTRATOS DE AUTENTICACIÓN - ELCAFESIN
 Schemas Pydantic para auth
 """
