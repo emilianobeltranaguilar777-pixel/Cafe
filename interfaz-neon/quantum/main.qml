@@ -3705,48 +3705,52 @@ Window {
             onBusquedaChanged: actualizarLogs()
 
             // Título con indicador
-            Row {
+            Column {
                 width: parent.width
-                spacing: 15
+                spacing: 6
 
                 Text {
-                    text: "📋"
-                    font.pixelSize: 40
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-
-                Text {
-                    text: "Sistema de Auditoría"
-                    font.pixelSize: 28
+                    text: "Lunar Activity Trail"
+                    font.pixelSize: 32
                     font.bold: true
-                    color: "#00ffff"
-                    anchors.verticalCenter: parent.verticalCenter
+                    font.letterSpacing: 1.5
+                    color: "#00eaff"
+
+                    SequentialAnimation on color {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00ff95"; duration: 3000; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00eaff"; duration: 3000; easing.type: Easing.InOutSine }
+                    }
                 }
 
-                Rectangle {
-                    visible: usandoDatosEjemplo
-                    width: 150
-                    height: 28
-                    color: Qt.rgba(1, 0.65, 0, 0.2)
-                    radius: 14
-                    border.color: "#ffaa00"
-                    border.width: 1
-                    anchors.verticalCenter: parent.verticalCenter
+                Row {
+                    spacing: 10
 
-                    Row {
-                        anchors.centerIn: parent
-                        spacing: 6
+                    Text {
+                        text: "Digital Footprints"
+                        font.pixelSize: 14
+                        font.italic: true
+                        color: "#8080a0"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Rectangle {
+                        visible: usandoDatosEjemplo
+                        width: 140
+                        height: 26
+                        color: Qt.rgba(1, 0.65, 0, 0.15)
+                        radius: 13
+                        border.color: "#ffaa00"
+                        border.width: 1
+                        anchors.verticalCenter: parent.verticalCenter
+
                         Text {
-                            text: "📊"
-                            font.pixelSize: 14
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-                        Text {
-                            text: "Vista Previa"
+                            anchors.centerIn: parent
+                            text: "Preview Data"
                             font.pixelSize: 11
                             font.bold: true
+                            font.letterSpacing: 0.5
                             color: "#ffaa00"
-                            anchors.verticalCenter: parent.verticalCenter
                         }
                     }
                 }
@@ -4070,31 +4074,35 @@ Window {
                         model: logsActuales
 
                         delegate: Rectangle {
+                            id: logEntry
                             width: parent.width
                             height: 70
                             color: Qt.rgba(0, 0, 0, 0.3)
                             radius: 6
-                            border.color: modelData.tipo === "sesion" ? "#0088ff" : "#ffaa00"
                             border.width: 1
+
+                            property color statusColor: {
+                                if (modelData.accion === "LOGIN") return "#00ff95"
+                                if (modelData.accion === "LOGOUT") return "#ffaa00"
+                                if (modelData.tipo === "movimiento") return "#ff0055"
+                                return "#00eaff"
+                            }
+
+                            border.color: statusColor
 
                             Rectangle {
                                 anchors.left: parent.left
-                                width: 4
+                                width: 5
                                 height: parent.height
                                 radius: 2
-                                color: modelData.tipo === "sesion" ? "#0088ff" : "#ffaa00"
+                                color: statusColor
+                                opacity: 0.8
                             }
 
                             Row {
                                 anchors.fill: parent
                                 anchors.margins: 12
                                 spacing: 15
-
-                                Text {
-                                    text: modelData.tipo === "sesion" ? "🔐" : "📦"
-                                    font.pixelSize: 28
-                                    anchors.verticalCenter: parent.verticalCenter
-                                }
 
                                 Column {
                                     width: parent.width * 0.3
@@ -4113,7 +4121,8 @@ Window {
                                     Text {
                                         text: modelData.accion
                                         font.pixelSize: 11
-                                        color: "#ff0080"
+                                        font.bold: true
+                                        color: logEntry.statusColor
                                         elide: Text.ElideRight
                                         width: parent.width
                                     }
