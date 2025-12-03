@@ -10,12 +10,17 @@ from sistema.entidades import Ingrediente, Usuario
 
 router = APIRouter(prefix="/ingredientes", tags=["🥫 Ingredientes"])
 
+permiso_crear_ingrediente = requiere_permiso("inventario", "crear")
+permiso_ver_ingredientes = requiere_permiso("inventario", "ver")
+permiso_editar_ingrediente = requiere_permiso("inventario", "editar")
+permiso_eliminar_ingrediente = requiere_permiso("inventario", "eliminar")
+
 
 @router.post("/", response_model=Ingrediente)
 def crear_ingrediente(
     ingrediente: Ingrediente,
     session: Session = Depends(obtener_sesion),
-    usuario_actual: Usuario = Depends(requiere_permiso("inventario", "crear"))
+    usuario_actual: Usuario = Depends(permiso_crear_ingrediente)
 ):
     """➕ Crear nuevo ingrediente"""
     session.add(ingrediente)
@@ -32,7 +37,7 @@ def listar_ingredientes(
     limit: int = Query(100, le=500),
     offset: int = 0,
     session: Session = Depends(obtener_sesion),
-    usuario_actual: Usuario = Depends(requiere_permiso("inventario", "ver"))
+    usuario_actual: Usuario = Depends(permiso_ver_ingredientes)
 ):
     """
     📋 Listar ingredientes con filtros
@@ -61,7 +66,7 @@ def listar_ingredientes(
 def obtener_ingrediente(
     ingrediente_id: int,
     session: Session = Depends(obtener_sesion),
-    usuario_actual: Usuario = Depends(requiere_permiso("inventario", "ver"))
+    usuario_actual: Usuario = Depends(permiso_ver_ingredientes)
 ):
     """🔍 Obtener ingrediente por ID"""
     ingrediente = session.get(Ingrediente, ingrediente_id)
@@ -77,7 +82,7 @@ def actualizar_ingrediente(
     ingrediente_id: int,
     datos: Ingrediente,
     session: Session = Depends(obtener_sesion),
-    usuario_actual: Usuario = Depends(requiere_permiso("inventario", "editar"))
+    usuario_actual: Usuario = Depends(permiso_editar_ingrediente)
 ):
     """✏️ Actualizar ingrediente"""
     ingrediente = session.get(Ingrediente, ingrediente_id)
@@ -103,7 +108,7 @@ def actualizar_ingrediente(
 def eliminar_ingrediente(
     ingrediente_id: int,
     session: Session = Depends(obtener_sesion),
-    usuario_actual: Usuario = Depends(requiere_permiso("inventario", "eliminar"))
+    usuario_actual: Usuario = Depends(permiso_eliminar_ingrediente)
 ):
     """🗑️ Eliminar ingrediente"""
     ingrediente = session.get(Ingrediente, ingrediente_id)
