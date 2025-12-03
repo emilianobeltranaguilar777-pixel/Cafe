@@ -1000,8 +1000,11 @@ Window {
             anchors.fill: parent
             anchors.margins: 40
             spacing: 25
-            
+
             property var ingredientes: []
+            property bool mostrarFormulario: false
+            property var ingredienteEditando: null
+            property string mensajeError: ""
             
             Row {
                 width: parent.width
@@ -1013,9 +1016,34 @@ Window {
                     color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
                 }
-                
+
                 Item { width: parent.width - 550 }
-                
+
+                Button {
+                    text: mostrarFormulario ? "Cancelar" : "+ Nuevo Ingrediente"
+                    width: 200
+                    height: 40
+                    background: Rectangle {
+                        color: mostrarFormulario ? "#ff0055" : "#00ffff"
+                        radius: 6
+                    }
+                    contentItem: Text {
+                        text: parent.text
+                        color: mostrarFormulario ? "#ffffff" : "#050510"
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    onClicked: {
+                        if (mostrarFormulario) {
+                            limpiarFormularioIngrediente()
+                            mostrarFormulario = false
+                        } else {
+                            limpiarFormularioIngrediente()
+                            mostrarFormulario = true
+                        }
+                    }
+                }
+
                 Button {
                     text: "Recargar"
                     width: 120
@@ -1033,15 +1061,214 @@ Window {
                     onClicked: cargarIngredientes()
                 }
             }
-            
+
+            // FORMULARIO DE INGREDIENTES
             Rectangle {
                 width: parent.width
-                height: parent.height - 100
+                height: mostrarFormulario ? 260 : 0
+                visible: mostrarFormulario
+                color: "#0a0a1f"
+                border.color: ingredienteEditando ? "#00ff80" : "#00ffff"
+                border.width: 2
+                radius: 10
+                clip: true
+
+                Behavior on height {
+                    NumberAnimation { duration: 200 }
+                }
+
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 12
+
+                    Text {
+                        text: ingredienteEditando ? "Editar Ingrediente" : "Nuevo Ingrediente"
+                        font.pixelSize: 18
+                        font.bold: true
+                        color: ingredienteEditando ? "#00ff80" : "#00ffff"
+                    }
+
+                    Row {
+                        width: parent.width
+                        spacing: 12
+
+                        Column {
+                            width: (parent.width - 24) / 3
+                            spacing: 5
+                            Text { text: "Nombre"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputNombreIngrediente
+                                width: parent.width
+                                color: "#e0e0ff"
+                                placeholderText: "Café Arábica"
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 24) / 3
+                            spacing: 5
+                            Text { text: "Unidad"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputUnidadIngrediente
+                                width: parent.width
+                                color: "#e0e0ff"
+                                placeholderText: "kg, l, pza"
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 24) / 3
+                            spacing: 5
+                            Text { text: "Costo por unidad"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputCostoIngrediente
+                                width: parent.width
+                                color: "#e0e0ff"
+                                placeholderText: "0.00"
+                                validator: DoubleValidator { bottom: 0 }
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+                    }
+
+                    Row {
+                        width: parent.width
+                        spacing: 12
+
+                        Column {
+                            width: (parent.width - 12) / 2
+                            spacing: 5
+                            Text { text: "Stock"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputStockIngrediente
+                                width: parent.width
+                                color: "#e0e0ff"
+                                placeholderText: "0"
+                                validator: DoubleValidator { bottom: 0 }
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 12) / 2
+                            spacing: 5
+                            Text { text: "Stock mínimo"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputMinStockIngrediente
+                                width: parent.width
+                                color: "#e0e0ff"
+                                placeholderText: "0"
+                                validator: DoubleValidator { bottom: 0 }
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+                    }
+
+                    Text {
+                        text: mensajeError
+                        color: "#ff0055"
+                        font.pixelSize: 12
+                        visible: mensajeError.length > 0
+                    }
+
+                    Row {
+                        spacing: 12
+
+                        Button {
+                            text: ingredienteEditando ? "ACTUALIZAR INGREDIENTE" : "GUARDAR INGREDIENTE"
+                            width: 220
+                            height: 40
+                            background: Rectangle { color: "#00ff80"; radius: 6 }
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#050510"
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+                            onClicked: {
+                                mensajeError = ""
+                                var nombre = inputNombreIngrediente.text.trim()
+                                var unidad = inputUnidadIngrediente.text.trim()
+                                var costo = parseFloat(inputCostoIngrediente.text)
+                                var stock = parseFloat(inputStockIngrediente.text)
+                                var minStock = parseFloat(inputMinStockIngrediente.text)
+
+                                if (!nombre || !unidad) {
+                                    mensajeError = "Nombre y unidad son obligatorios"
+                                    notificacion.mostrar("Completa los campos requeridos")
+                                    return
+                                }
+                                if (isNaN(costo) || isNaN(stock) || isNaN(minStock)) {
+                                    mensajeError = "Costo, stock y mínimo deben ser numéricos"
+                                    notificacion.mostrar("Verifica los campos numéricos")
+                                    return
+                                }
+
+                                var payload = {
+                                    nombre: nombre,
+                                    unidad: unidad,
+                                    costo_por_unidad: costo,
+                                    stock: stock,
+                                    min_stock: minStock,
+                                    proveedor_id: null
+                                }
+
+                                if (ingredienteEditando) {
+                                    api.put("/ingredientes/" + ingredienteEditando, payload, function(exito, resp) {
+                                        if (exito) {
+                                            notificacion.mostrar("Ingrediente actualizado")
+                                            limpiarFormularioIngrediente()
+                                            mostrarFormulario = false
+                                            cargarIngredientes()
+                                        } else {
+                                            mensajeError = resp && resp.detail ? resp.detail : resp
+                                            notificacion.mostrar("Error al actualizar")
+                                        }
+                                    })
+                                } else {
+                                    api.post("/ingredientes/", payload, function(exito, resp) {
+                                        if (exito) {
+                                            notificacion.mostrar("Ingrediente creado")
+                                            limpiarFormularioIngrediente()
+                                            mostrarFormulario = false
+                                            cargarIngredientes()
+                                        } else {
+                                            mensajeError = resp && resp.detail ? resp.detail : resp
+                                            notificacion.mostrar("Error al crear")
+                                        }
+                                    })
+                                }
+                            }
+                        }
+
+                        Button {
+                            text: "Recargar"
+                            width: 120
+                            height: 40
+                            background: Rectangle { color: "#00ffff"; radius: 6 }
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#050510"
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+                            onClicked: cargarIngredientes()
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                width: parent.width
+                height: parent.height - (mostrarFormulario ? 340 : 100)
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
                 radius: 10
-                
+
                 ListView {
                     anchors.fill: parent
                     anchors.margins: 20
@@ -1089,7 +1316,22 @@ Window {
                                 color: "#00ffff"
                                 anchors.verticalCenter: parent.verticalCenter
                             }
-                            
+
+                            Button {
+                                text: "Editar"
+                                width: 90
+                                height: 35
+                                anchors.verticalCenter: parent.verticalCenter
+                                background: Rectangle { color: "#00ff80"; radius: 6 }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: "#050510"
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                }
+                                onClicked: prepararEdicionIngrediente(modelData)
+                            }
+
                             Button {
                                 text: "Ajustar Stock"
                                 width: 120
@@ -1107,8 +1349,24 @@ Window {
                                     horizontalAlignment: Text.AlignHCenter
                                 }
                                 onClicked: {
-                                    notificacion.mostrar("Ajuste de stock en desarrollo")
+                                    prepararEdicionIngrediente(modelData)
+                                    inputStockIngrediente.forceActiveFocus()
                                 }
+                            }
+
+                            Button {
+                                text: "Eliminar"
+                                width: 90
+                                height: 35
+                                anchors.verticalCenter: parent.verticalCenter
+                                background: Rectangle { color: "#ff0055"; radius: 6 }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: "#ffffff"
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                }
+                                onClicked: eliminarIngrediente(modelData)
                             }
                         }
                     }
@@ -1116,13 +1374,58 @@ Window {
             }
             
             Component.onCompleted: cargarIngredientes()
-            
+
             function cargarIngredientes() {
                 api.get("/ingredientes/", function(exito, datos) {
                     if (exito) {
                         ingredientes = datos
+                    } else {
+                        mensajeError = datos
+                        notificacion.mostrar("Error al cargar ingredientes")
                     }
                 })
+            }
+
+            function prepararEdicionIngrediente(datos) {
+                ingredienteEditando = datos.id
+                inputNombreIngrediente.text = datos.nombre
+                inputUnidadIngrediente.text = datos.unidad
+                inputCostoIngrediente.text = datos.costo_por_unidad
+                inputStockIngrediente.text = datos.stock
+                inputMinStockIngrediente.text = datos.min_stock
+                mensajeError = ""
+                mostrarFormulario = true
+            }
+
+            function eliminarIngrediente(datos) {
+                if (!datos || !datos.id)
+                    return
+
+                mensajeError = ""
+
+                api.del("/ingredientes/" + datos.id, function(exito, resp) {
+                    if (exito) {
+                        notificacion.mostrar("Ingrediente eliminado")
+                        if (ingredienteEditando === datos.id) {
+                            limpiarFormularioIngrediente()
+                            mostrarFormulario = false
+                        }
+                        cargarIngredientes()
+                    } else {
+                        mensajeError = resp && resp.detail ? resp.detail : resp
+                        notificacion.mostrar("Error al eliminar")
+                    }
+                })
+            }
+
+            function limpiarFormularioIngrediente() {
+                mensajeError = ""
+                ingredienteEditando = null
+                inputNombreIngrediente.text = ""
+                inputUnidadIngrediente.text = ""
+                inputCostoIngrediente.text = ""
+                inputStockIngrediente.text = ""
+                inputMinStockIngrediente.text = ""
             }
         }
     }
