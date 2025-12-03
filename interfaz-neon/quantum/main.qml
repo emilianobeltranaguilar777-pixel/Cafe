@@ -609,33 +609,55 @@ Window {
                 }
             }
             
+            // Info del Sistema
             Rectangle {
                 width: parent.width
-                height: 220
+                height: 120
                 color: "#0a0a1f"
-                border.color: "#00ff80"
+                border.color: "#00ffff"
                 border.width: 2
                 radius: 10
-                
-                Column {
+
+                Row {
                     anchors.fill: parent
                     anchors.margins: 25
-                    spacing: 15
-                    
-                    Text {
-                        text: "PROYECTO COMPLETADO 100%"
-                        font.pixelSize: 22
-                        font.bold: true
-                        color: "#00ff80"
+                    spacing: 30
+
+                    Column {
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 8
+
+                        Text {
+                            text: "📊 Sistema Operativo"
+                            font.pixelSize: 18
+                            font.bold: true
+                            color: "#00ff80"
+                        }
+
+                        Text {
+                            text: "Todas las funcionalidades activas"
+                            font.pixelSize: 13
+                            color: "#8080a0"
+                        }
                     }
-                    
-                    Text {
-                        width: parent.width
-                        text: "• Backend FastAPI funcionando\n• Base de datos SQLite con datos\n• Sistema de autenticación JWT\n• Interfaz Qt/QML operativa\n• Navegación completa\n• Conexión API real\n• Todas las pantallas funcionales\n\nDocumentación: http://localhost:8000/docs"
-                        font.pixelSize: 14
-                        color: "#e0e0ff"
-                        wrapMode: Text.WordWrap
-                        lineHeight: 1.4
+
+                    Item { width: 100 }
+
+                    Column {
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 5
+
+                        Text {
+                            text: "API: " + root.backendUrl
+                            font.pixelSize: 12
+                            color: "#00ffff"
+                        }
+
+                        Text {
+                            text: "Docs: /docs"
+                            font.pixelSize: 12
+                            color: "#8080a0"
+                        }
                     }
                 }
             }
