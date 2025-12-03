@@ -730,29 +730,29 @@ Window {
             // FORMULARIO
             Rectangle {
                 width: parent.width
-                height: 200
+                height: 260
                 visible: mostrarFormulario
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
                 radius: 10
-                
+
                 Column {
                     anchors.fill: parent
                     anchors.margins: 20
                     spacing: 15
-                    
+
                     Text {
                         text: clienteEditando >= 0 ? "Editar Cliente" : "Nuevo Cliente"
                         font.pixelSize: 18
                         font.bold: true
                         color: "#00ffff"
                     }
-                    
+
                     Row {
                         width: parent.width
                         spacing: 15
-                        
+
                         Column {
                             width: (parent.width - 30) / 3
                             spacing: 5
@@ -773,7 +773,7 @@ Window {
                                 }
                             }
                         }
-                        
+
                         Column {
                             width: (parent.width - 30) / 3
                             spacing: 5
@@ -794,7 +794,7 @@ Window {
                                 }
                             }
                         }
-                        
+
                         Column {
                             width: (parent.width - 30) / 3
                             spacing: 5
@@ -816,7 +816,56 @@ Window {
                             }
                         }
                     }
-                    
+
+                    Row {
+                        width: parent.width
+                        spacing: 15
+
+                        Column {
+                            width: (parent.width - 15) / 2
+                            spacing: 5
+                            Text {
+                                text: "Dirección:"
+                                font.pixelSize: 12
+                                color: "#8080a0"
+                            }
+                            TextField {
+                                id: inputDireccion
+                                width: parent.width
+                                placeholderText: "Calle, número, colonia, ciudad"
+                                color: "#e0e0ff"
+                                background: Rectangle {
+                                    color: "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 1
+                                    radius: 4
+                                }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 15) / 2
+                            spacing: 5
+                            Text {
+                                text: "Alergias:"
+                                font.pixelSize: 12
+                                color: "#8080a0"
+                            }
+                            TextField {
+                                id: inputAlergias
+                                width: parent.width
+                                placeholderText: "Lactosa, gluten, nueces..."
+                                color: "#e0e0ff"
+                                background: Rectangle {
+                                    color: "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 1
+                                    radius: 4
+                                }
+                            }
+                        }
+                    }
+
                     Button {
                         text: clienteEditando >= 0 ? "ACTUALIZAR CLIENTE" : "GUARDAR CLIENTE"
                         width: 220
@@ -835,31 +884,24 @@ Window {
                             var datos = {
                                 nombre: inputNombre.text,
                                 correo: inputCorreo.text,
-                                telefono: inputTelefono.text
+                                telefono: inputTelefono.text,
+                                direccion: inputDireccion.text,
+                                alergias: inputAlergias.text
                             }
-                            
+
                             if (clienteEditando >= 0) {
-                                // Actualizar
                                 api.put("/clientes/" + clienteEditando, datos, function(exito, resp) {
                                     if (exito) {
                                         notificacion.mostrar("Cliente actualizado")
-                                        inputNombre.text = ""
-                                        inputCorreo.text = ""
-                                        inputTelefono.text = ""
-                                        mostrarFormulario = false
-                                        clienteEditando = -1
+                                        limpiarFormulario()
                                         cargarClientes()
                                     }
                                 })
                             } else {
-                                // Crear
                                 api.post("/clientes/", datos, function(exito, resp) {
                                     if (exito) {
                                         notificacion.mostrar("Cliente creado")
-                                        inputNombre.text = ""
-                                        inputCorreo.text = ""
-                                        inputTelefono.text = ""
-                                        mostrarFormulario = false
+                                        limpiarFormulario()
                                         cargarClientes()
                                     }
                                 })
@@ -868,7 +910,6 @@ Window {
                     }
                 }
             }
-            
             // LISTA
             Rectangle {
                 width: parent.width
@@ -916,14 +957,35 @@ Window {
                                 }
                             }
                             
-                            Text {
-                                text: modelData.telefono || "Sin teléfono"
-                                font.pixelSize: 14
-                                color: "#00ffff"
+                            Column {
+                                width: 300
                                 anchors.verticalCenter: parent.verticalCenter
+                                spacing: 4
+
+                                Text {
+                                    text: modelData.telefono || "Sin teléfono"
+                                    font.pixelSize: 14
+                                    color: "#00ffff"
+                                }
+                                Text {
+                                    text: modelData.direccion ? ("Dir: " + modelData.direccion) : "Sin dirección"
+                                    font.pixelSize: 11
+                                    color: "#8080a0"
+                                    elide: Text.ElideRight
+                                    width: parent.width
+                                }
                             }
-                            
-                            Item { width: parent.width - 650 }
+
+                            Text {
+                                text: modelData.alergias ? ("Alergias: " + modelData.alergias) : "Sin alergias"
+                                font.pixelSize: 12
+                                color: "#00ff80"
+                                anchors.verticalCenter: parent.verticalCenter
+                                width: 200
+                                elide: Text.ElideRight
+                            }
+
+                            Item { width: parent.width - 850 }
                             
                             Button {
                                 text: "Editar"
@@ -945,6 +1007,8 @@ Window {
                                     inputNombre.text = modelData.nombre || ""
                                     inputCorreo.text = modelData.correo || ""
                                     inputTelefono.text = modelData.telefono || ""
+                                    inputDireccion.text = modelData.direccion || ""
+                                    inputAlergias.text = modelData.alergias || ""
                                     mostrarFormulario = true
                                 }
                             }
@@ -987,6 +1051,16 @@ Window {
                     }
                 })
             }
+
+            function limpiarFormulario() {
+                clienteEditando = -1
+                mostrarFormulario = false
+                inputNombre.text = ""
+                inputCorreo.text = ""
+                inputTelefono.text = ""
+                inputDireccion.text = ""
+                inputAlergias.text = ""
+            }
         }
     }
     
@@ -995,128 +1069,266 @@ Window {
     // ============================================
     Component {
         id: pantallaIngredientes
-        
+
         Column {
             anchors.fill: parent
             anchors.margins: 40
             spacing: 25
-            
+
             property var ingredientes: []
-            
-            Row {
+            property bool mostrarFormulario: false
+            property int ingredienteEditando: -1
+
+            Item {
                 width: parent.width
-                
+                height: 50
+
                 Text {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
                     text: "Gestión de Ingredientes"
                     font.pixelSize: 28
                     font.bold: true
                     color: "#00ffff"
-                    anchors.verticalCenter: parent.verticalCenter
                 }
-                
-                Item { width: parent.width - 550 }
-                
-                Button {
-                    text: "Recargar"
-                    width: 120
-                    height: 40
-                    background: Rectangle {
-                        color: "#00ffff"
-                        radius: 6
+
+                Row {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 12
+
+                    Button {
+                        text: mostrarFormulario ? "Cancelar" : "+ Nuevo Ingrediente"
+                        width: 200
+                        height: 40
+                        background: Rectangle {
+                            color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                            radius: 6
+                        }
+                        contentItem: Text {
+                            text: parent.text
+                            color: "#050510"
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        onClicked: {
+                            if (mostrarFormulario) {
+                                limpiarFormulario()
+                            } else {
+                                prepararNuevoIngrediente()
+                            }
+                        }
                     }
-                    contentItem: Text {
-                        text: parent.text
-                        color: "#050510"
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
+
+                    Button {
+                        text: "Recargar"
+                        width: 120
+                        height: 40
+                        background: Rectangle {
+                            color: "#00ffff"
+                            radius: 6
+                        }
+                        contentItem: Text {
+                            text: parent.text
+                            color: "#050510"
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                        }
+                        onClicked: cargarIngredientes()
                     }
-                    onClicked: cargarIngredientes()
                 }
             }
-            
+
             Rectangle {
                 width: parent.width
-                height: parent.height - 100
+                height: 230
+                visible: mostrarFormulario
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
                 radius: 10
-                
+
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 12
+
+                    Text {
+                        text: ingredienteEditando >= 0 ? "Editar Ingrediente" : "Nuevo Ingrediente"
+                        font.pixelSize: 18
+                        font.bold: true
+                        color: "#00ffff"
+                    }
+
+                    Row {
+                        width: parent.width
+                        spacing: 12
+
+                        Column {
+                            width: (parent.width - 24) / 2
+                            spacing: 6
+                            Text { text: "Nombre"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputIngNombre
+                                width: parent.width
+                                placeholderText: "Café, leche, azúcar..."
+                                color: "#e0e0ff"
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 24) / 2
+                            spacing: 6
+                            Text { text: "Unidad"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputIngUnidad
+                                width: parent.width
+                                placeholderText: "kg, L, piezas"
+                                color: "#e0e0ff"
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+                    }
+
+                    Row {
+                        width: parent.width
+                        spacing: 12
+
+                        Column {
+                            width: (parent.width - 24) / 3
+                            spacing: 6
+                            Text { text: "Costo por unidad"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputIngCosto
+                                width: parent.width
+                                placeholderText: "0.00"
+                                color: "#e0e0ff"
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 24) / 3
+                            spacing: 6
+                            Text { text: "Stock"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputIngStock
+                                width: parent.width
+                                placeholderText: "100"
+                                color: "#e0e0ff"
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 24) / 3
+                            spacing: 6
+                            Text { text: "Stock mínimo"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputIngMinStock
+                                width: parent.width
+                                placeholderText: "10"
+                                color: "#e0e0ff"
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+                    }
+
+                    Button {
+                        text: ingredienteEditando >= 0 ? "ACTUALIZAR INGREDIENTE" : "GUARDAR INGREDIENTE"
+                        width: 240
+                        height: 40
+                        background: Rectangle { color: "#00ff80"; radius: 6 }
+                        contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                        onClicked: guardarIngrediente()
+                    }
+                }
+            }
+
+            Rectangle {
+                width: parent.width
+                height: parent.height - (mostrarFormulario ? 340 : 140)
+                color: "#0a0a1f"
+                border.color: "#00ffff"
+                border.width: 2
+                radius: 10
+
                 ListView {
                     anchors.fill: parent
                     anchors.margins: 20
                     spacing: 12
                     clip: true
                     model: ingredientes
-                    
+
                     delegate: Rectangle {
                         width: parent.width
-                        height: 80
+                        height: 90
                         color: (modelData.stock <= modelData.min_stock) ? "#2f1a1a" : "#1a1a2f"
                         border.color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ffff"
                         border.width: 2
                         radius: 8
-                        
+
                         Row {
                             anchors.fill: parent
                             anchors.margins: 15
                             spacing: 20
-                            
+
                             Column {
-                                width: 300
+                                width: 260
                                 anchors.verticalCenter: parent.verticalCenter
-                                spacing: 5
-                                
-                                Text {
-                                    text: modelData.nombre
-                                    font.pixelSize: 16
-                                    font.bold: true
-                                    color: "#e0e0ff"
-                                }
-                                Text {
-                                    text: "Stock: " + modelData.stock + " " + modelData.unidad + " (Min: " + modelData.min_stock + ")"
-                                    font.pixelSize: 12
-                                    color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ff80"
-                                }
+                                spacing: 4
+
+                                Text { text: modelData.nombre; font.pixelSize: 16; font.bold: true; color: "#e0e0ff" }
+                                Text { text: "Unidad: " + modelData.unidad; font.pixelSize: 12; color: "#8080a0" }
                             }
-                            
-                            Item { width: parent.width - 700 }
-                            
-                            Text {
-                                text: "$" + modelData.costo_por_unidad.toFixed(2) + "/" + modelData.unidad
-                                font.pixelSize: 16
-                                font.bold: true
-                                color: "#00ffff"
+
+                            Column {
+                                width: 250
                                 anchors.verticalCenter: parent.verticalCenter
+                                spacing: 4
+                                Text { text: "Stock: " + modelData.stock + " (Min: " + modelData.min_stock + ")"; font.pixelSize: 12; color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ff80" }
+                                Text { text: "$" + modelData.costo_por_unidad.toFixed(2) + "/" + modelData.unidad; font.pixelSize: 12; color: "#00ffff" }
                             }
-                            
+
+                            Item { width: parent.width - 850 }
+
                             Button {
-                                text: "Ajustar Stock"
-                                width: 120
+                                text: "Editar"
+                                width: 90
                                 height: 35
                                 anchors.verticalCenter: parent.verticalCenter
-                                background: Rectangle {
-                                    color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ff80"
-                                    radius: 6
-                                }
-                                contentItem: Text {
-                                    text: parent.text
-                                    color: "#050510"
-                                    font.bold: true
-                                    font.pixelSize: 11
-                                    horizontalAlignment: Text.AlignHCenter
-                                }
+                                background: Rectangle { color: "#00ff80"; radius: 6 }
+                                contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                                onClicked: prepararEdicionIngrediente(modelData)
+                            }
+
+                            Button {
+                                text: "Eliminar"
+                                width: 90
+                                height: 35
+                                anchors.verticalCenter: parent.verticalCenter
+                                background: Rectangle { color: "#ff0055"; radius: 6 }
+                                contentItem: Text { text: parent.text; color: "#ffffff"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
                                 onClicked: {
-                                    notificacion.mostrar("Ajuste de stock en desarrollo")
+                                    api.del("/ingredientes/" + modelData.id, function(exito, resp) {
+                                        if (exito) {
+                                            notificacion.mostrar("Ingrediente eliminado")
+                                            cargarIngredientes()
+                                        }
+                                    })
                                 }
                             }
                         }
                     }
                 }
             }
-            
+
             Component.onCompleted: cargarIngredientes()
-            
+
             function cargarIngredientes() {
                 api.get("/ingredientes/", function(exito, datos) {
                     if (exito) {
@@ -1124,151 +1336,270 @@ Window {
                     }
                 })
             }
+
+            function prepararNuevoIngrediente() {
+                ingredienteEditando = -1
+                mostrarFormulario = true
+                inputIngNombre.text = ""
+                inputIngUnidad.text = ""
+                inputIngCosto.text = ""
+                inputIngStock.text = ""
+                inputIngMinStock.text = ""
+            }
+
+            function prepararEdicionIngrediente(ing) {
+                ingredienteEditando = ing.id
+                mostrarFormulario = true
+                inputIngNombre.text = ing.nombre
+                inputIngUnidad.text = ing.unidad
+                inputIngCosto.text = ing.costo_por_unidad
+                inputIngStock.text = ing.stock
+                inputIngMinStock.text = ing.min_stock
+            }
+
+            function limpiarFormulario() {
+                ingredienteEditando = -1
+                mostrarFormulario = false
+                inputIngNombre.text = ""
+                inputIngUnidad.text = ""
+                inputIngCosto.text = ""
+                inputIngStock.text = ""
+                inputIngMinStock.text = ""
+            }
+
+            function guardarIngrediente() {
+                var datos = {
+                    nombre: inputIngNombre.text,
+                    unidad: inputIngUnidad.text,
+                    costo_por_unidad: Number(inputIngCosto.text),
+                    stock: Number(inputIngStock.text),
+                    min_stock: Number(inputIngMinStock.text)
+                }
+
+                if (ingredienteEditando < 0) {
+                    api.post("/ingredientes/", datos, function(exito, resp) {
+                        if (exito) {
+                            notificacion.mostrar("Ingrediente creado")
+                            limpiarFormulario()
+                            cargarIngredientes()
+                        }
+                    })
+                } else {
+                    api.put("/ingredientes/" + ingredienteEditando, datos, function(exito, resp) {
+                        if (exito) {
+                            notificacion.mostrar("Ingrediente actualizado")
+                            limpiarFormulario()
+                            cargarIngredientes()
+                        }
+                    })
+                }
+            }
         }
     }
-    
+
     // ============================================
     // RECETAS CON COSTOS
     // ============================================
     Component {
         id: pantallaRecetas
-        
+
         Column {
             anchors.fill: parent
             anchors.margins: 40
             spacing: 25
-            
+
             property var recetas: []
-            
-            Row {
+            property bool mostrarFormulario: false
+            property int recetaEditando: -1
+
+            Item {
                 width: parent.width
-                
+                height: 50
+
                 Text {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
                     text: "Gestión de Recetas"
                     font.pixelSize: 28
                     font.bold: true
                     color: "#00ffff"
-                    anchors.verticalCenter: parent.verticalCenter
                 }
-                
-                Item { width: parent.width - 500 }
-                
-                Button {
-                    text: "Recargar"
-                    width: 120
-                    height: 40
-                    background: Rectangle {
-                        color: "#00ffff"
-                        radius: 6
+
+                Row {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 12
+
+                    Button {
+                        text: mostrarFormulario ? "Cancelar" : "+ Nueva Receta"
+                        width: 170
+                        height: 40
+                        background: Rectangle { color: mostrarFormulario ? "#ff0055" : "#00ff80"; radius: 6 }
+                        contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                        onClicked: {
+                            if (mostrarFormulario) {
+                                limpiarFormularioRecetas()
+                            } else {
+                                prepararNuevaReceta()
+                            }
+                        }
                     }
-                    contentItem: Text {
-                        text: parent.text
-                        color: "#050510"
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
+
+                    Button {
+                        text: "Recargar"
+                        width: 120
+                        height: 40
+                        background: Rectangle { color: "#00ffff"; radius: 6 }
+                        contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                        onClicked: cargarRecetas()
                     }
-                    onClicked: cargarRecetas()
                 }
             }
-            
+
+            Rectangle {
+                width: parent.width
+                height: 240
+                visible: mostrarFormulario
+                color: "#0a0a1f"
+                border.color: "#00ffff"
+                border.width: 2
+                radius: 10
+
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 12
+
+                    Text {
+                        text: recetaEditando >= 0 ? "Editar Receta" : "Nueva Receta"
+                        font.pixelSize: 18
+                        font.bold: true
+                        color: "#00ffff"
+                    }
+
+                    Row {
+                        width: parent.width
+                        spacing: 12
+
+                        Column {
+                            width: (parent.width - 12) / 2
+                            spacing: 6
+                            Text { text: "Nombre"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputRecNombre
+                                width: parent.width
+                                placeholderText: "Latte, Cappuccino, Cold Brew"
+                                color: "#e0e0ff"
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 12) / 2
+                            spacing: 6
+                            Text { text: "Margen"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputRecMargen
+                                width: parent.width
+                                placeholderText: "0.50 (50%)"
+                                color: "#e0e0ff"
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+                    }
+
+                    Column {
+                        width: parent.width
+                        spacing: 6
+                        Text { text: "Descripción"; font.pixelSize: 12; color: "#8080a0" }
+                        TextArea {
+                            id: inputRecDescripcion
+                            width: parent.width
+                            height: 70
+                            wrapMode: Text.WordWrap
+                            placeholderText: "Detalle los pasos, ingredientes y notas"
+                            color: "#e0e0ff"
+                            background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                        }
+                    }
+
+                    Button {
+                        text: recetaEditando >= 0 ? "ACTUALIZAR RECETA" : "GUARDAR RECETA"
+                        width: 220
+                        height: 40
+                        background: Rectangle { color: "#00ff80"; radius: 6 }
+                        contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                        onClicked: guardarReceta()
+                    }
+                }
+            }
+
             Grid {
                 width: parent.width
                 columns: 3
                 rowSpacing: 20
                 columnSpacing: 20
-                
+
                 Repeater {
                     model: recetas
-                    
+
                     Rectangle {
                         width: 360
-                        height: 200
+                        height: 210
                         color: "#0a0a1f"
                         border.color: "#00ffff"
                         border.width: 2
                         radius: 10
-                        
+
                         Column {
                             anchors.fill: parent
                             anchors.margins: 20
                             spacing: 10
-                            
-                            Text {
-                                text: modelData.nombre
-                                font.pixelSize: 18
-                                font.bold: true
-                                color: "#00ffff"
-                            }
-                            
-                            Text {
-                                text: modelData.descripcion || "Deliciosa bebida"
-                                font.pixelSize: 11
-                                color: "#8080a0"
-                                wrapMode: Text.WordWrap
-                                width: parent.width
-                            }
-                            
-                            Rectangle {
-                                width: parent.width
-                                height: 1
-                                color: "#00ffff"
-                                opacity: 0.3
-                            }
-                            
+
+                            Text { text: modelData.nombre; font.pixelSize: 18; font.bold: true; color: "#00ffff" }
+                            Text { text: modelData.descripcion || "Sin descripción"; font.pixelSize: 11; color: "#8080a0"; wrapMode: Text.WordWrap; width: parent.width }
+
+                            Rectangle { width: parent.width; height: 1; color: "#00ffff"; opacity: 0.3 }
+
+                            Text { text: "Margen: " + (modelData.margen * 100).toFixed(0) + "%"; font.pixelSize: 12; color: "#00ff80" }
+
                             Row {
                                 width: parent.width
-                                Text {
-                                    text: "Costo:"
-                                    font.pixelSize: 12
-                                    color: "#8080a0"
-                                    width: 100
+                                spacing: 10
+
+                                Button {
+                                    text: "Editar"
+                                    width: 80
+                                    height: 32
+                                    background: Rectangle { color: "#00ff80"; radius: 6 }
+                                    contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                                    onClicked: prepararEdicionReceta(modelData)
                                 }
-                                Text {
-                                    text: "$" + (Math.random() * 10 + 8).toFixed(2)
-                                    font.pixelSize: 14
-                                    font.bold: true
-                                    color: "#ff0080"
-                                }
-                            }
-                            
-                            Row {
-                                width: parent.width
-                                Text {
-                                    text: "Precio Venta:"
-                                    font.pixelSize: 12
-                                    color: "#8080a0"
-                                    width: 100
-                                }
-                                Text {
-                                    text: "$" + (Math.random() * 10 + 20).toFixed(2)
-                                    font.pixelSize: 14
-                                    font.bold: true
-                                    color: "#00ff80"
-                                }
-                            }
-                            
-                            Row {
-                                width: parent.width
-                                Text {
-                                    text: "Margen:"
-                                    font.pixelSize: 12
-                                    color: "#8080a0"
-                                    width: 100
-                                }
-                                Text {
-                                    text: (modelData.margen * 100).toFixed(0) + "%"
-                                    font.pixelSize: 14
-                                    font.bold: true
-                                    color: "#00ffff"
+
+                                Button {
+                                    text: "Eliminar"
+                                    width: 90
+                                    height: 32
+                                    background: Rectangle { color: "#ff0055"; radius: 6 }
+                                    contentItem: Text { text: parent.text; color: "#ffffff"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                                    onClicked: {
+                                        api.del("/recetas/" + modelData.id, function(exito, resp) {
+                                            if (exito) {
+                                                notificacion.mostrar("Receta eliminada")
+                                                cargarRecetas()
+                                            }
+                                        })
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            
+
             Component.onCompleted: cargarRecetas()
-            
+
             function cargarRecetas() {
                 api.get("/recetas/", function(exito, datos) {
                     if (exito) {
@@ -1276,10 +1607,58 @@ Window {
                     }
                 })
             }
+
+            function prepararNuevaReceta() {
+                recetaEditando = -1
+                mostrarFormulario = true
+                inputRecNombre.text = ""
+                inputRecDescripcion.text = ""
+                inputRecMargen.text = ""
+            }
+
+            function prepararEdicionReceta(receta) {
+                recetaEditando = receta.id
+                mostrarFormulario = true
+                inputRecNombre.text = receta.nombre
+                inputRecDescripcion.text = receta.descripcion || ""
+                inputRecMargen.text = receta.margen
+            }
+
+            function limpiarFormularioRecetas() {
+                recetaEditando = -1
+                mostrarFormulario = false
+                inputRecNombre.text = ""
+                inputRecDescripcion.text = ""
+                inputRecMargen.text = ""
+            }
+
+            function guardarReceta() {
+                var datos = {
+                    nombre: inputRecNombre.text,
+                    descripcion: inputRecDescripcion.text,
+                    margen: Number(inputRecMargen.text)
+                }
+
+                if (recetaEditando < 0) {
+                    api.post("/recetas/", datos, function(exito, resp) {
+                        if (exito) {
+                            notificacion.mostrar("Receta creada")
+                            limpiarFormularioRecetas()
+                            cargarRecetas()
+                        }
+                    })
+                } else {
+                    api.put("/recetas/" + recetaEditando, datos, function(exito, resp) {
+                        if (exito) {
+                            notificacion.mostrar("Receta actualizada")
+                            limpiarFormularioRecetas()
+                            cargarRecetas()
+                        }
+                    })
+                }
+            }
         }
     }
-    
-    // ============================================
     // VENTAS CON CARRITO FUNCIONAL
     // ============================================
     Component {
