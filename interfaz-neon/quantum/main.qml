@@ -342,29 +342,80 @@ Window {
                     height: parent.height
                     color: "#0a0a1f"
                     border.color: "#00ffff"
-                    border.width: 1
-                    
+                    border.width: 2
+                    radius: 12
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        radius: 7
+                        samples: 14
+                        color: "#00ffff33"
+                        spread: 0.08
+                    }
+
                     Column {
                         anchors.fill: parent
                         anchors.margins: 20
                         spacing: 15
-                        
-                        Text {
+
+                        Rectangle {
                             width: parent.width
-                            text: "EL CAFÉ SIN\nLÍMITES"
-                            font.pixelSize: 18
-                            font.bold: true
-                            color: "#00ffff"
-                            horizontalAlignment: Text.AlignHCenter
+                            height: 70
+                            radius: 12
+                            color: "#0f1025"
+                            border.color: hovered ? "#00ffff" : "#00eaffaa"
+                            border.width: 2
+                            layer.enabled: true
+                            layer.effect: Glow {
+                                radius: 6
+                                samples: 12
+                                color: hovered ? "#00ffff55" : "#00ffff35"
+                            }
+
+                            property bool hovered: false
+                            Behavior on border.color { ColorAnimation { duration: 180 } }
+                            Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+
+                            Text {
+                                anchors.centerIn: parent
+                                width: parent.width
+                                text: "EL CAFÉ SIN\nLÍMITES"
+                                font.pixelSize: 18
+                                font.bold: true
+                                color: "#e6ffff"
+                                horizontalAlignment: Text.AlignHCenter
+                                layer.enabled: true
+                                layer.effect: Glow {
+                                    radius: 3
+                                    samples: 9
+                                    color: "#00ffff44"
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                onEntered: appTitle.hovered = true
+                                onExited: appTitle.hovered = false
+                                onPressed: appTitle.scale = 0.99
+                                onReleased: appTitle.scale = 1.0
+                            }
+
+                            id: appTitle
                         }
                         
                         Rectangle {
                             width: parent.width
                             height: 60
-                            color: "#00ffff20"
-                            radius: 6
-                            border.color: "#00ffff"
-                            border.width: 1
+                            color: "#0f1025"
+                            radius: 12
+                            border.color: "#00eaffaa"
+                            border.width: 2
+                            layer.enabled: true
+                            layer.effect: Glow {
+                                radius: 6
+                                samples: 12
+                                color: "#00ffff35"
+                            }
                             
                             Column {
                                 anchors.centerIn: parent
@@ -387,8 +438,9 @@ Window {
                         Rectangle {
                             width: parent.width
                             height: 2
+                            radius: 1
                             color: "#00ffff"
-                            opacity: 0.3
+                            opacity: 0.35
                         }
                         
                         Column {
@@ -405,21 +457,39 @@ Window {
                                     {texto: "Usuarios", id: "usuarios"},
                                     {texto: "Logs", id: "logs"}
                                 ]
-                                
+
                                 Rectangle {
                                     width: parent.width
                                     height: 45
-                                    color: root.pantallaActual === modelData.id ? "#00ffff30" : (mouseArea.containsMouse ? "#00ffff20" : "transparent")
-                                    border.color: root.pantallaActual === modelData.id ? "#00ffff" : "transparent"
+                                    radius: 12
+                                    property bool active: root.pantallaActual === modelData.id
+                                    color: active ? "#0f1028" : (mouseArea.containsMouse ? "#0b0b20" : "transparent")
+                                    border.color: active ? "#00ffff" : (mouseArea.containsMouse ? "#00ffff66" : "#00eaff33")
                                     border.width: 2
-                                    radius: 6
-                                    
+                                    layer.enabled: active || mouseArea.containsMouse
+                                    layer.effect: Glow {
+                                        radius: 5
+                                        samples: 12
+                                        color: active ? "#00ffff55" : "#00ffff33"
+                                        spread: 0.15
+                                    }
+
+                                    Behavior on color { ColorAnimation { duration: 120 } }
+                                    Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+                                    Behavior on border.color { ColorAnimation { duration: 140 } }
+
                                     Text {
                                         anchors.centerIn: parent
                                         text: modelData.texto
                                         font.pixelSize: 13
-                                        font.bold: root.pantallaActual === modelData.id
-                                        color: "#e0e0ff"
+                                        font.bold: true
+                                        color: active ? "#e6ffff" : "#c8e9ff"
+                                        layer.enabled: true
+                                        layer.effect: Glow {
+                                            radius: 2.5
+                                            samples: 8
+                                            color: active ? "#00ffff55" : "#00ffff30"
+                                        }
                                     }
                                     
                                     MouseArea {
@@ -427,6 +497,8 @@ Window {
                                         anchors.fill: parent
                                         hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
+                                        onEntered: parent.scale = 1.02
+                                        onExited: parent.scale = 1.0
                                         onClicked: root.pantallaActual = modelData.id
                                     }
                                 }
@@ -436,19 +508,39 @@ Window {
                         Item { height: 20 }
                         
                         Button {
+                            id: control
                             width: parent.width
                             text: "SALIR"
-                            
+                            scale: hovered ? 1.02 : 1
+                            Behavior on scale { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+
                             background: Rectangle {
-                                color: "#ff0055"
-                                radius: 6
+                                color: control.hovered ? "#1a0d1a" : "#120912"
+                                radius: 12
+                                border.color: control.hovered ? "#ff6aa8" : "#ff4d88"
+                                border.width: 2
+                                layer.enabled: true
+                                layer.effect: Glow {
+                                    radius: 6
+                                    samples: 12
+                                    color: control.hovered ? "#ff6aa855" : "#ff4d8838"
+                                }
+
+                                Behavior on color { NumberAnimation { duration: 160 } }
+                                Behavior on border.color { ColorAnimation { duration: 160 } }
                             }
-                            
+
                             contentItem: Text {
                                 text: parent.text
                                 color: "#ffffff"
                                 font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
+                                layer.enabled: true
+                                layer.effect: Glow {
+                                    radius: 2.5
+                                    samples: 8
+                                    color: "#ffb7d6"
+                                }
                             }
                             
                             onClicked: {
@@ -512,27 +604,21 @@ Window {
                         font.pixelSize: 34
                         font.bold: true
                         font.letterSpacing: 1.5
-                        color: "#00eaff"
+                        color: "#e9fffd"
                         anchors.verticalCenter: parent.verticalCenter
 
                         SequentialAnimation on color {
                             loops: Animation.Infinite
-                            ColorAnimation { to: "#00ff95"; duration: 3000; easing.type: Easing.InOutSine }
-                            ColorAnimation { to: "#00eaff"; duration: 3000; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#b3ffe7"; duration: 3200; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#e9fffd"; duration: 3200; easing.type: Easing.InOutSine }
                         }
 
                         layer.enabled: true
                         layer.effect: Glow {
-                            samples: 25
-                            color: "#00eaff"
-                            spread: 0.8
-                            radius: 16
-
-                            SequentialAnimation on color {
-                                loops: Animation.Infinite
-                                ColorAnimation { to: "#00ff95"; duration: 3000; easing.type: Easing.InOutSine }
-                                ColorAnimation { to: "#00eaff"; duration: 3000; easing.type: Easing.InOutSine }
-                            }
+                            samples: 10
+                            color: "#00eaff66"
+                            spread: 0.12
+                            radius: 5
                         }
                     }
 
@@ -1248,8 +1334,15 @@ Window {
                     text: "Stellar Guests"
                     font.pixelSize: 28
                     font.bold: true
-                    color: "#00ffff"
+                    font.letterSpacing: 1.1
+                    color: "#e9fffd"
                     anchors.verticalCenter: parent.verticalCenter
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        radius: 4
+                        samples: 10
+                        color: "#00eaff66"
+                    }
                 }
 
                 Item { width: parent.width - 580 }
@@ -1257,10 +1350,16 @@ Window {
                 Rectangle {
                     width: 50
                     height: 28
-                    color: Qt.rgba(0, 1, 1, 0.2)
+                    color: "#0f1028"
                     radius: 14
                     border.color: "#00ffff"
                     border.width: 1
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        radius: 5
+                        samples: 10
+                        color: "#00ffff55"
+                    }
                     anchors.verticalCenter: parent.verticalCenter
 
                     Text {
@@ -1277,8 +1376,16 @@ Window {
                     width: 160
                     height: 40
                     background: Rectangle {
-                        color: mostrarFormulario ? "#ff0055" : "#00ffff"
-                        radius: 6
+                        color: mostrarFormulario ? "#ff2e72" : "#00ffff"
+                        radius: 10
+                        border.color: mostrarFormulario ? "#ff5c9c" : "#00ffff"
+                        border.width: 2
+                        layer.enabled: true
+                        layer.effect: Glow {
+                            radius: 6
+                            samples: 12
+                            color: mostrarFormulario ? "#ff5c9c55" : "#00ffff55"
+                        }
                     }
                     contentItem: Text {
                         text: parent.text
@@ -1305,7 +1412,13 @@ Window {
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
-                radius: 10
+                radius: 12
+                layer.enabled: true
+                layer.effect: Glow {
+                    radius: 6
+                    samples: 12
+                    color: "#00ffff40"
+                }
 
                 Row {
                     anchors.fill: parent
@@ -1360,7 +1473,13 @@ Window {
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
-                radius: 10
+                radius: 12
+                layer.enabled: true
+                layer.effect: Glow {
+                    radius: 6
+                    samples: 12
+                    color: "#00ffff40"
+                }
                 
                 Column {
                     anchors.fill: parent
@@ -1663,8 +1782,15 @@ Window {
                     text: "Gestión de Ingredientes"
                     font.pixelSize: 28
                     font.bold: true
-                    color: "#00ffff"
+                    font.letterSpacing: 1.1
+                    color: "#e9fffd"
                     anchors.verticalCenter: parent.verticalCenter
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        radius: 4
+                        samples: 10
+                        color: "#00eaff66"
+                    }
                 }
 
                 Item { width: parent.width - 550 }
@@ -1720,8 +1846,14 @@ Window {
                 color: "#0a0a1f"
                 border.color: ingredienteEditando ? "#00ff80" : "#00ffff"
                 border.width: 2
-                radius: 10
+                radius: 12
                 clip: true
+                layer.enabled: true
+                layer.effect: Glow {
+                    radius: 6
+                    samples: 12
+                    color: ingredienteEditando ? "#00ff8055" : "#00ffff40"
+                }
 
                 Behavior on height {
                     NumberAnimation { duration: 200 }
@@ -2133,8 +2265,15 @@ Window {
                     text: "Gestión de Recetas"
                     font.pixelSize: 28
                     font.bold: true
-                    color: "#00ffff"
+                    font.letterSpacing: 1.1
+                    color: "#e9fffd"
                     anchors.verticalCenter: parent.verticalCenter
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        radius: 4
+                        samples: 10
+                        color: "#00eaff66"
+                    }
                 }
 
                 Item { width: parent.width - 340 }
@@ -2186,8 +2325,14 @@ Window {
                 color: "#0a0a1f"
                 border.color: recetaEditando ? "#00ff80" : "#00ffff"
                 border.width: 2
-                radius: 10
+                radius: 12
                 clip: true
+                layer.enabled: true
+                layer.effect: Glow {
+                    radius: 6
+                    samples: 12
+                    color: recetaEditando ? "#00ff8055" : "#00ffff40"
+                }
 
                 Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.InOutQuad } }
 
@@ -2812,7 +2957,14 @@ Window {
                         text: "Punto de Venta"
                         font.pixelSize: 28
                         font.bold: true
-                        color: "#00ffff"
+                        font.letterSpacing: 1.1
+                        color: "#e9fffd"
+                        layer.enabled: true
+                        layer.effect: Glow {
+                            radius: 4
+                            samples: 10
+                            color: "#00eaff66"
+                        }
                     }
                     
                     Rectangle {
@@ -2821,7 +2973,13 @@ Window {
                         color: "#0a0a1f"
                         border.color: "#00ffff"
                         border.width: 2
-                        radius: 10
+                        radius: 12
+                        layer.enabled: true
+                        layer.effect: Glow {
+                            radius: 6
+                            samples: 12
+                            color: "#00ffff40"
+                        }
                         
                         Column {
                             anchors.fill: parent
@@ -2941,8 +3099,14 @@ Window {
                                     text: "Cart:"
                                     font.pixelSize: 16
                                     font.bold: true
-                                    color: "#00ffff"
+                                    color: "#e9fffd"
                                     anchors.verticalCenter: parent.verticalCenter
+                                    layer.enabled: true
+                                    layer.effect: Glow {
+                                        radius: 4
+                                        samples: 10
+                                        color: "#00eaff66"
+                                    }
                                 }
                                 Rectangle {
                                     visible: carrito.length > 0
@@ -3449,7 +3613,14 @@ Window {
                       text: "Gestión de Usuarios"
                       font.pixelSize: 28
                       font.bold: true
-                      color: "#00ffff"
+                      font.letterSpacing: 1.1
+                      color: "#e9fffd"
+                      layer.enabled: true
+                      layer.effect: Glow {
+                          radius: 4
+                          samples: 10
+                          color: "#00eaff66"
+                      }
                   }
 
                   Row {
@@ -3462,8 +3633,16 @@ Window {
                           width: 170
                           height: 40
                           background: Rectangle {
-                              color: mostrarFormulario ? "#ff0055" : "#00ff80"
-                              radius: 6
+                              color: mostrarFormulario ? "#ff2e72" : "#00ff80"
+                              radius: 10
+                              border.color: mostrarFormulario ? "#ff5c9c" : "#00ff80"
+                              border.width: 2
+                              layer.enabled: true
+                              layer.effect: Glow {
+                                  radius: 6
+                                  samples: 12
+                                  color: mostrarFormulario ? "#ff5c9c55" : "#00ff8040"
+                              }
                           }
                           contentItem: Text {
                               text: parent.text
@@ -3486,7 +3665,15 @@ Window {
                           height: 40
                           background: Rectangle {
                               color: "#00ffff"
-                              radius: 6
+                              radius: 10
+                              border.color: "#00ffff"
+                              border.width: 2
+                              layer.enabled: true
+                              layer.effect: Glow {
+                                  radius: 6
+                                  samples: 12
+                                  color: "#00ffff55"
+                              }
                           }
                           contentItem: Text {
                               text: parent.text
@@ -3504,9 +3691,15 @@ Window {
                   height: 240
                   visible: mostrarFormulario
                   color: "#0a0a1f"
-                  border.color: "#00ffff"
+                  border.color: usuarioEditando >= 0 ? "#00ff80" : "#00ffff"
                   border.width: 2
-                  radius: 10
+                  radius: 12
+                  layer.enabled: true
+                  layer.effect: Glow {
+                      radius: 6
+                      samples: 12
+                      color: usuarioEditando >= 0 ? "#00ff8055" : "#00ffff40"
+                  }
 
                   Column {
                       anchors.fill: parent
@@ -3904,12 +4097,19 @@ Window {
                     font.pixelSize: 32
                     font.bold: true
                     font.letterSpacing: 1.5
-                    color: "#00eaff"
+                    color: "#e9fffd"
 
                     SequentialAnimation on color {
                         loops: Animation.Infinite
-                        ColorAnimation { to: "#00ff95"; duration: 3000; easing.type: Easing.InOutSine }
-                        ColorAnimation { to: "#00eaff"; duration: 3000; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#b3ffe7"; duration: 3200; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#e9fffd"; duration: 3200; easing.type: Easing.InOutSine }
+                    }
+
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        radius: 4
+                        samples: 10
+                        color: "#00eaff66"
                     }
                 }
 
@@ -3953,7 +4153,13 @@ Window {
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
-                radius: 10
+                radius: 12
+                layer.enabled: true
+                layer.effect: Glow {
+                    radius: 6
+                    samples: 12
+                    color: "#00ffff40"
+                }
 
                 Row {
                     anchors.fill: parent
