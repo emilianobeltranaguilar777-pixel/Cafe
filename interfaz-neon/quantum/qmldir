@@ -1,0 +1,3 @@
+module quantum
+singleton PaletaNeon 1.0 cerebro/PaletaNeon.qml
+singleton GestorAuth 1.0 cerebro/GestorAuth.qml

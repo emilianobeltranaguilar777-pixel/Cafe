@@ -1,0 +1,17 @@
+# 🚀 Motor del API
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+
+# 🗄️ Base de datos (SQLite viene incluido en Python)
+sqlmodel==0.0.22
+
+# 🔐 Seguridad
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.12
+
+# ⚙️ Configuración
+pydantic-settings==2.6.1
+
+# 📊 Reportes
+reportlab==4.2.5
