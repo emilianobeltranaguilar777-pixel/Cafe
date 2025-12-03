@@ -5,11 +5,13 @@ Tests para logs de sesión, movimientos de inventario y permisos
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, create_engine, SQLModel
+from sqlalchemy.pool import StaticPool
 from datetime import datetime
 
 from sistema.motor_principal import app
 from sistema.configuracion import obtener_sesion, hash_password
 from sistema.entidades import Usuario, Rol, LogSesion, Ingrediente, Movimiento, TipoMovimiento
+from sistema.utilidades.seed_inicial import inicializar_datos
 
 
 # ==================== CONFIGURACIÓN DE TESTS ====================
@@ -17,9 +19,14 @@ from sistema.entidades import Usuario, Rol, LogSesion, Ingrediente, Movimiento, 
 @pytest.fixture(name="session")
 def session_fixture():
     """Crea una base de datos en memoria para tests"""
-    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
+        inicializar_datos(session)
         yield session
 
 
@@ -68,7 +75,7 @@ def vendedor_user_fixture(session: Session):
 
 
 @pytest.fixture(name="admin_token")
-def admin_token_fixture(client: TestClient):
+def admin_token_fixture(client: TestClient, admin_user: Usuario):
     """Obtiene token de admin"""
     response = client.post(
         "/auth/login",
@@ -79,7 +86,7 @@ def admin_token_fixture(client: TestClient):
 
 
 @pytest.fixture(name="vendedor_token")
-def vendedor_token_fixture(client: TestClient):
+def vendedor_token_fixture(client: TestClient, vendedor_user: Usuario):
     """Obtiene token de vendedor"""
     response = client.post(
         "/auth/login",

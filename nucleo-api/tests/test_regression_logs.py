@@ -4,11 +4,13 @@ Asegurar que la adición de logs no rompe funcionalidad existente
 """
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session, create_engine, SQLModel
+from sqlmodel import Session, create_engine, SQLModel, select
+from sqlalchemy.pool import StaticPool
 
 from sistema.motor_principal import app
 from sistema.configuracion import obtener_sesion, hash_password
 from sistema.entidades import Usuario, Rol, Cliente, Ingrediente, Receta
+from sistema.utilidades.seed_inicial import inicializar_datos
 
 
 # ==================== CONFIGURACIÓN ====================
@@ -16,9 +18,14 @@ from sistema.entidades import Usuario, Rol, Cliente, Ingrediente, Receta
 @pytest.fixture(name="session")
 def session_fixture():
     """Base de datos en memoria"""
-    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
+        inicializar_datos(session)
         yield session
 
 
@@ -37,6 +44,10 @@ def client_fixture(session: Session):
 @pytest.fixture(name="admin_user")
 def admin_user_fixture(session: Session):
     """Usuario admin"""
+    existente = session.exec(select(Usuario).where(Usuario.username == "admin")).first()
+    if existente:
+        return existente
+
     usuario = Usuario(
         username="admin",
         nombre="Admin",
@@ -51,7 +62,7 @@ def admin_user_fixture(session: Session):
 
 
 @pytest.fixture(name="admin_token")
-def admin_token_fixture(client: TestClient):
+def admin_token_fixture(client: TestClient, admin_user: Usuario):
     """Token de admin"""
     response = client.post(
         "/auth/login",

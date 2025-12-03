@@ -3,6 +3,7 @@ from typing import Iterator
 import pytest
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, SQLModel, create_engine
+from starlette.requests import Request
 
 from sistema.configuracion import obtener_usuario_actual, requiere_permiso
 from sistema.entidades import Ingrediente
@@ -27,8 +28,13 @@ def session(tmp_path) -> Iterator[Session]:
 
 @pytest.mark.anyio
 async def test_admin_login_and_register_sale(session: Session):
+    request = Request({
+        "type": "http",
+        "client": ("testclient", 0),
+        "headers": [],
+    })
     form = OAuth2PasswordRequestForm(username="admin", password="admin123")
-    token_out = auth_rutas.login(form_data=form, session=session)
+    token_out = auth_rutas.login(request=request, form_data=form, session=session)
     token = token_out.access_token
 
     usuario = await obtener_usuario_actual(token=token, session=session)

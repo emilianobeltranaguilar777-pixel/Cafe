@@ -4,6 +4,7 @@ Tests directos sin TestClient para evitar problemas de sesión
 """
 import pytest
 from sqlmodel import Session, create_engine, SQLModel, select
+from sqlalchemy.pool import StaticPool
 from datetime import datetime
 
 # Importar TODOS los modelos
@@ -38,7 +39,8 @@ def engine_fixture():
 
     engine = create_engine(
         "sqlite:///:memory:",
-        connect_args={"check_same_thread": False}
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
     )
     SQLModel.metadata.create_all(engine)
     return engine

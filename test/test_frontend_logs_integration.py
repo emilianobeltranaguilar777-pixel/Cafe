@@ -2,24 +2,31 @@
 🧪 TESTS DE INTEGRACIÓN FRONTEND/QML - ELCAFESIN
 Verifica que la pantalla de logs QML carga correctamente
 """
+from pathlib import Path
 import pytest
-import os
-import subprocess
 import requests
-import time
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+QML_ROOT = BASE_DIR / "interfaz-neon" / "quantum"
+PANTALLA_LOGS = QML_ROOT / "pantallas" / "pantalla_logs.qml"
+DIMENSION_PRINCIPAL = QML_ROOT / "dimension_principal.qml"
+COMPONENTES = [
+    QML_ROOT / "componentes" / "TarjetaGlow.qml",
+    QML_ROOT / "componentes" / "BotonNeon.qml",
+    QML_ROOT / "componentes" / "InputAnimado.qml",
+]
+PALETA_NEON = QML_ROOT / "cerebro" / "PaletaNeon.qml"
+GESTOR_AUTH = QML_ROOT / "cerebro" / "GestorAuth.qml"
 
 
 def test_pantalla_logs_qml_existe():
     """Test: El archivo pantalla_logs.qml existe"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/pantallas/pantalla_logs.qml"
-    assert os.path.exists(ruta), f"El archivo {ruta} no existe"
+    assert PANTALLA_LOGS.exists(), f"El archivo {PANTALLA_LOGS} no existe"
 
 
 def test_pantalla_logs_tiene_contenido_valido():
     """Test: La pantalla de logs tiene contenido QML válido"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/pantallas/pantalla_logs.qml"
-
-    with open(ruta, 'r', encoding='utf-8') as f:
+    with PANTALLA_LOGS.open("r", encoding="utf-8") as f:
         contenido = f.read()
 
     # Verificar elementos básicos de QML
@@ -39,9 +46,7 @@ def test_pantalla_logs_tiene_contenido_valido():
 
 def test_pantalla_logs_usa_tema_neon():
     """Test: La pantalla usa correctamente el tema neon"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/pantallas/pantalla_logs.qml"
-
-    with open(ruta, 'r', encoding='utf-8') as f:
+    with PANTALLA_LOGS.open("r", encoding="utf-8") as f:
         contenido = f.read()
 
     # Verificar que usa los colores del tema
@@ -59,9 +64,7 @@ def test_pantalla_logs_usa_tema_neon():
 
 def test_logs_agregado_al_menu_navegacion():
     """Test: Logs fue agregado al menú de navegación"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/dimension_principal.qml"
-
-    with open(ruta, 'r', encoding='utf-8') as f:
+    with DIMENSION_PRINCIPAL.open("r", encoding="utf-8") as f:
         contenido = f.read()
 
     # Verificar que está en el ListModel
@@ -71,9 +74,7 @@ def test_logs_agregado_al_menu_navegacion():
 
 def test_pantalla_logs_tiene_filtros():
     """Test: La pantalla tiene controles de filtrado"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/pantallas/pantalla_logs.qml"
-
-    with open(ruta, 'r', encoding='utf-8') as f:
+    with PANTALLA_LOGS.open("r", encoding="utf-8") as f:
         contenido = f.read()
 
     # Verificar filtros
@@ -84,9 +85,7 @@ def test_pantalla_logs_tiene_filtros():
 
 def test_pantalla_logs_tiene_formato_fecha():
     """Test: La pantalla tiene funciones de formato de fecha"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/pantallas/pantalla_logs.qml"
-
-    with open(ruta, 'r', encoding='utf-8') as f:
+    with PANTALLA_LOGS.open("r", encoding="utf-8") as f:
         contenido = f.read()
 
     # Verificar funciones de formato
@@ -96,9 +95,7 @@ def test_pantalla_logs_tiene_formato_fecha():
 
 def test_pantalla_logs_es_scrollable():
     """Test: La pantalla tiene lista scrollable"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/pantallas/pantalla_logs.qml"
-
-    with open(ruta, 'r', encoding='utf-8') as f:
+    with PANTALLA_LOGS.open("r", encoding="utf-8") as f:
         contenido = f.read()
 
     # Verificar que tiene ListView
@@ -114,7 +111,7 @@ def test_backend_responde_a_logs():
         response = requests.post(
             "http://localhost:8000/auth/login",
             data={"username": "admin", "password": "admin123"},
-            timeout=5
+            timeout=5,
         )
 
         if response.status_code == 200:
@@ -124,7 +121,7 @@ def test_backend_responde_a_logs():
             response = requests.get(
                 "http://localhost:8000/logs",
                 headers={"Authorization": f"Bearer {token}"},
-                timeout=5
+                timeout=5,
             )
 
             assert response.status_code == 200
@@ -142,23 +139,15 @@ def test_backend_responde_a_logs():
 
 def test_estructura_componentes_qml_correcta():
     """Test: Los componentes QML necesarios existen"""
-    componentes = [
-        "/home/user/Cafe/interfaz-neon/quantum/componentes/TarjetaGlow.qml",
-        "/home/user/Cafe/interfaz-neon/quantum/componentes/BotonNeon.qml",
-        "/home/user/Cafe/interfaz-neon/quantum/componentes/InputAnimado.qml",
-    ]
-
-    for componente in componentes:
-        assert os.path.exists(componente), f"Componente {componente} no encontrado"
+    for componente in COMPONENTES:
+        assert componente.exists(), f"Componente {componente} no encontrado"
 
 
 def test_singleton_paletaneon_existe():
     """Test: El singleton PaletaNeon existe y es válido"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/cerebro/PaletaNeon.qml"
+    assert PALETA_NEON.exists()
 
-    assert os.path.exists(ruta)
-
-    with open(ruta, 'r', encoding='utf-8') as f:
+    with PALETA_NEON.open("r", encoding="utf-8") as f:
         contenido = f.read()
 
     # Verificar que es un singleton
@@ -172,11 +161,9 @@ def test_singleton_paletaneon_existe():
 
 def test_gestor_auth_existe():
     """Test: El singleton GestorAuth existe"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/cerebro/GestorAuth.qml"
+    assert GESTOR_AUTH.exists()
 
-    assert os.path.exists(ruta)
-
-    with open(ruta, 'r', encoding='utf-8') as f:
+    with GESTOR_AUTH.open("r", encoding="utf-8") as f:
         contenido = f.read()
 
     # Verificar que tiene la función request
@@ -186,16 +173,14 @@ def test_gestor_auth_existe():
 
 def test_no_errores_sintaxis_qml():
     """Test: No hay errores obvios de sintaxis en el QML"""
-    ruta = "/home/user/Cafe/interfaz-neon/quantum/pantallas/pantalla_logs.qml"
-
-    with open(ruta, 'r', encoding='utf-8') as f:
+    with PANTALLA_LOGS.open("r", encoding="utf-8") as f:
         contenido = f.read()
 
     # Verificar balance de llaves
-    assert contenido.count('{') == contenido.count('}'), "Llaves desbalanceadas"
+    assert contenido.count("{") == contenido.count("}"), "Llaves desbalanceadas"
 
     # Verificar que no hay comentarios TODO sin resolver (opcional)
-    lineas_todo = [line for line in contenido.split('\n') if 'TODO' in line or 'FIXME' in line]
+    lineas_todo = [line for line in contenido.split("\n") if "TODO" in line or "FIXME" in line]
     assert len(lineas_todo) == 0, f"Hay TODOs sin resolver: {lineas_todo}"
 
 
