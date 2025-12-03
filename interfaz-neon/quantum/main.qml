@@ -1435,17 +1435,23 @@ Window {
     // ============================================
     Component {
         id: pantallaRecetas
-        
+
         Column {
             anchors.fill: parent
             anchors.margins: 40
-            spacing: 25
-            
+            spacing: 20
+
             property var recetas: []
-            
+            property var ingredientesDisponibles: []
+            property var itemsSeleccionados: []
+            property var recetaEditando: null
+            property bool mostrarFormulario: false
+            property string mensajeReceta: ""
+
             Row {
                 width: parent.width
-                
+                spacing: 12
+
                 Text {
                     text: "Gestión de Recetas"
                     font.pixelSize: 28
@@ -1453,9 +1459,28 @@ Window {
                     color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
                 }
-                
-                Item { width: parent.width - 500 }
-                
+
+                Item { width: parent.width - 340 }
+
+                Button {
+                    text: mostrarFormulario ? "✕ Cancelar" : "＋ Nueva receta"
+                    width: 180
+                    height: 40
+                    background: Rectangle { color: mostrarFormulario ? "#ff0055" : "#00ff80"; radius: 6 }
+                    contentItem: Text {
+                        text: parent.text
+                        color: "#050510"
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    onClicked: {
+                        mostrarFormulario = !mostrarFormulario
+                        if (!mostrarFormulario) {
+                            limpiarFormularioReceta()
+                        }
+                    }
+                }
+
                 Button {
                     text: "Recargar"
                     width: 120
@@ -1470,112 +1495,512 @@ Window {
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
                     }
-                    onClicked: cargarRecetas()
+                    onClicked: {
+                        cargarRecetas()
+                        cargarIngredientesReceta()
+                    }
                 }
             }
-            
-            Grid {
+
+            Rectangle {
                 width: parent.width
-                columns: 3
-                rowSpacing: 20
-                columnSpacing: 20
-                
-                Repeater {
-                    model: recetas
-                    
+                height: mostrarFormulario ? 430 : 0
+                visible: mostrarFormulario
+                color: "#0a0a1f"
+                border.color: recetaEditando ? "#00ff80" : "#00ffff"
+                border.width: 2
+                radius: 10
+                clip: true
+
+                Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.InOutQuad } }
+
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 14
+
+                    Text {
+                        text: recetaEditando ? "✏️ Editar receta" : "➕ Nueva receta"
+                        font.pixelSize: 20
+                        font.bold: true
+                        color: recetaEditando ? "#00ff80" : "#00ffff"
+                    }
+
+                    Row {
+                        width: parent.width
+                        spacing: 12
+
+                        Column {
+                            width: (parent.width - 12) / 2
+                            spacing: 6
+                            Text { text: "Nombre"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputNombreReceta
+                                width: parent.width
+                                color: "#e0e0ff"
+                                placeholderText: "Ej. Latte vainilla"
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Column {
+                            width: (parent.width - 12) / 2
+                            spacing: 6
+                            Text { text: "Margen"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputMargenReceta
+                                width: parent.width
+                                color: "#e0e0ff"
+                                placeholderText: "0.3"
+                                validator: DoubleValidator { bottom: 0 }
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+                    }
+
+                    Column {
+                        width: parent.width
+                        spacing: 6
+                        Text { text: "Descripción"; font.pixelSize: 12; color: "#8080a0" }
+                        TextArea {
+                            id: inputDescripcionReceta
+                            width: parent.width
+                            height: 60
+                            color: "#e0e0ff"
+                            wrapMode: Text.Wrap
+                            placeholderText: "Notas de preparación o presentación"
+                            background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                        }
+                    }
+
                     Rectangle {
-                        width: 360
-                        height: 200
-                        color: "#0a0a1f"
+                        width: parent.width
+                        height: 1
+                        color: "#00ffff"
+                        opacity: 0.25
+                    }
+
+                    Row {
+                        width: parent.width
+                        spacing: 12
+
+                        Column {
+                            width: parent.width * 0.45
+                            spacing: 6
+                            Text { text: "Ingrediente"; font.pixelSize: 12; color: "#8080a0" }
+                            ComboBox {
+                                id: comboIngrediente
+                                width: parent.width
+                                model: ingredientesDisponibles
+                                textRole: "nombre"
+                                delegate: ItemDelegate {
+                                    text: `${modelData.nombre} (${modelData.stock} ${modelData.unidad})`
+                                    highlighted: modelData.stock <= modelData.min_stock
+                                    palette.highlightedText: "#ffffff"
+                                    palette.highlight: modelData.stock <= modelData.min_stock ? "#ff0055" : "#00ffff40"
+                                }
+                            }
+                        }
+
+                        Column {
+                            width: parent.width * 0.2
+                            spacing: 6
+                            Text { text: "Cantidad"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputCantidadIngrediente
+                                width: parent.width
+                                color: "#e0e0ff"
+                                placeholderText: "1.0"
+                                validator: DoubleValidator { bottom: 0 }
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Column {
+                            width: parent.width * 0.2
+                            spacing: 6
+                            Text { text: "Merma"; font.pixelSize: 12; color: "#8080a0" }
+                            TextField {
+                                id: inputMermaIngrediente
+                                width: parent.width
+                                color: "#e0e0ff"
+                                placeholderText: "0"
+                                validator: DoubleValidator { bottom: 0 }
+                                background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                            }
+                        }
+
+                        Button {
+                            text: "Agregar"
+                            width: parent.width * 0.15
+                            anchors.verticalCenter: parent.verticalCenter
+                            background: Rectangle { color: "#00ff80"; radius: 6 }
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#050510"
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+                            onClicked: agregarIngredienteReceta()
+                        }
+                    }
+
+                    ListView {
+                        width: parent.width
+                        height: 120
+                        spacing: 6
+                        model: itemsSeleccionados
+                        clip: true
+
+                        delegate: Rectangle {
+                            width: parent.width
+                            height: 40
+                            color: "#1a1a2f"
+                            border.color: modelData.stock <= modelData.min_stock ? "#ff0055" : "#00ffff"
+                            radius: 6
+
+                            Row {
+                                anchors.fill: parent
+                                anchors.margins: 10
+                                spacing: 10
+
+                                Text {
+                                    text: `${modelData.ingrediente_nombre} (${modelData.cantidad} ${modelData.unidad || ''})`
+                                    color: "#e0e0ff"
+                                    font.pixelSize: 13
+                                    width: parent.width - 200
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    text: `Stock: ${modelData.stock} / Min: ${modelData.min_stock}`
+                                    color: modelData.stock <= modelData.min_stock ? "#ff0055" : "#00ff80"
+                                    font.pixelSize: 12
+                                    width: 180
+                                }
+
+                                Button {
+                                    text: "Quitar"
+                                    width: 80
+                                    height: 28
+                                    background: Rectangle { color: "#ff0055"; radius: 4 }
+                                    contentItem: Text { text: parent.text; color: "#ffffff"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                                    onClicked: {
+                                        itemsSeleccionados.splice(index, 1)
+                                        itemsSeleccionados = itemsSeleccionados.slice()
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Text {
+                        text: mensajeReceta
+                        color: "#ff0055"
+                        font.pixelSize: 12
+                        visible: mensajeReceta.length > 0
+                    }
+
+                    Row {
+                        spacing: 12
+
+                        Button {
+                            text: recetaEditando ? "Actualizar" : "Guardar"
+                            width: 140
+                            height: 38
+                            background: Rectangle { color: "#00ff80"; radius: 6 }
+                            contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                            onClicked: enviarReceta()
+                        }
+
+                        Button {
+                            text: "Limpiar"
+                            width: 120
+                            height: 38
+                            background: Rectangle { color: "#ff8c00"; radius: 6 }
+                            contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                            onClicked: limpiarFormularioReceta()
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                width: parent.width
+                height: parent.height - (mostrarFormulario ? 480 : 120)
+                color: "#0a0a1f"
+                border.color: "#00ffff"
+                border.width: 2
+                radius: 10
+
+                ListView {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 12
+                    model: recetas
+                    clip: true
+
+                    delegate: Rectangle {
+                        width: parent.width
+                        height: 180
+                        color: "#1a1a2f"
                         border.color: "#00ffff"
-                        border.width: 2
-                        radius: 10
-                        
+                        border.width: 1
+                        radius: 8
+
                         Column {
                             anchors.fill: parent
-                            anchors.margins: 20
-                            spacing: 10
-                            
-                            Text {
-                                text: modelData.nombre
-                                font.pixelSize: 18
-                                font.bold: true
-                                color: "#00ffff"
-                            }
-                            
-                            Text {
-                                text: modelData.descripcion || "Deliciosa bebida"
-                                font.pixelSize: 11
-                                color: "#8080a0"
-                                wrapMode: Text.WordWrap
-                                width: parent.width
-                            }
-                            
-                            Rectangle {
-                                width: parent.width
-                                height: 1
-                                color: "#00ffff"
-                                opacity: 0.3
-                            }
-                            
+                            anchors.margins: 14
+                            spacing: 8
+
                             Row {
                                 width: parent.width
-                                Text {
-                                    text: "Costo:"
-                                    font.pixelSize: 12
-                                    color: "#8080a0"
-                                    width: 100
+                                spacing: 10
+
+                                Column {
+                                    width: parent.width - 240
+                                    spacing: 4
+                                    Text { text: modelData.nombre; font.pixelSize: 18; font.bold: true; color: "#00ffff" }
+                                    Text {
+                                        text: modelData.descripcion || "Receta sin descripción"
+                                        font.pixelSize: 12
+                                        color: "#8080a0"
+                                        wrapMode: Text.WordWrap
+                                        width: parent.width
+                                    }
                                 }
-                                Text {
-                                    text: "$" + (Math.random() * 10 + 8).toFixed(2)
-                                    font.pixelSize: 14
-                                    font.bold: true
-                                    color: "#ff0080"
+
+                                Column {
+                                    width: 220
+                                    spacing: 4
+                                    Text { text: `Costo: $${modelData.costo_total.toFixed(2)}`; font.pixelSize: 13; color: "#ff0080" }
+                                    Text { text: `Precio: $${modelData.precio_sugerido.toFixed(2)}`; font.pixelSize: 13; color: "#00ff80" }
+                                    Text { text: `Margen: ${(modelData.margen * 100).toFixed(0)}%`; font.pixelSize: 12; color: "#00ffff" }
+                                }
+
+                                Column {
+                                    width: 160
+                                    spacing: 6
+                                    Button {
+                                        text: "Editar"
+                                        width: parent.width
+                                        height: 30
+                                        background: Rectangle { color: "#00ff80"; radius: 4 }
+                                        contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                                        onClicked: prepararEdicionReceta(modelData)
+                                    }
+                                    Button {
+                                        text: "Eliminar"
+                                        width: parent.width
+                                        height: 30
+                                        background: Rectangle { color: "#ff0055"; radius: 4 }
+                                        contentItem: Text { text: parent.text; color: "#ffffff"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                                        onClicked: eliminarReceta(modelData)
+                                    }
                                 }
                             }
-                            
+
                             Row {
                                 width: parent.width
-                                Text {
-                                    text: "Precio Venta:"
-                                    font.pixelSize: 12
-                                    color: "#8080a0"
-                                    width: 100
-                                }
-                                Text {
-                                    text: "$" + (Math.random() * 10 + 20).toFixed(2)
-                                    font.pixelSize: 14
-                                    font.bold: true
-                                    color: "#00ff80"
-                                }
-                            }
-                            
-                            Row {
-                                width: parent.width
-                                Text {
-                                    text: "Margen:"
-                                    font.pixelSize: 12
-                                    color: "#8080a0"
-                                    width: 100
-                                }
-                                Text {
-                                    text: (modelData.margen * 100).toFixed(0) + "%"
-                                    font.pixelSize: 14
-                                    font.bold: true
-                                    color: "#00ffff"
+                                spacing: 10
+                                Repeater {
+                                    model: modelData.items
+                                    Rectangle {
+                                        width: 200
+                                        height: 50
+                                        radius: 6
+                                        color: "#0f0f1f"
+                                        border.color: modelData.stock <= modelData.min_stock ? "#ff0055" : "#00ffff"
+                                        Column {
+                                            anchors.fill: parent
+                                            anchors.margins: 6
+                                            spacing: 2
+                                            Text { text: `${modelData.ingrediente_nombre}`; color: "#e0e0ff"; font.pixelSize: 12 }
+                                            Text {
+                                                text: `${modelData.cantidad} ${modelData.unidad || ''} (Stock: ${modelData.stock})`
+                                                color: modelData.stock <= modelData.min_stock ? "#ff0055" : "#00ff80"
+                                                font.pixelSize: 11
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-            
-            Component.onCompleted: cargarRecetas()
-            
+
+            Component.onCompleted: {
+                cargarRecetas()
+                cargarIngredientesReceta()
+            }
+
+            function ingredienteActual() {
+                if (comboIngrediente.currentIndex < 0 || comboIngrediente.currentIndex >= ingredientesDisponibles.length)
+                    return null
+                return ingredientesDisponibles[comboIngrediente.currentIndex]
+            }
+
+            function agregarIngredienteReceta() {
+                mensajeReceta = ""
+                var ingrediente = ingredienteActual()
+                var cantidad = parseFloat(inputCantidadIngrediente.text)
+                var merma = parseFloat(inputMermaIngrediente.text)
+
+                if (!ingrediente) {
+                    mensajeReceta = "Selecciona un ingrediente"
+                    return
+                }
+                if (isNaN(cantidad) || cantidad <= 0) {
+                    mensajeReceta = "Cantidad inválida"
+                    return
+                }
+                if (isNaN(merma))
+                    merma = 0
+
+                var existente = itemsSeleccionados.findIndex(function(item) { return item.ingrediente_id === ingrediente.id })
+                var nuevo = {
+                    ingrediente_id: ingrediente.id,
+                    ingrediente_nombre: ingrediente.nombre,
+                    cantidad: cantidad,
+                    merma: merma,
+                    stock: ingrediente.stock,
+                    min_stock: ingrediente.min_stock,
+                    unidad: ingrediente.unidad
+                }
+
+                if (existente >= 0) {
+                    itemsSeleccionados[existente] = nuevo
+                } else {
+                    itemsSeleccionados.push(nuevo)
+                }
+
+                itemsSeleccionados = itemsSeleccionados.slice()
+                inputCantidadIngrediente.text = ""
+                inputMermaIngrediente.text = ""
+            }
+
+            function enviarReceta() {
+                mensajeReceta = ""
+                var nombre = inputNombreReceta.text.trim()
+                var descripcion = inputDescripcionReceta.text.trim()
+                var margen = parseFloat(inputMargenReceta.text)
+
+                if (!nombre) {
+                    mensajeReceta = "El nombre es obligatorio"
+                    return
+                }
+                if (itemsSeleccionados.length === 0) {
+                    mensajeReceta = "Agrega al menos un ingrediente"
+                    return
+                }
+                if (isNaN(margen))
+                    margen = null
+
+                var payload = {
+                    nombre: nombre,
+                    descripcion: descripcion,
+                    margen: margen,
+                    items: itemsSeleccionados.map(function(item) {
+                        return {
+                            ingrediente_id: item.ingrediente_id,
+                            cantidad: item.cantidad,
+                            merma: item.merma || 0
+                        }
+                    })
+                }
+
+                if (recetaEditando) {
+                    api.put("/recetas/" + recetaEditando, payload, function(exito, resp) {
+                        if (exito) {
+                            notificacion.mostrar("Receta actualizada")
+                            limpiarFormularioReceta()
+                            mostrarFormulario = false
+                            cargarRecetas()
+                        } else {
+                            mensajeReceta = resp && resp.detail ? resp.detail : "Error al actualizar"
+                            notificacion.mostrar("Error al actualizar")
+                        }
+                    })
+                } else {
+                    api.post("/recetas/", payload, function(exito, resp) {
+                        if (exito) {
+                            notificacion.mostrar("Receta creada")
+                            limpiarFormularioReceta()
+                            mostrarFormulario = false
+                            cargarRecetas()
+                        } else {
+                            mensajeReceta = resp && resp.detail ? resp.detail : "Error al crear"
+                            notificacion.mostrar("Error al crear")
+                        }
+                    })
+                }
+            }
+
+            function prepararEdicionReceta(datos) {
+                recetaEditando = datos.id
+                mostrarFormulario = true
+                mensajeReceta = ""
+                inputNombreReceta.text = datos.nombre
+                inputDescripcionReceta.text = datos.descripcion || ""
+                inputMargenReceta.text = datos.margen ? datos.margen.toString() : ""
+                itemsSeleccionados = datos.items.map(function(item) {
+                    return {
+                        ingrediente_id: item.ingrediente_id,
+                        ingrediente_nombre: item.ingrediente_nombre,
+                        cantidad: item.cantidad,
+                        merma: item.merma || 0,
+                        stock: item.stock,
+                        min_stock: item.min_stock,
+                        unidad: item.unidad
+                    }
+                })
+            }
+
+            function eliminarReceta(datos) {
+                if (!datos || !datos.id)
+                    return
+
+                api.del("/recetas/" + datos.id, function(exito, resp) {
+                    if (exito) {
+                        notificacion.mostrar("Receta eliminada")
+                        if (recetaEditando === datos.id) {
+                            limpiarFormularioReceta()
+                            mostrarFormulario = false
+                        }
+                        cargarRecetas()
+                    } else {
+                        mensajeReceta = resp && resp.detail ? resp.detail : "Error al eliminar"
+                        notificacion.mostrar("No se pudo eliminar")
+                    }
+                })
+            }
+
+            function limpiarFormularioReceta() {
+                recetaEditando = null
+                mensajeReceta = ""
+                inputNombreReceta.text = ""
+                inputDescripcionReceta.text = ""
+                inputMargenReceta.text = ""
+                itemsSeleccionados = []
+                inputCantidadIngrediente.text = ""
+                inputMermaIngrediente.text = ""
+            }
+
             function cargarRecetas() {
                 api.get("/recetas/", function(exito, datos) {
                     if (exito) {
                         recetas = datos
+                    } else {
+                        mensajeReceta = "No se pudieron cargar las recetas"
+                    }
+                })
+            }
+
+            function cargarIngredientesReceta() {
+                api.get("/ingredientes/?limit=500", function(exito, datos) {
+                    if (exito) {
+                        ingredientesDisponibles = datos
                     }
                 })
             }
