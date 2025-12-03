@@ -1,14 +1,16 @@
 #!/bin/bash
 
-QML_PATH="$HOME/ELCAFESIN/interfaz-neon/quantum"
-QML_FILE="$QML_PATH/portal.qml"
+# Resolve the project root based on this script's location
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+QML_PATH="$(cd "${SCRIPT_DIR}/.." && pwd)/quantum"
+QML_FILE="$QML_PATH/main.qml"
 
-echo "🚀 Iniciando EL CAFÉ SIN LÍMITES..."
+echo "🚀 Iniciando EL CAFÉ SIN LÍMITES v2.0 FINAL..."
 echo "📂 Ruta: $QML_PATH"
+echo "📄 Archivo: main.qml (Interfaz completa con todas las funcionalidades)"
 
 export QML2_IMPORT_PATH="$QML_PATH"
 
-# Usar qmlscene (Qt5)
 if command -v qmlscene &> /dev/null; then
     echo "✅ Arrancando con Qt5..."
     qmlscene "$QML_FILE"
