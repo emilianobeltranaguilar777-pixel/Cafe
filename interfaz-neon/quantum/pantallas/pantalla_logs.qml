@@ -11,6 +11,8 @@ Item {
     property var logsData: null
     property string filtroActual: "todos"
     property string busqueda: ""
+    property bool cargando: false
+    property bool usandoDatosEjemplo: false
 
     // Propiedad que se actualiza automáticamente
     property var logsActuales: []
@@ -49,6 +51,46 @@ Item {
                     color: PaletaNeon.primario
                     spread: 0.5
                     radius: PaletaNeon.radioGlow
+                }
+            }
+
+            // Indicador de carga o modo
+            Rectangle {
+                visible: cargando || usandoDatosEjemplo
+                width: usandoDatosEjemplo ? 160 : 100
+                height: 28
+                color: usandoDatosEjemplo ? Qt.rgba(1, 0.65, 0, 0.2) : Qt.rgba(0, 1, 1, 0.2)
+                radius: 14
+                border.color: usandoDatosEjemplo ? PaletaNeon.advertencia : PaletaNeon.info
+                border.width: 1
+                anchors.verticalCenter: parent.verticalCenter
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 6
+
+                    Text {
+                        text: usandoDatosEjemplo ? "📊" : "⏳"
+                        font.pixelSize: 16
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        RotationAnimator on rotation {
+                            running: cargando && !usandoDatosEjemplo
+                            from: 0
+                            to: 360
+                            duration: 1500
+                            loops: Animation.Infinite
+                        }
+                    }
+
+                    Text {
+                        text: usandoDatosEjemplo ? "Modo Vista Previa" : "Cargando..."
+                        font.family: PaletaNeon.fuentePrincipal
+                        font.pixelSize: 11
+                        font.bold: true
+                        color: usandoDatosEjemplo ? PaletaNeon.advertencia : PaletaNeon.info
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
             }
         }
@@ -279,7 +321,15 @@ Item {
                         color: PaletaNeon.texto
                     }
 
-                    Item { Layout.fillWidth: true }
+                    Item { width: parent.width - 280 }
+
+                    BotonNeon {
+                        text: "📊 Vista Previa"
+                        width: 130
+                        height: 30
+                        variante: "ghost"
+                        onClicked: cargarDatosEjemplo()
+                    }
 
                     BotonNeon {
                         text: "🔄 Actualizar"
@@ -424,13 +474,43 @@ Item {
                     }
 
                     // Mensaje cuando no hay logs
-                    Text {
+                    Column {
                         visible: listaLogs.count === 0
                         anchors.centerIn: parent
-                        text: "📋 No hay registros para mostrar"
-                        font.family: PaletaNeon.fuentePrincipal
-                        font.pixelSize: 16
-                        color: PaletaNeon.textoSecundario
+                        spacing: 15
+
+                        Text {
+                            text: "📋"
+                            font.pixelSize: 60
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            opacity: 0.5
+                        }
+
+                        Text {
+                            text: "No hay registros para mostrar"
+                            font.family: PaletaNeon.fuentePrincipal
+                            font.pixelSize: 18
+                            font.bold: true
+                            color: PaletaNeon.texto
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+
+                        Text {
+                            text: "Prueba cargando la vista previa con datos de ejemplo"
+                            font.family: PaletaNeon.fuentePrincipal
+                            font.pixelSize: 14
+                            color: PaletaNeon.textoSecundario
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+
+                        BotonNeon {
+                            text: "📊 Cargar Vista Previa"
+                            width: 200
+                            height: 40
+                            variante: "primary"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            onClicked: cargarDatosEjemplo()
+                        }
                     }
 
                     // ScrollBar con estilo neon
@@ -457,22 +537,121 @@ Item {
     // ==================== FUNCIONES ====================
 
     Component.onCompleted: {
+        // Intentar cargar datos reales, si falla cargar ejemplos
         cargarLogs()
+
+        // Cargar datos de ejemplo después de 2 segundos si no hay datos
+        timer.start()
+    }
+
+    Timer {
+        id: timer
+        interval: 2000
+        running: false
+        repeat: false
+        onTriggered: {
+            if (!logsData || !logsData.logs || logsData.logs.length === 0) {
+                console.log("⏱️ Backend no respondió, cargando datos de ejemplo")
+                cargarDatosEjemplo()
+            }
+        }
     }
 
     function cargarLogs() {
         console.log("🔄 Cargando logs con filtro:", filtroActual)
+        cargando = true
+        usandoDatosEjemplo = false
+
         var endpoint = "/logs?tipo=" + filtroActual + "&limit=100"
 
         GestorAuth.request("GET", endpoint, null, function(exito, datos) {
+            cargando = false
             if (exito) {
                 console.log("✓ Logs recibidos:", datos.total, "logs totales")
                 console.log("✓ Logs en array:", datos.logs ? datos.logs.length : 0)
                 logsData = datos
+                usandoDatosEjemplo = false
             } else {
                 console.log("❌ Error cargando logs:", datos)
+                // Si falla, usar datos de ejemplo para visualización
+                cargarDatosEjemplo()
             }
         })
+    }
+
+    function cargarDatosEjemplo() {
+        console.log("📊 Cargando datos de ejemplo para visualización")
+        cargando = false
+        usandoDatosEjemplo = true
+
+        var ahora = new Date()
+        var ejemplos = []
+
+        // Logs de sesión de ejemplo
+        for (var i = 0; i < 15; i++) {
+            var fecha = new Date(ahora.getTime() - (i * 3600000 * Math.random() * 48)) // Últimas 48 horas
+            var usuarios = ["admin", "gerente", "vendedor1", "supervisor"]
+            var acciones = ["LOGIN", "LOGOUT", "PASSWORD_CHANGE", "PROFILE_UPDATE"]
+            var ips = ["192.168.1.100", "192.168.1.101", "192.168.1.102", "10.0.0.50"]
+
+            if (filtroActual === "todos" || filtroActual === "sesion") {
+                ejemplos.push({
+                    "id": "sesion_" + i,
+                    "tipo": "sesion",
+                    "usuario": usuarios[Math.floor(Math.random() * usuarios.length)],
+                    "accion": acciones[Math.floor(Math.random() * acciones.length)],
+                    "detalles": {
+                        "ip": ips[Math.floor(Math.random() * ips.length)],
+                        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                        "exito": Math.random() > 0.2 // 80% exitoso
+                    },
+                    "fecha": fecha.toISOString()
+                })
+            }
+        }
+
+        // Logs de movimientos de ejemplo
+        var ingredientes = ["Café Arábica", "Leche Entera", "Azúcar", "Chocolate", "Vainilla", "Canela"]
+        var tipos_mov = ["ENTRADA", "SALIDA", "AJUSTE"]
+        var referencias = [
+            "Proveedor: Café Premium SA",
+            "Staff: María García - Gerente",
+            "Venta #1234",
+            "Sistema automático",
+            "Staff: Juan Pérez"
+        ]
+
+        for (var j = 0; j < 20; j++) {
+            var fecha2 = new Date(ahora.getTime() - (j * 3600000 * Math.random() * 72)) // Últimas 72 horas
+
+            if (filtroActual === "todos" || filtroActual === "movimiento") {
+                ejemplos.push({
+                    "id": "movimiento_" + j,
+                    "tipo": "movimiento",
+                    "usuario": referencias[Math.floor(Math.random() * referencias.length)],
+                    "accion": tipos_mov[Math.floor(Math.random() * tipos_mov.length)],
+                    "detalles": {
+                        "ingrediente": ingredientes[Math.floor(Math.random() * ingredientes.length)],
+                        "cantidad": (Math.random() * 50 + 5).toFixed(2),
+                        "tipo_movimiento": tipos_mov[Math.floor(Math.random() * tipos_mov.length)],
+                        "referencia": referencias[Math.floor(Math.random() * referencias.length)]
+                    },
+                    "fecha": fecha2.toISOString()
+                })
+            }
+        }
+
+        // Ordenar por fecha descendente
+        ejemplos.sort(function(a, b) {
+            return new Date(b.fecha) - new Date(a.fecha)
+        })
+
+        logsData = {
+            "total": ejemplos.length,
+            "logs": ejemplos
+        }
+
+        console.log("✅ Datos de ejemplo cargados:", ejemplos.length, "logs")
     }
 
     function actualizarLogs() {
