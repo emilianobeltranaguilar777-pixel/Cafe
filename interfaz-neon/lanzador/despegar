@@ -1,10 +1,11 @@
 #!/bin/bash
 
 QML_PATH="$HOME/ELCAFESIN/interfaz-neon/quantum"
-QML_FILE="$QML_PATH/portal.qml"
+QML_FILE="$QML_PATH/main.qml"
 
-echo "🚀 Iniciando EL CAFÉ SIN LÍMITES..."
+echo "🚀 Iniciando EL CAFÉ SIN LÍMITES v2.0 FINAL..."
 echo "📂 Ruta: $QML_PATH"
+echo "📄 Archivo: main.qml (Interfaz completa con todas las funcionalidades)"
 
 export QML2_IMPORT_PATH="$QML_PATH"
 

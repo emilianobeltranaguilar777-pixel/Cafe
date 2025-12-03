@@ -103,10 +103,11 @@ Cafe/
 │
 ├── interfaz-neon/           # Frontend Qt/QML
 │   ├── quantum/
-│   │   ├── portal_final.qml        # Aplicación principal (1941 líneas)
-│   │   ├── pantallas/              # Pantallas modulares
+│   │   ├── main.qml                # ⭐ APLICACIÓN PRINCIPAL (1941 líneas - ÚSALO)
+│   │   ├── ApiHelper.qml           # Helper para llamadas HTTP
+│   │   ├── pantallas/              # Pantallas modulares (legacy/referencia)
 │   │   ├── componentes/            # Componentes reutilizables
-│   │   └── cerebro/                # Lógica de negocio
+│   │   └── cerebro/                # Lógica de negocio (auth, colores)
 │   └── lanzador/
 │       └── despegar                # Script de inicio del frontend
 │
@@ -116,6 +117,7 @@ Cafe/
 │   └── test_permisos.py
 │
 ├── CREDENCIALES.md         # 🔐 Guía completa de credenciales y login
+├── FRONTEND.md             # 🎨 Guía del frontend QML (qué archivo usar, cómo ejecutar)
 ├── verificar_login.py      # 🔍 Script para verificar que el login funciona
 ├── populate_db.py          # Script para poblar la BD
 ├── start_all.sh            # Lanzador del backend
@@ -166,7 +168,14 @@ cd interfaz-neon/lanzador
 ./despegar
 ```
 
-**Nota**: Requiere Qt5/QML instalado en el sistema.
+**Archivo QML:** `interfaz-neon/quantum/main.qml` (1941 líneas - versión completa)
+
+**Requisitos:**
+```bash
+sudo apt install qtdeclarative5-dev-tools qml-module-qtquick2 qml-module-qtquick-controls2
+```
+
+**Documentación:** Ver archivo `FRONTEND.md` para guía detallada.
 
 ---
 
