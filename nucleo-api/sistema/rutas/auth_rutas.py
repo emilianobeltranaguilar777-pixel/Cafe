@@ -2,7 +2,7 @@
 🔐 RUTAS DE AUTENTICACIÓN - ELCAFESIN
 Login, registro, gestión de usuarios
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 from typing import List
@@ -11,7 +11,7 @@ from sistema.configuracion import (
     obtener_sesion, hash_password, verificar_password,
     crear_token, obtener_usuario_actual, requiere_roles
 )
-from sistema.entidades import Usuario, Rol
+from sistema.entidades import Usuario, Rol, LogSesion
 from sistema.contratos.auth_contratos import (
     UsuarioCreate, UsuarioOut, TokenOut, UsuarioUpdate
 )
@@ -21,6 +21,7 @@ router = APIRouter(prefix="/auth", tags=["🔐 Autenticación"])
 
 @router.post("/login", response_model=TokenOut)
 def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(obtener_sesion)
 ):
@@ -32,26 +33,89 @@ def login(
     usuario = session.exec(
         select(Usuario).where(Usuario.username == form_data.username)
     ).first()
-    
+
+    # Obtener IP del cliente
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
+
     if not usuario or not verificar_password(form_data.password, usuario.password_hash):
+        # Log intento fallido
+        if usuario:
+            log = LogSesion(
+                usuario_id=usuario.id,
+                accion="LOGIN_FAILED",
+                ip=client_ip,
+                user_agent=user_agent,
+                exito=False
+            )
+            session.add(log)
+            session.commit()
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas"
         )
-    
+
     if not usuario.activo:
+        # Log intento en usuario inactivo
+        log = LogSesion(
+            usuario_id=usuario.id,
+            accion="LOGIN_INACTIVE",
+            ip=client_ip,
+            user_agent=user_agent,
+            exito=False
+        )
+        session.add(log)
+        session.commit()
+
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Usuario inactivo"
         )
-    
+
+    # Log login exitoso
+    log = LogSesion(
+        usuario_id=usuario.id,
+        accion="LOGIN",
+        ip=client_ip,
+        user_agent=user_agent,
+        exito=True
+    )
+    session.add(log)
+    session.commit()
+
     # Crear token
     token = crear_token(
         username=usuario.username,
         extra_data={"rol": usuario.rol}
     )
-    
+
     return TokenOut(access_token=token, token_type="bearer")
+
+
+@router.post("/logout")
+def logout(
+    request: Request,
+    session: Session = Depends(obtener_sesion),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
+):
+    """🚪 Logout - registra el evento"""
+    # Obtener IP del cliente
+    client_ip = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
+
+    # Log logout
+    log = LogSesion(
+        usuario_id=usuario_actual.id,
+        accion="LOGOUT",
+        ip=client_ip,
+        user_agent=user_agent,
+        exito=True
+    )
+    session.add(log)
+    session.commit()
+
+    return {"message": "Logout exitoso"}
 
 
 @router.get("/me", response_model=UsuarioOut)
