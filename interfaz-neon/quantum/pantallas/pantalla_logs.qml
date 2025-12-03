@@ -12,6 +12,14 @@ Item {
     property string filtroActual: "todos"
     property string busqueda: ""
 
+    // Propiedad que se actualiza automáticamente
+    property var logsActuales: []
+
+    // Observadores para actualizar automáticamente
+    onLogsDataChanged: actualizarLogs()
+    onFiltroActualChanged: actualizarLogs()
+    onBusquedaChanged: actualizarLogs()
+
     Column {
         anchors.fill: parent
         spacing: 20
@@ -297,7 +305,7 @@ Item {
                     clip: true
                     spacing: 8
 
-                    model: logsFiltrados()
+                    model: logsActuales
 
                     delegate: Rectangle {
                         width: parent.width
@@ -453,15 +461,48 @@ Item {
     }
 
     function cargarLogs() {
+        console.log("🔄 Cargando logs con filtro:", filtroActual)
         var endpoint = "/logs?tipo=" + filtroActual + "&limit=100"
 
         GestorAuth.request("GET", endpoint, null, function(exito, datos) {
             if (exito) {
+                console.log("✓ Logs recibidos:", datos.total, "logs totales")
+                console.log("✓ Logs en array:", datos.logs ? datos.logs.length : 0)
                 logsData = datos
             } else {
-                console.log("Error cargando logs:", datos)
+                console.log("❌ Error cargando logs:", datos)
             }
         })
+    }
+
+    function actualizarLogs() {
+        if (!logsData || !logsData.logs) {
+            console.log("⚠️  logsData no disponible")
+            logsActuales = []
+            return
+        }
+
+        var logs = logsData.logs
+        console.log("🔄 Actualizando vista con", logs.length, "logs")
+
+        // Aplicar búsqueda si hay texto
+        if (busqueda !== "") {
+            var filtrados = []
+            var busquedaLower = busqueda.toLowerCase()
+
+            for (var i = 0; i < logs.length; i++) {
+                var log = logs[i]
+                if (log.usuario.toLowerCase().indexOf(busquedaLower) !== -1 ||
+                    log.accion.toLowerCase().indexOf(busquedaLower) !== -1) {
+                    filtrados.push(log)
+                }
+            }
+            logsActuales = filtrados
+            console.log("✓ Búsqueda aplicada:", filtrados.length, "resultados")
+        } else {
+            logsActuales = logs
+            console.log("✓ Mostrando todos los logs")
+        }
     }
 
     function logsFiltrados() {
