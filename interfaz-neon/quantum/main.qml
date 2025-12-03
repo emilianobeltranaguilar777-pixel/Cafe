@@ -788,7 +788,7 @@ Window {
                             spacing: 10
 
                             Text {
-                                text: "🏆 Productos Más Vendidos"
+                                text: "Top Selling Products"
                                 font.pixelSize: 16
                                 font.bold: true
                                 color: "#00ffff"
@@ -873,7 +873,7 @@ Window {
                         spacing: 15
 
                         Text {
-                            text: "📊 Resumen Rápido"
+                            text: "Quick Summary"
                             font.pixelSize: 16
                             font.bold: true
                             color: "#00ff80"
@@ -895,7 +895,7 @@ Window {
                                 spacing: 10
 
                                 Text {
-                                    text: "🛒"
+                                    text: ""
                                     font.pixelSize: 24
                                 }
 
@@ -926,7 +926,7 @@ Window {
                                 spacing: 10
 
                                 Text {
-                                    text: "📦"
+                                    text: ""
                                     font.pixelSize: 24
                                 }
 
@@ -957,7 +957,7 @@ Window {
                                 spacing: 10
 
                                 Text {
-                                    text: "🍰"
+                                    text: ""
                                     font.pixelSize: 24
                                 }
 
@@ -988,7 +988,7 @@ Window {
                                 spacing: 10
 
                                 Text {
-                                    text: "✅"
+                                    text: ""
                                     font.pixelSize: 24
                                 }
 
@@ -1055,7 +1055,7 @@ Window {
                 spacing: 15
 
                 Text {
-                    text: "👥 Gestión de Clientes"
+                    text: "Stellar Guests"
                     font.pixelSize: 28
                     font.bold: true
                     color: "#00ffff"
@@ -1083,7 +1083,7 @@ Window {
                 }
 
                 Button {
-                    text: mostrarFormulario ? "✕ Cancelar" : "+ Nuevo Cliente"
+                    text: mostrarFormulario ? "Cancel" : "+ Nuevo Cliente"
                     width: 160
                     height: 40
                     background: Rectangle {
@@ -1123,7 +1123,7 @@ Window {
                     spacing: 10
 
                     Text {
-                        text: "🔍"
+                        text: ""
                         font.pixelSize: 24
                         anchors.verticalCenter: parent.verticalCenter
                     }
@@ -1950,7 +1950,7 @@ Window {
                 Item { width: parent.width - 340 }
 
                 Button {
-                    text: mostrarFormulario ? "✕ Cancelar" : "＋ Nueva receta"
+                    text: mostrarFormulario ? "Cancel" : "New Recipe"
                     width: 180
                     height: 40
                     background: Rectangle { color: mostrarFormulario ? "#ff0055" : "#00ff80"; radius: 6 }
@@ -2007,7 +2007,7 @@ Window {
                     spacing: 14
 
                     Text {
-                        text: recetaEditando ? "✏️ Editar receta" : "➕ Nueva receta"
+                        text: recetaEditando ? "Edit Recipe" : "New Recipe"
                         font.pixelSize: 20
                         font.bold: true
                         color: recetaEditando ? "#00ff80" : "#00ffff"
@@ -2318,7 +2318,7 @@ Window {
                                     width: 140
                                     spacing: 8
                                     Button {
-                                        text: "✏️ Editar"
+                                        text: "Edit"
                                         width: parent.width
                                         height: 32
                                         background: Rectangle { color: "#00ff80"; radius: 6 }
@@ -2332,7 +2332,7 @@ Window {
                                         onClicked: prepararEdicionReceta(modelData)
                                     }
                                     Button {
-                                        text: "🗑️ Eliminar"
+                                        text: "Delete"
                                         width: parent.width
                                         height: 32
                                         background: Rectangle { color: "#ff0055"; radius: 6 }
@@ -2748,7 +2748,7 @@ Window {
                                 width: parent.width
                                 spacing: 8
                                 Text {
-                                    text: "🛒 Carrito:"
+                                    text: "Cart:"
                                     font.pixelSize: 16
                                     font.bold: true
                                     color: "#00ffff"
@@ -2862,7 +2862,7 @@ Window {
                                             Button {
                                                 width: 75
                                                 height: 28
-                                                text: "🗑️"
+                                                text: "×"
                                                 background: Rectangle { color: "#ff0055"; radius: 4 }
                                                 contentItem: Text {
                                                     text: parent.text
@@ -2931,7 +2931,7 @@ Window {
                                 Button {
                                     width: (parent.width - 12) / 2
                                     height: 55
-                                    text: "🗑️ LIMPIAR"
+                                    text: "CLEAR"
                                     enabled: carrito.length > 0
                                     background: Rectangle {
                                         color: parent.enabled ? "#ff0055" : "#404050"
@@ -2952,7 +2952,7 @@ Window {
                                     id: btnRegistrar
                                     width: (parent.width - 12) / 2
                                     height: 55
-                                    text: "✓ REGISTRAR VENTA"
+                                    text: "REGISTER SALE"
                                     enabled: carrito.length > 0
 
                                     scale: 1.0
@@ -3897,7 +3897,7 @@ Window {
                         spacing: 10
 
                         Text {
-                            text: "📊"
+                            text: ""
                             font.pixelSize: 24
                             anchors.verticalCenter: parent.verticalCenter
                         }
@@ -3932,7 +3932,7 @@ Window {
                         spacing: 10
 
                         Text {
-                            text: "✅"
+                            text: ""
                             font.pixelSize: 24
                             anchors.verticalCenter: parent.verticalCenter
                         }
@@ -3967,7 +3967,7 @@ Window {
                         spacing: 10
 
                         Text {
-                            text: "📦"
+                            text: ""
                             font.pixelSize: 24
                             anchors.verticalCenter: parent.verticalCenter
                         }
@@ -4018,7 +4018,7 @@ Window {
                         Item { width: parent.width - 270 }
 
                         Button {
-                            text: "📊 Vista Previa"
+                            text: "Preview"
                             width: 130
                             height: 30
                             background: Rectangle {
@@ -4038,7 +4038,7 @@ Window {
                         }
 
                         Button {
-                            text: "🔄 Recargar"
+                            text: "Reload"
                             width: 110
                             height: 30
                             background: Rectangle {
@@ -4175,7 +4175,7 @@ Window {
                             spacing: 15
 
                             Text {
-                                text: "📋"
+                                text: ""
                                 font.pixelSize: 60
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 opacity: 0.5
@@ -4197,7 +4197,7 @@ Window {
                             }
 
                             Button {
-                                text: "📊 Cargar Vista Previa"
+                                text: "Load Preview"
                                 width: 200
                                 height: 40
                                 anchors.horizontalCenter: parent.horizontalCenter
@@ -4376,10 +4376,10 @@ Window {
 
             function obtenerDetallesPrincipales(log) {
                 if (log.tipo === "sesion") {
-                    var exito = log.detalles.exito ? "✅ Exitoso" : "❌ Fallido"
+                    var exito = log.detalles.exito ? "Success" : "Failed"
                     return exito + " • IP: " + (log.detalles.ip || "N/A")
                 } else {
-                    return "📦 " + log.detalles.ingrediente + " • Cantidad: " + log.detalles.cantidad
+                    return log.detalles.ingrediente + " • Cantidad: " + log.detalles.cantidad
                 }
             }
 
