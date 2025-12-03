@@ -8,6 +8,30 @@ Sistema completo de gestión para cafeterías desarrollado con:
 
 ---
 
+## 🔐 CREDENCIALES POR DEFECTO
+
+**IMPORTANTE - Lee esto primero:**
+
+```
+Usuario: admin
+Contraseña: admin123
+```
+
+**Notas críticas:**
+- ✅ El sistema usa `username`, NO email
+- ✅ Las credenciales se crean con `python populate_db.py`
+- ✅ Para verificar que funcionan: `python verificar_login.py`
+- ✅ Documentación completa: Ver archivo `CREDENCIALES.md`
+
+**Login API:**
+```bash
+curl -X POST "http://localhost:8000/auth/login" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=admin&password=admin123"
+```
+
+---
+
 ## 🚀 Estado del Proyecto
 
 ### ✅ APLICACIÓN COMPLETAMENTE FUNCIONAL Y ESTABLE
@@ -91,7 +115,9 @@ Cafe/
 │   ├── test_auth.py
 │   └── test_permisos.py
 │
-├── populate_db.py           # Script para poblar la BD
+├── CREDENCIALES.md         # 🔐 Guía completa de credenciales y login
+├── verificar_login.py      # 🔍 Script para verificar que el login funciona
+├── populate_db.py          # Script para poblar la BD
 ├── start_all.sh            # Lanzador del backend
 └── requirements.txt        # Dependencias Python
 
@@ -172,6 +198,22 @@ python test/test_auth_permissions.py
 Username: admin
 Password: admin123
 Rol: ADMIN
+```
+
+**⚠️ IMPORTANTE:**
+- El campo para login es `username`, NO `email`
+- El sistema NO utiliza correo electrónico para autenticación
+- La base de datos usa `password_hash`, no `hashed_password`
+
+**Verificar que funciona:**
+```bash
+# Opción 1: Script de verificación
+python verificar_login.py
+
+# Opción 2: Prueba manual con curl
+curl -X POST "http://localhost:8000/auth/login" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=admin&password=admin123"
 ```
 
 ### Sistema de Roles
@@ -338,6 +380,76 @@ Cada recurso tiene permisos específicos por acción:
 
 ## 🐛 Troubleshooting
 
+### ❌ Error: "Credenciales incorrectas" o Login no funciona
+
+**Síntomas:**
+- El login retorna error 401
+- Las credenciales no son aceptadas
+- Error: "Usuario no encontrado"
+
+**Solución:**
+```bash
+# 1. Verificar que estás usando el formato correcto
+# ✅ CORRECTO: username=admin password=admin123
+# ❌ INCORRECTO: email=admin@cafe.com
+
+# 2. Reinicializar la base de datos
+python populate_db.py
+
+# 3. Verificar que funciona
+python verificar_login.py
+```
+
+### ❌ Error: "cannot import name 'autenticar_usuario'"
+
+**Causa:** Estás usando código desactualizado o mezclado.
+
+**Solución:**
+```bash
+# 1. Hacer pull de los últimos cambios
+git pull origin claude/finalize-stable-app-01Ef1HAanKoVB3KmDngBnZRR
+
+# 2. Limpiar archivos Python compilados
+find . -type d -name "__pycache__" -exec rm -rf {} +
+find . -name "*.pyc" -delete
+
+# 3. Reinstalar dependencias
+pip install -r requirements.txt
+
+# 4. Reiniciar el backend
+./start_all.sh
+```
+
+### ❌ Error: "cannot import name 'obtener_sesion'"
+
+**Causa:** Problema de imports circulares o caché.
+
+**Solución:**
+```bash
+# Limpiar caché de Python
+cd nucleo-api
+find . -type d -name "__pycache__" -exec rm -rf {} +
+
+# Reiniciar
+cd ..
+./start_all.sh
+```
+
+### ❌ Usuario creado con 'email' en lugar de 'username'
+
+**Síntoma:** La base de datos tiene un campo `email` pero el sistema usa `username`.
+
+**Causa:** Tienes código custom o versión antigua.
+
+**Solución:**
+```bash
+# Eliminar base de datos antigua
+rm nucleo-api/almacen_cuantico.db
+
+# Recrear con estructura correcta
+python populate_db.py
+```
+
 ### Error: ModuleNotFoundError
 ```bash
 pip install -r requirements.txt
@@ -356,6 +468,17 @@ lsof -i :8000
 
 ### Frontend no se conecta
 Verificar que el backend esté corriendo en `http://localhost:8000`
+
+### Verificación Completa del Sistema
+```bash
+# 1. Verificar base de datos
+python verificar_login.py
+
+# 2. Ejecutar tests
+python test/test_auth_permissions.py
+
+# Si ambos pasan, el sistema está 100% funcional
+```
 
 ---
 
