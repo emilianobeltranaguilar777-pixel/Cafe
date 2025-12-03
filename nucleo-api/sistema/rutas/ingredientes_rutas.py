@@ -1,7 +1,7 @@
 """
 🥫 RUTAS DE INGREDIENTES - ELCAFESIN
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from sqlmodel import Session, select, or_
 from typing import List, Optional
 
@@ -118,5 +118,29 @@ def eliminar_ingrediente(
     
     session.delete(ingrediente)
     session.commit()
-    
+
     return {"mensaje": "Ingrediente eliminado"}
+
+
+@router.patch("/{ingrediente_id}", response_model=Ingrediente)
+def actualizar_parcial_ingrediente(
+    ingrediente_id: int,
+    datos: dict = Body(...),
+    session: Session = Depends(obtener_sesion),
+    usuario_actual: Usuario = Depends(permiso_editar_ingrediente),
+):
+    """✏️ Actualización parcial del ingrediente"""
+    ingrediente = session.get(Ingrediente, ingrediente_id)
+
+    if not ingrediente:
+        raise HTTPException(status_code=404, detail="Ingrediente no encontrado")
+
+    for campo, valor in datos.items():
+        if hasattr(ingrediente, campo) and valor is not None:
+            setattr(ingrediente, campo, valor)
+
+    session.add(ingrediente)
+    session.commit()
+    session.refresh(ingrediente)
+
+    return ingrediente

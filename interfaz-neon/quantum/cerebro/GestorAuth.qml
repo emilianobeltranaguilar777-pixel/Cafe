@@ -58,9 +58,29 @@ QtObject {
     }
     
     // 🚪 Logout
-    function logout() {
-        token = ""
-        datosUsuario = null
+    function logout(callback) {
+        // Llamar al backend para registrar el logout
+        var xhr = new XMLHttpRequest()
+        xhr.open("POST", urlBackend + "/auth/logout")
+        xhr.setRequestHeader("Authorization", "Bearer " + token)
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                // Limpiar estado local independientemente del resultado
+                token = ""
+                datosUsuario = null
+
+                if (callback) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        callback(true, "Logout exitoso")
+                    } else {
+                        callback(true, "Sesión cerrada localmente")
+                    }
+                }
+            }
+        }
+
+        xhr.send()
     }
     
     // 🔍 Verificar permiso
