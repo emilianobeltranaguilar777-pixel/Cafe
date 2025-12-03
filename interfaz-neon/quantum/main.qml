@@ -2013,14 +2013,16 @@ Window {
     Component {
         id: pantallaVentas
         
-        Row {
-            anchors.fill: parent
-            spacing: 0
-            
-            property var recetas: []
-            property var ventas: []
-            property var carrito: []
-            property real total: 0
+            Row {
+                anchors.fill: parent
+                spacing: 0
+
+                property var recetas: []
+                property var ventas: []
+                property var carrito: []
+                property real total: 0
+                property int recetaSeleccionadaIndex: -1
+                property string mensajeVenta: ""
             
             // Panel izquierdo - POS
             Rectangle {
@@ -2058,6 +2060,53 @@ Window {
                                 font.pixelSize: 16
                                 font.bold: true
                                 color: "#e0e0ff"
+                            }
+
+                            Row {
+                                spacing: 12
+                                width: parent.width
+
+                                ComboBox {
+                                    id: selectorReceta
+                                    width: parent.width * 0.5
+                                    model: recetas
+                                    textRole: "nombre"
+                                    onActivated: mensajeVenta = ""
+                                }
+
+                                TextField {
+                                    id: inputCantidadVenta
+                                    width: 90
+                                    text: "1"
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    validator: DoubleValidator { bottom: 0.01 }
+                                    placeholderText: "Cantidad"
+                                }
+
+                                Button {
+                                    width: parent.width * 0.2
+                                    height: 40
+                                    text: "Agregar"
+                                    enabled: selectorReceta.currentIndex >= 0 && parseFloat(inputCantidadVenta.text) > 0
+                                    background: Rectangle {
+                                        color: parent.enabled ? "#00ff80" : "#404050"
+                                        radius: 8
+                                    }
+                                    contentItem: Text {
+                                        text: parent.text
+                                        color: "#050510"
+                                        font.bold: true
+                                        font.pixelSize: 14
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                    }
+                                    onClicked: {
+                                        var receta = selectorReceta.currentIndex >= 0 ? recetas[selectorReceta.currentIndex] : null
+                                        var cantidad = parseFloat(inputCantidadVenta.text)
+                                        agregarAlCarrito(receta, cantidad)
+                                        inputCantidadVenta.text = "1"
+                                    }
+                                }
                             }
                             
                             ListView {
@@ -2134,20 +2183,74 @@ Window {
                                     clip: true
                                     model: carrito
                                     
-                                    delegate: Row {
-                                        width: parent.width
-                                        spacing: 10
-                                        
+                                delegate: Row {
+                                    width: parent.width
+                                    spacing: 10
+
+                                    Text {
+                                        text: "• " + modelData.nombre
+                                        font.pixelSize: 12
+                                        color: "#e0e0ff"
+                                        width: parent.width - 220
+                                    }
+
+                                    Row {
+                                        spacing: 6
+
+                                        Button {
+                                            width: 28
+                                            height: 28
+                                            text: "-"
+                                            enabled: modelData.cantidad > 1
+                                            background: Rectangle { color: parent.enabled ? "#1a1a2f" : "#303040"; border.color: "#00ffff"; radius: 4 }
+                                            contentItem: Text {
+                                                text: parent.text
+                                                color: "#e0e0ff"
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
+                                            }
+                                            onClicked: ajustarCantidadCarrito(index, -1)
+                                        }
+
                                         Text {
-                                            text: "• " + modelData.nombre + " x" + modelData.cantidad
+                                            text: "x" + modelData.cantidad
                                             font.pixelSize: 12
                                             color: "#e0e0ff"
-                                            width: parent.width - 100
                                         }
-                                        
-                                        Text {
-                                            text: "$" + (modelData.precio * modelData.cantidad).toFixed(2)
-                                            font.pixelSize: 12
+
+                                        Button {
+                                            width: 28
+                                            height: 28
+                                            text: "+"
+                                            background: Rectangle { color: "#1a1a2f"; border.color: "#00ffff"; radius: 4 }
+                                            contentItem: Text {
+                                                text: parent.text
+                                                color: "#e0e0ff"
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
+                                            }
+                                            onClicked: ajustarCantidadCarrito(index, 1)
+                                        }
+                                    }
+
+                                    Button {
+                                        width: 80
+                                        height: 28
+                                        text: "Eliminar"
+                                        background: Rectangle { color: "#ff0055"; radius: 4 }
+                                        contentItem: Text {
+                                            text: parent.text
+                                            color: "#ffffff"
+                                            font.pixelSize: 11
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+                                        onClicked: eliminarItemCarrito(index)
+                                    }
+
+                                    Text {
+                                        text: "$" + (modelData.precio * modelData.cantidad).toFixed(2)
+                                        font.pixelSize: 12
                                             font.bold: true
                                             color: "#00ff80"
                                         }
@@ -2205,7 +2308,7 @@ Window {
                                 Button {
                                     width: (parent.width - 10) / 2
                                     height: 50
-                                    text: "PROCESAR VENTA"
+                                    text: "REGISTRAR VENTA"
                                     enabled: carrito.length > 0
                                     background: Rectangle {
                                         color: parent.enabled ? "#00ff80" : "#404050"
@@ -2220,6 +2323,13 @@ Window {
                                     }
                                     onClicked: procesarVenta()
                                 }
+                            }
+
+                            Text {
+                                visible: mensajeVenta !== ""
+                                text: mensajeVenta
+                                font.pixelSize: 12
+                                color: "#ff0055"
                             }
                         }
                     }
@@ -2317,6 +2427,12 @@ Window {
                 api.get("/recetas/", function(exito, datos) {
                     if (exito) {
                         recetas = datos
+                        if (selectorReceta && recetas.length > 0) {
+                            selectorReceta.currentIndex = 0
+                        }
+                        recetaSeleccionadaIndex = selectorReceta ? selectorReceta.currentIndex : -1
+                    } else {
+                        mensajeVenta = "No se pudieron cargar las recetas"
                     }
                 })
                 cargarVentas()
@@ -2326,30 +2442,59 @@ Window {
                 api.get("/ventas/?limit=20", function(exito, datos) {
                     if (exito) {
                         ventas = datos
+                        mensajeVenta = ""
+                    } else {
+                        mensajeVenta = "No se pudieron cargar las ventas"
                     }
                 })
             }
             
-            function agregarAlCarrito(receta) {
-                // Buscar si ya existe en el carrito
+            function precioReceta(receta) {
+                if (!receta)
+                    return 0
+
+                if (receta.precio_sugerido !== undefined)
+                    return receta.precio_sugerido
+
+                if (receta.costo_total !== undefined && receta.margen !== undefined)
+                    return receta.costo_total * (1 + receta.margen)
+
+                return 0
+            }
+
+            function agregarAlCarrito(receta, cantidad) {
+                if (!receta) {
+                    mensajeVenta = "Selecciona una receta"
+                    return
+                }
+
+                var cantidadNumerica = cantidad || 1
+                if (cantidadNumerica <= 0) {
+                    mensajeVenta = "La cantidad debe ser mayor a 0"
+                    return
+                }
+
+                var precioUnitario = precioReceta(receta)
                 var encontrado = false
+                // Buscar si ya existe en el carrito
                 for (var i = 0; i < carrito.length; i++) {
                     if (carrito[i].receta_id === receta.id) {
-                        carrito[i].cantidad++
+                        carrito[i].cantidad += cantidadNumerica
+                        carrito[i].precio = precioUnitario
                         encontrado = true
                         break
                     }
                 }
-                
+
                 if (!encontrado) {
                     carrito.push({
                         receta_id: receta.id,
                         nombre: receta.nombre,
-                        cantidad: 1,
-                        precio: 25.00
+                        cantidad: cantidadNumerica,
+                        precio: precioUnitario
                     })
                 }
-                
+
                 // Forzar actualización
                 carrito = carrito.slice()
                 calcularTotal()
@@ -2362,13 +2507,43 @@ Window {
                 }
                 total = suma
             }
-            
+
             function limpiarCarrito() {
                 carrito = []
                 total = 0
+                mensajeVenta = ""
             }
-            
+
+            function ajustarCantidadCarrito(indice, delta) {
+                if (indice < 0 || indice >= carrito.length)
+                    return
+
+                var nuevoValor = carrito[indice].cantidad + delta
+                if (nuevoValor <= 0) {
+                    carrito.splice(indice, 1)
+                } else {
+                    carrito[indice].cantidad = nuevoValor
+                }
+
+                carrito = carrito.slice()
+                calcularTotal()
+            }
+
+            function eliminarItemCarrito(indice) {
+                if (indice < 0 || indice >= carrito.length)
+                    return
+
+                carrito.splice(indice, 1)
+                carrito = carrito.slice()
+                calcularTotal()
+            }
+
             function procesarVenta() {
+                if (carrito.length === 0) {
+                    mensajeVenta = "Agrega al menos una receta"
+                    return
+                }
+
                 var items = []
                 for (var i = 0; i < carrito.length; i++) {
                     items.push({
@@ -2387,8 +2562,10 @@ Window {
                         notificacion.mostrar("Venta procesada: #" + respuesta.id + " - $" + respuesta.total.toFixed(2))
                         limpiarCarrito()
                         cargarVentas()
+                    } else if (respuesta && respuesta.detail) {
+                        mensajeVenta = respuesta.detail
                     } else {
-                        notificacion.mostrar("Error al procesar venta")
+                        mensajeVenta = "Error al procesar venta"
                     }
                 })
             }
