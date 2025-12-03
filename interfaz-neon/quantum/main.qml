@@ -138,6 +138,29 @@ Window {
             }
             xhr.send(JSON.stringify(data))
         }
+
+        function patch(endpoint, data, callback) {
+            var xhr = new XMLHttpRequest()
+            xhr.open("PATCH", root.backendUrl + endpoint)
+            xhr.setRequestHeader("Authorization", "Bearer " + root.token)
+            xhr.setRequestHeader("Content-Type", "application/json")
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        try {
+                            var response = xhr.responseText ? JSON.parse(xhr.responseText) : {}
+                            callback(true, response)
+                        } catch(e) {
+                            callback(false, "Error: " + e)
+                        }
+                    } else {
+                        callback(false, "HTTP " + xhr.status)
+                    }
+                }
+            }
+            xhr.send(JSON.stringify(data))
+        }
     }
     
     StackView {
@@ -1645,168 +1668,453 @@ Window {
     }
     
     // ============================================
-    // USUARIOS
-    // ============================================
-    Component {
-        id: pantallaUsuarios
-        
-        Column {
-            anchors.fill: parent
-            anchors.margins: 40
-            spacing: 25
-            
-            property var usuarios: []
-            
-            Row {
-                width: parent.width
-                
-                Text {
-                    text: "Gestión de Usuarios"
-                    font.pixelSize: 28
-                    font.bold: true
-                    color: "#00ffff"
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                
-                Item { width: parent.width - 500 }
-                
-                Button {
-                    text: "Recargar"
-                    width: 120
-                    height: 40
-                    background: Rectangle {
-                        color: "#00ffff"
-                        radius: 6
-                    }
-                    contentItem: Text {
-                        text: parent.text
-                        color: "#050510"
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-                    onClicked: cargarUsuarios()
-                }
-            }
-            
-            Rectangle {
-                width: parent.width
-                height: parent.height - 100
-                color: "#0a0a1f"
-                border.color: "#00ffff"
-                border.width: 2
+      // USUARIOS
+      // ============================================
+      Component {
+          id: pantallaUsuarios
+
+          Column {
+              anchors.fill: parent
+              anchors.margins: 40
+              spacing: 25
+
+              property var usuarios: []
+              property bool mostrarFormulario: false
+              property int usuarioEditando: -1
+              property var rolesDisponibles: ["ADMIN", "DUENO", "GERENTE", "VENDEDOR"]
+
+              Item {
+                  width: parent.width
+                  height: 50
+
+                  Text {
+                      anchors.left: parent.left
+                      anchors.verticalCenter: parent.verticalCenter
+                      text: "Gestión de Usuarios"
+                      font.pixelSize: 28
+                      font.bold: true
+                      color: "#00ffff"
+                  }
+
+                  Row {
+                      anchors.right: parent.right
+                      anchors.verticalCenter: parent.verticalCenter
+                      spacing: 12
+
+                      Button {
+                          text: mostrarFormulario ? "Cancelar" : "+ Nuevo Usuario"
+                          width: 170
+                          height: 40
+                          background: Rectangle {
+                              color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                              radius: 6
+                          }
+                          contentItem: Text {
+                              text: parent.text
+                              color: "#050510"
+                              font.bold: true
+                              horizontalAlignment: Text.AlignHCenter
+                          }
+                          onClicked: {
+                              if (mostrarFormulario) {
+                                  limpiarFormulario()
+                              } else {
+                                  prepararNuevo()
+                              }
+                          }
+                      }
+
+                      Button {
+                          text: "Recargar"
+                          width: 120
+                          height: 40
+                          background: Rectangle {
+                              color: "#00ffff"
+                              radius: 6
+                          }
+                          contentItem: Text {
+                              text: parent.text
+                              color: "#050510"
+                              font.bold: true
+                              horizontalAlignment: Text.AlignHCenter
+                          }
+                          onClicked: cargarUsuarios()
+                      }
+                  }
+              }
+
+              Rectangle {
+                  width: parent.width
+                  height: 240
+                  visible: mostrarFormulario
+                  color: "#0a0a1f"
+                  border.color: "#00ffff"
+                  border.width: 2
+                  radius: 10
+
+                  Column {
+                      anchors.fill: parent
+                      anchors.margins: 20
+                      spacing: 14
+
+                      Text {
+                          text: usuarioEditando >= 0 ? "Editar Usuario" : "Nuevo Usuario"
+                          font.pixelSize: 18
+                          font.bold: true
+                          color: "#00ffff"
+                      }
+
+                      Row {
+                          width: parent.width
+                          spacing: 12
+
+                          Column {
+                              width: (parent.width - 24) / 2
+                              spacing: 6
+                              Text {
+                                  text: "Username"
+                                  font.pixelSize: 12
+                                  color: "#8080a0"
+                              }
+                              TextField {
+                                  id: inputUsername
+                                  width: parent.width
+                                  enabled: usuarioEditando < 0
+                                  placeholderText: "admin"
+                                  color: "#e0e0ff"
+                                  background: Rectangle {
+                                      color: "transparent"
+                                      border.color: "#00ffff"
+                                      border.width: 1
+                                      radius: 4
+                                  }
+                              }
+                          }
+
+                          Column {
+                              width: (parent.width - 24) / 2
+                              spacing: 6
+                              Text {
+                                  text: "Nombre"
+                                  font.pixelSize: 12
+                                  color: "#8080a0"
+                              }
+                              TextField {
+                                  id: inputNombreUsuario
+                                  width: parent.width
+                                  placeholderText: "Administrador"
+                                  color: "#e0e0ff"
+                                  background: Rectangle {
+                                      color: "transparent"
+                                      border.color: "#00ffff"
+                                      border.width: 1
+                                      radius: 4
+                                  }
+                              }
+                          }
+                      }
+
+                      Row {
+                          width: parent.width
+                          spacing: 12
+
+                          Column {
+                              width: (parent.width - 24) / 2
+                              spacing: 6
+                              Text {
+                                  text: "Rol"
+                                  font.pixelSize: 12
+                                  color: "#8080a0"
+                              }
+                              ComboBox {
+                                  id: inputRol
+                                  width: parent.width
+                                  model: rolesDisponibles
+                                  currentIndex: 0
+                              }
+                          }
+
+                          Column {
+                              width: (parent.width - 24) / 2
+                              spacing: 6
+                              Text {
+                                  text: usuarioEditando >= 0 ? "Actualizar contraseña (opcional)" : "Contraseña"
+                                  font.pixelSize: 12
+                                  color: "#8080a0"
+                              }
+                              TextField {
+                                  id: inputPassword
+                                  width: parent.width
+                                  echoMode: TextInput.Password
+                                  placeholderText: usuarioEditando >= 0 ? "Deja vacío para mantener" : "********"
+                                  color: "#e0e0ff"
+                                  background: Rectangle {
+                                      color: "transparent"
+                                      border.color: "#00ffff"
+                                      border.width: 1
+                                      radius: 4
+                                  }
+                              }
+                          }
+                      }
+
+                      Row {
+                          width: parent.width
+                          spacing: 12
+
+                          Button {
+                              text: usuarioEditando >= 0 ? "ACTUALIZAR USUARIO" : "GUARDAR USUARIO"
+                              width: 210
+                              height: 40
+                              background: Rectangle {
+                                  color: "#00ff80"
+                                  radius: 6
+                              }
+                              contentItem: Text {
+                                  text: parent.text
+                                  color: "#050510"
+                                  font.bold: true
+                                  horizontalAlignment: Text.AlignHCenter
+                              }
+                              onClicked: guardarUsuario()
+                          }
+
+                          Button {
+                              text: "Limpiar"
+                              width: 120
+                              height: 40
+                              background: Rectangle {
+                                  color: "#ff0080"
+                                  radius: 6
+                              }
+                              contentItem: Text {
+                                  text: parent.text
+                                  color: "#050510"
+                                  font.bold: true
+                                  horizontalAlignment: Text.AlignHCenter
+                              }
+                              onClicked: prepararNuevo()
+                          }
+                      }
+                  }
+              }
+
+              Rectangle {
+                  width: parent.width
+                  height: parent.height - (mostrarFormulario ? 340 : 120)
+                  color: "#0a0a1f"
+                  border.color: "#00ffff"
+                  border.width: 2
                 radius: 10
                 
                 ListView {
                     anchors.fill: parent
                     anchors.margins: 20
                     spacing: 12
-                    clip: true
-                    model: usuarios
-                    
-                    delegate: Rectangle {
-                        width: parent.width
-                        height: 80
-                        color: "#1a1a2f"
-                        border.color: "#00ffff"
-                        border.width: 1
-                        radius: 8
-                        
-                        Row {
-                            anchors.fill: parent
-                            anchors.margins: 15
-                            spacing: 25
-                            
-                            Column {
-                                width: 250
-                                anchors.verticalCenter: parent.verticalCenter
-                                spacing: 5
-                                
-                                Text {
+                      clip: true
+                      model: usuarios
+
+                      delegate: Rectangle {
+                          width: parent.width
+                          height: 100
+                          color: "#1a1a2f"
+                          border.color: "#00ffff"
+                          border.width: 1
+                          radius: 8
+
+                          Row {
+                              anchors.fill: parent
+                              anchors.margins: 15
+                              spacing: 18
+
+                              Column {
+                                  width: 260
+                                  anchors.verticalCenter: parent.verticalCenter
+                                  spacing: 5
+
+                                  Text {
                                     text: modelData.username
                                     font.pixelSize: 16
-                                    font.bold: true
-                                    color: "#e0e0ff"
-                                }
-                                Text {
-                                    text: modelData.nombre || "Sin nombre"
+                                      font.bold: true
+                                      color: "#e0e0ff"
+                                  }
+                                  Text {
+                                      text: modelData.nombre || "Sin nombre"
                                     font.pixelSize: 12
                                     color: "#8080a0"
-                                }
-                            }
-                            
-                            Rectangle {
-                                width: 80
-                                height: 30
-                                color: "#ff008030"
-                                border.color: "#ff0080"
-                                border.width: 1
-                                radius: 6
-                                anchors.verticalCenter: parent.verticalCenter
+                                  }
+                              }
+
+                              Rectangle {
+                                  width: 90
+                                  height: 32
+                                  color: "#ff008030"
+                                  border.color: "#ff0080"
+                                  border.width: 1
+                                  radius: 6
+                                  anchors.verticalCenter: parent.verticalCenter
                                 
                                 Text {
                                     anchors.centerIn: parent
                                     text: modelData.rol
-                                    font.pixelSize: 12
-                                    font.bold: true
-                                    color: "#ff0080"
-                                }
-                            }
-                            
-                            Rectangle {
-                                width: 70
-                                height: 30
-                                color: modelData.activo ? "#00ff8030" : "#ff005530"
-                                border.color: modelData.activo ? "#00ff80" : "#ff0055"
-                                border.width: 1
-                                radius: 6
-                                anchors.verticalCenter: parent.verticalCenter
-                                
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: modelData.activo ? "ACTIVO" : "INACTIVO"
-                                    font.pixelSize: 10
-                                    font.bold: true
-                                    color: modelData.activo ? "#00ff80" : "#ff0055"
-                                }
-                            }
-                            
-                            Item { width: parent.width - 600 }
-                            
-                            Button {
-                                text: "Gestionar"
-                                width: 100
-                                height: 35
-                                anchors.verticalCenter: parent.verticalCenter
-                                background: Rectangle {
-                                    color: "#00ff80"
-                                    radius: 6
-                                }
-                                contentItem: Text {
-                                    text: parent.text
-                                    color: "#050510"
-                                    font.bold: true
-                                    horizontalAlignment: Text.AlignHCenter
-                                }
-                                onClicked: {
-                                    notificacion.mostrar("Gestión de usuario en desarrollo")
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            Component.onCompleted: cargarUsuarios()
-            
-            function cargarUsuarios() {
-                api.get("/auth/usuarios", function(exito, datos) {
-                    if (exito) {
-                        usuarios = datos
-                    }
-                })
-            }
-        }
-    }
+                                      font.pixelSize: 12
+                                      font.bold: true
+                                      color: "#ff0080"
+                                  }
+                              }
+
+                              Row {
+                                  spacing: 8
+                                  anchors.verticalCenter: parent.verticalCenter
+
+                                  Text {
+                                      text: modelData.activo ? "Activo" : "Inactivo"
+                                      font.pixelSize: 12
+                                      color: modelData.activo ? "#00ff80" : "#ff0055"
+                                      anchors.verticalCenter: parent.verticalCenter
+                                  }
+
+                                  Switch {
+                                      checked: modelData.activo
+                                      onToggled: cambiarEstado(modelData.id, checked)
+                                  }
+                              }
+
+                              Item { width: parent.width - 620 }
+
+                              Button {
+                                  text: "Editar"
+                                  width: 100
+                                  height: 35
+                                  anchors.verticalCenter: parent.verticalCenter
+                                  background: Rectangle {
+                                      color: "#00ff80"
+                                      radius: 6
+                                  }
+                                  contentItem: Text {
+                                      text: parent.text
+                                      color: "#050510"
+                                      font.bold: true
+                                      horizontalAlignment: Text.AlignHCenter
+                                  }
+                                  onClicked: {
+                                      prepararEdicion(modelData)
+                                  }
+                              }
+
+                              Button {
+                                  text: modelData.activo ? "Desactivar" : "Activar"
+                                  width: 110
+                                  height: 35
+                                  anchors.verticalCenter: parent.verticalCenter
+                                  background: Rectangle {
+                                      color: modelData.activo ? "#ff0055" : "#00ffff"
+                                      radius: 6
+                                  }
+                                  contentItem: Text {
+                                      text: parent.text
+                                      color: "#050510"
+                                      font.bold: true
+                                      horizontalAlignment: Text.AlignHCenter
+                                  }
+                                  onClicked: cambiarEstado(modelData.id, !modelData.activo)
+                              }
+                          }
+                      }
+                  }
+              }
+
+              Component.onCompleted: cargarUsuarios()
+
+              function cargarUsuarios() {
+                  api.get("/auth/usuarios", function(exito, datos) {
+                      if (exito) {
+                          usuarios = datos
+                      }
+                  })
+              }
+
+              function prepararNuevo() {
+                  usuarioEditando = -1
+                  mostrarFormulario = true
+                  inputUsername.text = ""
+                  inputNombreUsuario.text = ""
+                  inputPassword.text = ""
+                  inputRol.currentIndex = 0
+              }
+
+              function prepararEdicion(usuario) {
+                  usuarioEditando = usuario.id
+                  mostrarFormulario = true
+                  inputUsername.text = usuario.username
+                  inputNombreUsuario.text = usuario.nombre || ""
+                  inputPassword.text = ""
+                  var idx = rolesDisponibles.indexOf(usuario.rol)
+                  inputRol.currentIndex = idx >= 0 ? idx : 0
+              }
+
+              function limpiarFormulario() {
+                  usuarioEditando = -1
+                  mostrarFormulario = false
+                  inputUsername.text = ""
+                  inputNombreUsuario.text = ""
+                  inputPassword.text = ""
+                  inputRol.currentIndex = 0
+              }
+
+              function guardarUsuario() {
+                  var datos = {
+                      nombre: inputNombreUsuario.text,
+                      rol: inputRol.currentText
+                  }
+
+                  if (usuarioEditando < 0) {
+                      datos.username = inputUsername.text
+                      datos.password = inputPassword.text
+
+                      if (!datos.username || !datos.password) {
+                          notificacion.mostrar("Username y contraseña son obligatorios")
+                          return
+                      }
+
+                      api.post("/auth/usuarios", datos, function(exito, resp) {
+                          if (exito) {
+                              notificacion.mostrar("Usuario creado")
+                              limpiarFormulario()
+                              cargarUsuarios()
+                          } else {
+                              notificacion.mostrar("Error al crear usuario")
+                          }
+                      })
+                  } else {
+                      if (inputPassword.text.length > 0) {
+                          datos.password = inputPassword.text
+                      }
+
+                      api.put("/auth/usuarios/" + usuarioEditando, datos, function(exito, resp) {
+                          if (exito) {
+                              notificacion.mostrar("Usuario actualizado")
+                              limpiarFormulario()
+                              cargarUsuarios()
+                          } else {
+                              notificacion.mostrar("Error al actualizar usuario")
+                          }
+                      })
+                  }
+              }
+
+              function cambiarEstado(usuarioId, activo) {
+                  api.patch("/auth/usuarios/" + usuarioId + "/estado?activo=" + activo, {}, function(exito, resp) {
+                      if (exito) {
+                          notificacion.mostrar(activo ? "Usuario activado" : "Usuario desactivado")
+                          cargarUsuarios()
+                      } else {
+                          notificacion.mostrar("Error al cambiar estado")
+                      }
+                  })
+              }
+          }
+      }
     
     // ============================================
     // LOGS
