@@ -21,13 +21,20 @@ Rectangle {
         border.width: 2
         radius: 0
 
-        // Subtle glow for sidebar
+        // Animated pulsing glow for sidebar
+        property real glowIntensity: 0.1
+        SequentialAnimation on glowIntensity {
+            loops: Animation.Infinite
+            NumberAnimation { to: 0.2; duration: 3000; easing.type: Easing.InOutSine }
+            NumberAnimation { to: 0.1; duration: 3000; easing.type: Easing.InOutSine }
+        }
+
         layer.enabled: true
         layer.effect: Glow {
             samples: 17
             color: PaletaNeon.primario
-            spread: 0.1
-            radius: 6
+            spread: sidebar.glowIntensity
+            radius: 8
         }
         
         Column {

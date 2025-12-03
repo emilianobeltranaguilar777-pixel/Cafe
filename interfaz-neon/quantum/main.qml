@@ -535,22 +535,37 @@ Window {
                         }
 
                         Column {
-                            spacing: 2
+                            spacing: 0
                             anchors.verticalCenter: parent.verticalCenter
 
                             Text {
-                                text: "Desarrollado por"
-                                font.pixelSize: 10
-                                color: "#8080a0"
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-
-                            Text {
-                                text: "Jose Beltrán & ChatGPT"
-                                font.pixelSize: 16
+                                text: "Hecho por los meros buenos"
+                                font.pixelSize: 18
                                 font.bold: true
-                                color: "#ff0080"
                                 anchors.horizontalCenter: parent.horizontalCenter
+
+                                // Animated tinting between sky-blue and terminal-green
+                                color: animatedTintText.currentColor
+
+                                Item {
+                                    id: animatedTintText
+                                    property color currentColor: "#00ffff"
+
+                                    SequentialAnimation on currentColor {
+                                        loops: Animation.Infinite
+                                        ColorAnimation { to: "#00ffff"; duration: 2000; easing.type: Easing.InOutSine }
+                                        ColorAnimation { to: "#00ff88"; duration: 2000; easing.type: Easing.InOutSine }
+                                    }
+                                }
+
+                                // Strong readable glow
+                                layer.enabled: true
+                                layer.effect: Glow {
+                                    samples: 13
+                                    color: animatedTintText.currentColor
+                                    spread: 0.3
+                                    radius: 8
+                                }
                             }
                         }
                     }
@@ -751,7 +766,7 @@ Window {
                             spacing: 10
 
                             Repeater {
-                                model: ["Latte Vainilla", "Cappuccino Clásico", "Americano Doble", "Mocha Especial", "Espresso"]
+                                model: ["Latte Vainilla", "Cappuccino Clásico", "Americano Doble", "Mocha Especial"]
                                 Rectangle {
                                     width: parent.width
                                     height: 36
@@ -955,6 +970,164 @@ Window {
                 }
             }
 
+            // New Animated Info Cards
+            Row {
+                width: parent.width
+                spacing: 20
+
+                // Card 1: Performance Metrics
+                Rectangle {
+                    id: performanceCard
+                    width: (parent.width - 20) / 2
+                    height: 160
+                    color: "#0a0a1f"
+                    border.color: "#ff0080"
+                    border.width: 2
+                    radius: 12
+
+                    // Float animation
+                    property real floatOffset: 0
+                    SequentialAnimation on floatOffset {
+                        loops: Animation.Infinite
+                        NumberAnimation { to: -5; duration: 1500; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 0; duration: 1500; easing.type: Easing.InOutSine }
+                    }
+
+                    transform: Translate { y: performanceCard.floatOffset }
+
+                    // Subtle glow
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 13
+                        color: "#ff0080"
+                        spread: 0.2
+                        radius: 8
+                    }
+
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 15
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "⚡"
+                            font.pixelSize: 48
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "Rendimiento del Sistema"
+                            font.pixelSize: 14
+                            font.bold: true
+                            color: "#ff0080"
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "98.5% Uptime"
+                            font.pixelSize: 20
+                            font.bold: true
+                            color: "#00ff80"
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "Óptimo ✓"
+                            font.pixelSize: 12
+                            color: "#8080a0"
+                        }
+                    }
+
+                    // Hover scale effect
+                    MouseArea {
+                        id: performanceHover
+                        anchors.fill: parent
+                        hoverEnabled: true
+                    }
+
+                    scale: performanceHover.containsMouse ? 1.03 : 1.0
+                    Behavior on scale {
+                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                    }
+                }
+
+                // Card 2: Client Activity
+                Rectangle {
+                    id: clientActivityCard
+                    width: (parent.width - 20) / 2
+                    height: 160
+                    color: "#0a0a1f"
+                    border.color: "#00ffff"
+                    border.width: 2
+                    radius: 12
+
+                    // Float animation (offset phase)
+                    property real floatOffset: 0
+                    SequentialAnimation on floatOffset {
+                        loops: Animation.Infinite
+                        NumberAnimation { to: -5; duration: 1800; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 0; duration: 1800; easing.type: Easing.InOutSine }
+                    }
+
+                    transform: Translate { y: clientActivityCard.floatOffset }
+
+                    // Subtle glow
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 13
+                        color: "#00ffff"
+                        spread: 0.2
+                        radius: 8
+                    }
+
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 15
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "👥"
+                            font.pixelSize: 48
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "Actividad de Clientes"
+                            font.pixelSize: 14
+                            font.bold: true
+                            color: "#00ffff"
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "142 Activos"
+                            font.pixelSize: 20
+                            font.bold: true
+                            color: "#00ff80"
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "+12% esta semana"
+                            font.pixelSize: 12
+                            color: "#8080a0"
+                        }
+                    }
+
+                    // Hover scale effect
+                    MouseArea {
+                        id: activityHover
+                        anchors.fill: parent
+                        hoverEnabled: true
+                    }
+
+                    scale: activityHover.containsMouse ? 1.03 : 1.0
+                    Behavior on scale {
+                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                    }
+                }
+            }
+
             Component.onCompleted: {
                 api.get("/reportes/dashboard", function(exito, datos) {
                     if (exito) {
@@ -999,11 +1172,30 @@ Window {
                 spacing: 15
 
                 Text {
+                    id: tituloClientes
                     text: "👥 Gestión de Clientes"
                     font.pixelSize: 28
                     font.bold: true
-                    color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
+
+                    // Animated tinting between cyan and lime
+                    property color animatedColor: "#00ffff"
+                    color: animatedColor
+
+                    SequentialAnimation on animatedColor {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00ffff"; duration: 3200; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#88ff00"; duration: 3200; easing.type: Easing.InOutSine }
+                    }
+
+                    // Subtle readable glow
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 9
+                        color: tituloClientes.animatedColor
+                        spread: 0.2
+                        radius: 4
+                    }
                 }
 
                 Item { width: parent.width - 580 }
@@ -1421,17 +1613,27 @@ Window {
                 }
 
                 Text {
+                    id: tituloIngredientes
                     text: "Gestión de Ingredientes"
                     font.pixelSize: 28
                     font.bold: true
-                    color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
 
-                    // Subtle readable glow
+                    // Animated tinting between cyan and green
+                    property color animatedColor: "#00ffff"
+                    color: animatedColor
+
+                    SequentialAnimation on animatedColor {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00ffff"; duration: 3000; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00ff99"; duration: 3000; easing.type: Easing.InOutSine }
+                    }
+
+                    // Subtle readable glow with animated color
                     layer.enabled: true
                     layer.effect: Glow {
                         samples: 9
-                        color: "#00ffff"
+                        color: tituloIngredientes.animatedColor
                         spread: 0.2
                         radius: 4
                     }
@@ -1951,17 +2153,27 @@ Window {
                 }
 
                 Text {
+                    id: tituloRecetas
                     text: "Gestión de Recetas"
                     font.pixelSize: 28
                     font.bold: true
-                    color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
 
-                    // Subtle readable glow
+                    // Animated tinting between cyan and pink
+                    property color animatedColor: "#00ffff"
+                    color: animatedColor
+
+                    SequentialAnimation on animatedColor {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00ffff"; duration: 3500; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#ff0088"; duration: 3500; easing.type: Easing.InOutSine }
+                    }
+
+                    // Subtle readable glow with animated color
                     layer.enabled: true
                     layer.effect: Glow {
                         samples: 9
-                        color: "#00ffff"
+                        color: tituloRecetas.animatedColor
                         spread: 0.2
                         radius: 4
                     }
@@ -2697,17 +2909,27 @@ Window {
                         }
 
                         Text {
+                            id: tituloVentas
                             text: "Punto de Venta"
                             font.pixelSize: 28
                             font.bold: true
-                            color: "#00ffff"
                             anchors.verticalCenter: parent.verticalCenter
+
+                            // Animated tinting between cyan and orange
+                            property color animatedColor: "#00ffff"
+                            color: animatedColor
+
+                            SequentialAnimation on animatedColor {
+                                loops: Animation.Infinite
+                                ColorAnimation { to: "#00ffff"; duration: 4000; easing.type: Easing.InOutSine }
+                                ColorAnimation { to: "#ffaa00"; duration: 4000; easing.type: Easing.InOutSine }
+                            }
 
                             // Subtle readable glow
                             layer.enabled: true
                             layer.effect: Glow {
                                 samples: 9
-                                color: "#00ffff"
+                                color: tituloVentas.animatedColor
                                 spread: 0.2
                                 radius: 4
                             }
@@ -2765,13 +2987,30 @@ Window {
                                 }
 
                                 Button {
+                                    id: btnAgregar
                                     width: parent.width * 0.2
                                     height: 40
                                     text: "Agregar"
                                     enabled: selectorReceta.currentIndex >= 0 && parseFloat(inputCantidadVenta.text) > 0
+
+                                    // Hover scale animation
+                                    scale: btnAgregar.hovered ? 1.05 : 1.0
+                                    Behavior on scale {
+                                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                                    }
+
                                     background: Rectangle {
                                         color: parent.enabled ? "#00ff80" : "#404050"
                                         radius: 8
+
+                                        // Enhanced glow on hover
+                                        layer.enabled: btnAgregar.hovered && btnAgregar.enabled
+                                        layer.effect: Glow {
+                                            samples: 11
+                                            color: "#00ff80"
+                                            spread: 0.3
+                                            radius: 8
+                                        }
                                     }
                                     contentItem: Text {
                                         text: parent.text
@@ -3027,13 +3266,30 @@ Window {
                                 spacing: 12
 
                                 Button {
+                                    id: btnLimpiar
                                     width: (parent.width - 12) / 2
                                     height: 55
                                     text: "🗑️ LIMPIAR"
                                     enabled: carrito.length > 0
+
+                                    // Hover scale animation
+                                    scale: btnLimpiar.hovered && btnLimpiar.enabled ? 1.03 : 1.0
+                                    Behavior on scale {
+                                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                                    }
+
                                     background: Rectangle {
                                         color: parent.enabled ? "#ff0055" : "#404050"
                                         radius: 8
+
+                                        // Enhanced glow on hover
+                                        layer.enabled: btnLimpiar.hovered && btnLimpiar.enabled
+                                        layer.effect: Glow {
+                                            samples: 11
+                                            color: "#ff0055"
+                                            spread: 0.3
+                                            radius: 8
+                                        }
                                     }
                                     contentItem: Text {
                                         text: parent.text
@@ -3053,14 +3309,24 @@ Window {
                                     text: "✓ REGISTRAR VENTA"
                                     enabled: carrito.length > 0
 
-                                    scale: 1.0
+                                    // Hover scale animation (enhanced from original)
+                                    scale: btnRegistrar.hovered && btnRegistrar.enabled ? 1.03 : 1.0
                                     Behavior on scale {
-                                        NumberAnimation { duration: 100 }
+                                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
                                     }
 
                                     background: Rectangle {
                                         color: parent.enabled ? "#00ff80" : "#404050"
                                         radius: 8
+
+                                        // Enhanced glow on hover
+                                        layer.enabled: btnRegistrar.hovered && btnRegistrar.enabled
+                                        layer.effect: Glow {
+                                            samples: 13
+                                            color: "#00ff80"
+                                            spread: 0.35
+                                            radius: 10
+                                        }
                                     }
                                     contentItem: Text {
                                         text: parent.text
@@ -3079,7 +3345,7 @@ Window {
                                     Timer {
                                         id: timerRegistrar
                                         interval: 100
-                                        onTriggered: btnRegistrar.scale = 1.0
+                                        onTriggered: btnRegistrar.scale = 1.03
                                     }
                                 }
                             }
@@ -3359,17 +3625,27 @@ Window {
                   }
 
                   Text {
+                      id: tituloUsuarios
                       text: "Gestión de Usuarios"
                       font.pixelSize: 28
                       font.bold: true
-                      color: "#00ffff"
                       anchors.verticalCenter: parent.verticalCenter
+
+                      // Animated tinting between cyan and purple
+                      property color animatedColor: "#00ffff"
+                      color: animatedColor
+
+                      SequentialAnimation on animatedColor {
+                          loops: Animation.Infinite
+                          ColorAnimation { to: "#00ffff"; duration: 3800; easing.type: Easing.InOutSine }
+                          ColorAnimation { to: "#aa00ff"; duration: 3800; easing.type: Easing.InOutSine }
+                      }
 
                       // Subtle readable glow
                       layer.enabled: true
                       layer.effect: Glow {
                           samples: 9
-                          color: "#00ffff"
+                          color: tituloUsuarios.animatedColor
                           spread: 0.2
                           radius: 4
                       }

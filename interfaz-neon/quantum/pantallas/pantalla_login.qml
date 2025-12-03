@@ -91,12 +91,58 @@ Rectangle {
                     font.pixelSize: PaletaNeon.tamañoFuenteNormal
                     color: PaletaNeon.textoSecundario
                 }
+
+                // Coffee shop slogan with neon effect
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "Una experiencia celestial en cada taza"
+                    font.family: PaletaNeon.fuentePrincipal
+                    font.pixelSize: 13
+                    font.italic: true
+                    color: PaletaNeon.primario
+
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 9
+                        color: PaletaNeon.primario
+                        spread: 0.3
+                        radius: 6
+                    }
+                }
             }
-            
-            // Formulario
-            Column {
+
+            // Formulario with pulsing border
+            Rectangle {
+                id: formPanel
                 width: parent.width
-                spacing: 20
+                height: formColumn.height + 40
+                color: Qt.rgba(0.04, 0.04, 0.07, 0.6)
+                radius: 12
+                border.color: PaletaNeon.primario
+                border.width: 2
+
+                // Pulsing neon border opacity
+                opacity: 1.0
+                SequentialAnimation on opacity {
+                    loops: Animation.Infinite
+                    NumberAnimation { to: 0.7; duration: 2000; easing.type: Easing.InOutSine }
+                    NumberAnimation { to: 1.0; duration: 2000; easing.type: Easing.InOutSine }
+                }
+
+                // Subtle glow
+                layer.enabled: true
+                layer.effect: Glow {
+                    samples: 13
+                    color: PaletaNeon.primario
+                    spread: 0.15
+                    radius: 10
+                }
+
+                Column {
+                    id: formColumn
+                    anchors.centerIn: parent
+                    width: parent.width - 40
+                    spacing: 20
                 
                 InputAnimado {
                     id: inputUsername
@@ -132,7 +178,15 @@ Rectangle {
                     width: parent.width
                     text: "INICIAR SESIÓN"
                     enabled: inputUsername.text && inputPassword.text
-                    
+
+                    // Animated glow for button
+                    property real glowIntensity: 0.5
+                    SequentialAnimation on glowIntensity {
+                        loops: Animation.Infinite
+                        NumberAnimation { to: 0.8; duration: 1500; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 0.5; duration: 1500; easing.type: Easing.InOutSine }
+                    }
+
                     onClicked: {
                         mensajeError.text = ""
                         GestorAuth.login(inputUsername.text, inputPassword.text, function(exito, mensaje) {
@@ -143,6 +197,7 @@ Rectangle {
                             }
                         })
                     }
+                }
                 }
             }
         }
