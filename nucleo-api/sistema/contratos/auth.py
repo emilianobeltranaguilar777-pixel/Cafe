@@ -1,4 +1,4 @@
-"
+"""
 📋 CONTRATOS DE AUTENTICACIÓN - ELCAFESIN
 Schemas Pydantic para auth
 """
@@ -35,5 +35,5 @@ class UsuarioOut(BaseModel):
     nombre: Optional[str]
     rol: str
     activo: bool
-    
+
     model_config = {"from_attributes": True}
