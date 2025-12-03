@@ -2,16 +2,44 @@
 🗄️ MOTOR DE BASE DE DATOS - ELCAFESIN
 Configuración de SQLModel y SQLite
 """
-from sqlmodel import SQLModel, Session, create_engine
+from pathlib import Path
 from typing import Generator
+
+from sqlmodel import SQLModel, Session, create_engine
+
 from .ajustes import obtener_ajustes
 
 # Obtener configuración
 ajustes = obtener_ajustes()
 
+def _resolver_database_url(url: str) -> str:
+    """
+    Garantiza que la ruta SQLite sea absoluta usando la carpeta del proyecto
+    (el repo ``nucleo-api``) como raíz. Esto evita que ejecuciones con un
+    directorio de trabajo distinto generen bases alternativas sin el usuario
+    admin sembrado.
+    """
+    prefix = "sqlite:///"
+
+    if not url.startswith(prefix):
+        return url
+
+    ruta_bd = url[len(prefix):]
+    # Normalizar posibles prefijos relativos
+    if ruta_bd.startswith("./"):
+        ruta_bd = ruta_bd[2:]
+
+    ruta = Path(ruta_bd)
+    if ruta.is_absolute():
+        return f"{prefix}{ruta}"
+
+    base_repo = Path(__file__).resolve().parents[2]
+    return f"{prefix}{(base_repo / ruta).resolve()}"
+
+
 # Crear engine (connect_args solo para SQLite)
 engine = create_engine(
-    ajustes.DATABASE_URL,
+    _resolver_database_url(ajustes.DATABASE_URL),
     echo=True,  # Logs SQL en consola (cambiar a False en producción)
     connect_args={"check_same_thread": False}  # Solo para SQLite
 )
