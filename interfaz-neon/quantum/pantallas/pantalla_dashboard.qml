@@ -13,12 +13,32 @@ Item {
         spacing: 20
         
         // Título
-        Text {
-            text: "📊 Dashboard"
-            font.family: PaletaNeon.fuentePrincipal
-            font.pixelSize: PaletaNeon.tamañoFuenteTitulo
-            font.bold: true
-            color: PaletaNeon.primario
+        Row {
+            spacing: 15
+
+            Text {
+                text: "📊"
+                font.pixelSize: 40
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Text {
+                text: "Dashboard"
+                font.family: PaletaNeon.fuentePrincipal
+                font.pixelSize: PaletaNeon.tamañoFuenteTitulo
+                font.bold: true
+                color: PaletaNeon.primario
+                anchors.verticalCenter: parent.verticalCenter
+
+                // Subtle readable glow
+                layer.enabled: true
+                layer.effect: Glow {
+                    samples: 9
+                    color: PaletaNeon.primario
+                    spread: 0.2
+                    radius: 4
+                }
+            }
         }
         
         // Tarjetas de estadísticas

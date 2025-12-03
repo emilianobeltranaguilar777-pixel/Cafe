@@ -45,12 +45,13 @@ Item {
                 color: PaletaNeon.primario
                 anchors.verticalCenter: parent.verticalCenter
 
+                // Subtle readable glow
                 layer.enabled: true
                 layer.effect: Glow {
-                    samples: 17
+                    samples: 9
                     color: PaletaNeon.primario
-                    spread: 0.5
-                    radius: PaletaNeon.radioGlow
+                    spread: 0.2
+                    radius: 4
                 }
             }
 
