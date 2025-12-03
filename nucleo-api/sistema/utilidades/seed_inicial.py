@@ -55,6 +55,7 @@ def inicializar_datos(session: Session):
         ("ADMIN", "inventario", Accion.VER),
         ("ADMIN", "inventario", Accion.CREAR),
         ("ADMIN", "inventario", Accion.EDITAR),
+        ("ADMIN", "ventas", Accion.CREAR),
         ("ADMIN", "ventas", Accion.VER),
         ("ADMIN", "reportes", Accion.VER),
         
