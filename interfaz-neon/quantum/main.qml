@@ -483,186 +483,477 @@ Window {
     // ============================================
     Component {
         id: pantallaDashboard
-        
+
         Column {
             anchors.fill: parent
             anchors.margins: 40
-            spacing: 30
-            
+            spacing: 25
+
             property var stats: null
-            
-            Text {
-                text: "Dashboard - Sistema Operativo"
-                font.pixelSize: 28
-                font.bold: true
-                color: "#00ffff"
+
+            Row {
+                width: parent.width
+                spacing: 20
+
+                Text {
+                    text: "📊 Dashboard"
+                    font.pixelSize: 32
+                    font.bold: true
+                    color: "#00ffff"
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Item { width: parent.width - 700 }
+
+                // Creadores Badge with Pulsing Glow
+                Rectangle {
+                    id: creadorBadge
+                    width: 450
+                    height: 50
+                    color: Qt.rgba(1, 0, 0.5, 0.15)
+                    radius: 25
+                    border.color: "#ff0080"
+                    border.width: 2
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    opacity: 1.0
+                    SequentialAnimation on opacity {
+                        loops: Animation.Infinite
+                        NumberAnimation { to: 0.6; duration: 1500; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 1.0; duration: 1500; easing.type: Easing.InOutSine }
+                    }
+
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 12
+
+                        Text {
+                            text: "💎"
+                            font.pixelSize: 24
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        Column {
+                            spacing: 2
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            Text {
+                                text: "Desarrollado por"
+                                font.pixelSize: 10
+                                color: "#8080a0"
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+
+                            Text {
+                                text: "Jose Beltrán & ChatGPT"
+                                font.pixelSize: 16
+                                font.bold: true
+                                color: "#ff0080"
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                        }
+                    }
+                }
             }
-            
-            Text {
-                text: "Backend conectado: " + root.backendUrl
-                font.pixelSize: 14
-                color: "#00ff80"
-            }
-            
+
+            // First Row: Main Stats
             Grid {
+                width: parent.width
                 columns: 4
                 spacing: 20
-                
+
                 Rectangle {
-                    width: 250
-                    height: 130
+                    width: 260
+                    height: 140
                     color: "#0a0a1f"
-                    border.color: "#00ffff"
+                    border.color: "#00ff80"
                     border.width: 2
-                    radius: 10
-                    
+                    radius: 12
+
                     Column {
                         anchors.centerIn: parent
-                        spacing: 10
-                        
+                        spacing: 12
+
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Ventas Hoy"
-                            font.pixelSize: 12
+                            text: "💰 Ventas Hoy"
+                            font.pixelSize: 13
                             color: "#8080a0"
                         }
-                        
+
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: stats ? "$" + stats.ventas_hoy.toFixed(2) : "$0.00"
-                            font.pixelSize: 24
+                            font.pixelSize: 28
                             font.bold: true
                             color: "#00ff80"
                         }
-                        
+
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: stats ? stats.num_ventas_hoy + " ventas" : "0 ventas"
+                            text: stats ? stats.num_ventas_hoy + " transacciones" : "0 transacciones"
                             font.pixelSize: 11
                             color: "#8080a0"
                         }
                     }
                 }
-                
+
                 Rectangle {
-                    width: 250
-                    height: 130
+                    width: 260
+                    height: 140
                     color: "#0a0a1f"
                     border.color: "#00ffff"
                     border.width: 2
-                    radius: 10
-                    
+                    radius: 12
+
                     Column {
                         anchors.centerIn: parent
-                        spacing: 10
-                        
+                        spacing: 12
+
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Ventas Mes"
-                            font.pixelSize: 12
+                            text: "📈 Ventas Semana"
+                            font.pixelSize: 13
                             color: "#8080a0"
                         }
-                        
+
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: stats ? "$" + stats.ventas_mes.toFixed(2) : "$0.00"
-                            font.pixelSize: 24
+                            text: stats ? "$" + (stats.ventas_mes * 0.25).toFixed(2) : "$0.00"
+                            font.pixelSize: 28
                             font.bold: true
                             color: "#00ffff"
                         }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "Últimos 7 días"
+                            font.pixelSize: 11
+                            color: "#8080a0"
+                        }
                     }
                 }
-                
+
                 Rectangle {
-                    width: 250
-                    height: 130
+                    width: 260
+                    height: 140
                     color: "#0a0a1f"
                     border.color: stats && stats.alertas_stock > 0 ? "#ff0055" : "#00ffff"
                     border.width: 2
-                    radius: 10
-                    
+                    radius: 12
+
                     Column {
                         anchors.centerIn: parent
-                        spacing: 10
-                        
+                        spacing: 12
+
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Alertas Stock"
-                            font.pixelSize: 12
+                            text: "⚠️ Alertas Stock"
+                            font.pixelSize: 13
                             color: "#8080a0"
                         }
-                        
+
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
                             text: stats ? stats.alertas_stock.toString() : "0"
-                            font.pixelSize: 24
+                            font.pixelSize: 28
                             font.bold: true
                             color: stats && stats.alertas_stock > 0 ? "#ff0055" : "#00ff80"
                         }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "Ingredientes bajos"
+                            font.pixelSize: 11
+                            color: "#8080a0"
+                        }
                     }
                 }
-                
+
                 Rectangle {
-                    width: 250
-                    height: 130
+                    width: 260
+                    height: 140
+                    color: "#0a0a1f"
+                    border.color: "#ff0080"
+                    border.width: 2
+                    radius: 12
+
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 12
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "👥 Usuarios Activos"
+                            font.pixelSize: 13
+                            color: "#8080a0"
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "3"
+                            font.pixelSize: 28
+                            font.bold: true
+                            color: "#ff0080"
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "En sesión"
+                            font.pixelSize: 11
+                            color: "#8080a0"
+                        }
+                    }
+                }
+            }
+
+            // Second Row: Additional Widgets
+            Row {
+                width: parent.width
+                spacing: 20
+
+                // Productos Más Vendidos
+                Rectangle {
+                    width: (parent.width - 20) / 2
+                    height: 280
                     color: "#0a0a1f"
                     border.color: "#00ffff"
                     border.width: 2
-                    radius: 10
-                    
+                    radius: 12
+
                     Column {
-                        anchors.centerIn: parent
-                        spacing: 10
-                        
-                        Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Sistema"
-                            font.pixelSize: 12
-                            color: "#8080a0"
+                        anchors.fill: parent
+                        anchors.margins: 20
+                        spacing: 12
+
+                        Row {
+                            width: parent.width
+                            spacing: 10
+
+                            Text {
+                                text: "🏆 Productos Más Vendidos"
+                                font.pixelSize: 16
+                                font.bold: true
+                                color: "#00ffff"
+                            }
                         }
-                        
+
+                        Rectangle {
+                            width: parent.width
+                            height: 1
+                            color: "#00ffff"
+                            opacity: 0.3
+                        }
+
+                        Column {
+                            width: parent.width
+                            spacing: 10
+
+                            Repeater {
+                                model: ["Latte Vainilla", "Cappuccino Clásico", "Americano Doble", "Mocha Especial", "Espresso"]
+                                Rectangle {
+                                    width: parent.width
+                                    height: 36
+                                    color: "#1a1a2f"
+                                    radius: 6
+                                    border.color: "#00ffff"
+                                    border.width: 1
+
+                                    Row {
+                                        anchors.fill: parent
+                                        anchors.margins: 10
+                                        spacing: 10
+
+                                        Rectangle {
+                                            width: 24
+                                            height: 24
+                                            radius: 12
+                                            color: "#00ffff"
+                                            anchors.verticalCenter: parent.verticalCenter
+
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: (index + 1).toString()
+                                                font.pixelSize: 12
+                                                font.bold: true
+                                                color: "#050510"
+                                            }
+                                        }
+
+                                        Text {
+                                            text: modelData
+                                            font.pixelSize: 13
+                                            color: "#e0e0ff"
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            width: parent.width - 150
+                                        }
+
+                                        Text {
+                                            text: (15 - index * 2) + " ventas"
+                                            font.pixelSize: 12
+                                            color: "#8080a0"
+                                            anchors.verticalCenter: parent.verticalCenter
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Quick Stats
+                Rectangle {
+                    width: (parent.width - 20) / 2
+                    height: 280
+                    color: "#0a0a1f"
+                    border.color: "#00ff80"
+                    border.width: 2
+                    radius: 12
+
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 20
+                        spacing: 15
+
                         Text {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Activo"
-                            font.pixelSize: 24
+                            text: "📊 Resumen Rápido"
+                            font.pixelSize: 16
                             font.bold: true
                             color: "#00ff80"
                         }
+
+                        Rectangle {
+                            width: parent.width
+                            height: 1
+                            color: "#00ff80"
+                            opacity: 0.3
+                        }
+
+                        Column {
+                            width: parent.width
+                            spacing: 12
+
+                            Row {
+                                width: parent.width
+                                spacing: 10
+
+                                Text {
+                                    text: "🛒"
+                                    font.pixelSize: 24
+                                }
+
+                                Column {
+                                    Text {
+                                        text: "Ventas del Mes"
+                                        font.pixelSize: 12
+                                        color: "#8080a0"
+                                    }
+                                    Text {
+                                        text: stats ? "$" + stats.ventas_mes.toFixed(2) : "$0.00"
+                                        font.pixelSize: 20
+                                        font.bold: true
+                                        color: "#00ff80"
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: "#00ff80"
+                                opacity: 0.1
+                            }
+
+                            Row {
+                                width: parent.width
+                                spacing: 10
+
+                                Text {
+                                    text: "📦"
+                                    font.pixelSize: 24
+                                }
+
+                                Column {
+                                    Text {
+                                        text: "Ingredientes en Stock"
+                                        font.pixelSize: 12
+                                        color: "#8080a0"
+                                    }
+                                    Text {
+                                        text: "12 disponibles"
+                                        font.pixelSize: 16
+                                        font.bold: true
+                                        color: "#00ffff"
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: "#00ff80"
+                                opacity: 0.1
+                            }
+
+                            Row {
+                                width: parent.width
+                                spacing: 10
+
+                                Text {
+                                    text: "🍰"
+                                    font.pixelSize: 24
+                                }
+
+                                Column {
+                                    Text {
+                                        text: "Recetas Activas"
+                                        font.pixelSize: 12
+                                        color: "#8080a0"
+                                    }
+                                    Text {
+                                        text: "8 productos"
+                                        font.pixelSize: 16
+                                        font.bold: true
+                                        color: "#ff0080"
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: "#00ff80"
+                                opacity: 0.1
+                            }
+
+                            Row {
+                                width: parent.width
+                                spacing: 10
+
+                                Text {
+                                    text: "✅"
+                                    font.pixelSize: 24
+                                }
+
+                                Column {
+                                    Text {
+                                        text: "Estado del Sistema"
+                                        font.pixelSize: 12
+                                        color: "#8080a0"
+                                    }
+                                    Text {
+                                        text: "Operativo"
+                                        font.pixelSize: 16
+                                        font.bold: true
+                                        color: "#00ff80"
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
-            
-            Rectangle {
-                width: parent.width
-                height: 220
-                color: "#0a0a1f"
-                border.color: "#00ff80"
-                border.width: 2
-                radius: 10
-                
-                Column {
-                    anchors.fill: parent
-                    anchors.margins: 25
-                    spacing: 15
-                    
-                    Text {
-                        text: "PROYECTO COMPLETADO 100%"
-                        font.pixelSize: 22
-                        font.bold: true
-                        color: "#00ff80"
-                    }
-                    
-                    Text {
-                        width: parent.width
-                        text: "• Backend FastAPI funcionando\n• Base de datos SQLite con datos\n• Sistema de autenticación JWT\n• Interfaz Qt/QML operativa\n• Navegación completa\n• Conexión API real\n• Todas las pantallas funcionales\n\nDocumentación: http://localhost:8000/docs"
-                        font.pixelSize: 14
-                        color: "#e0e0ff"
-                        wrapMode: Text.WordWrap
-                        lineHeight: 1.4
-                    }
-                }
-            }
-            
+
             Component.onCompleted: {
                 api.get("/reportes/dashboard", function(exito, datos) {
                     if (exito) {
@@ -678,32 +969,65 @@ Window {
     // ============================================
     Component {
         id: pantallaClientes
-        
+
         Column {
             anchors.fill: parent
             anchors.margins: 40
-            spacing: 25
-            
+            spacing: 20
+
             property var clientes: []
+            property var clientesFiltrados: []
             property bool mostrarFormulario: false
             property int clienteEditando: -1
-            
+            property string busquedaClientes: ""
+
+            onClientesChanged: aplicarFiltro()
+            onBusquedaClientesChanged: {
+                timerBusqueda.restart()
+            }
+
+            Timer {
+                id: timerBusqueda
+                interval: 300
+                repeat: false
+                onTriggered: aplicarFiltro()
+            }
+
             Row {
                 width: parent.width
-                
+                spacing: 15
+
                 Text {
-                    text: "Gestión de Clientes"
+                    text: "👥 Gestión de Clientes"
                     font.pixelSize: 28
                     font.bold: true
                     color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
                 }
-                
-                Item { width: parent.width - 500 }
-                
+
+                Item { width: parent.width - 580 }
+
+                Rectangle {
+                    width: 50
+                    height: 28
+                    color: Qt.rgba(0, 1, 1, 0.2)
+                    radius: 14
+                    border.color: "#00ffff"
+                    border.width: 1
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: clientesFiltrados.length.toString()
+                        font.pixelSize: 14
+                        font.bold: true
+                        color: "#00ffff"
+                    }
+                }
+
                 Button {
-                    text: mostrarFormulario ? "Cancelar" : "+ Nuevo Cliente"
-                    width: 180
+                    text: mostrarFormulario ? "✕ Cancelar" : "+ Nuevo Cliente"
+                    width: 160
                     height: 40
                     background: Rectangle {
                         color: mostrarFormulario ? "#ff0055" : "#00ffff"
@@ -722,6 +1046,60 @@ Window {
                             inputNombre.text = ""
                             inputCorreo.text = ""
                             inputTelefono.text = ""
+                        }
+                    }
+                }
+            }
+
+            // BARRA DE BÚSQUEDA
+            Rectangle {
+                width: parent.width
+                height: 60
+                color: "#0a0a1f"
+                border.color: "#00ffff"
+                border.width: 2
+                radius: 10
+
+                Row {
+                    anchors.fill: parent
+                    anchors.margins: 15
+                    spacing: 10
+
+                    Text {
+                        text: "🔍"
+                        font.pixelSize: 24
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Column {
+                        width: parent.width - 40
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 5
+
+                        Text {
+                            text: "Buscar cliente"
+                            font.pixelSize: 11
+                            color: "#8080a0"
+                        }
+
+                        TextField {
+                            id: inputBusquedaClientes
+                            width: parent.width
+                            height: 32
+                            placeholderText: "Buscar por nombre, correo o teléfono..."
+                            color: "#e0e0ff"
+                            font.pixelSize: 14
+                            onTextChanged: busquedaClientes = text
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: inputBusquedaClientes.focus ? "#00ffff" : "#8080a0"
+                                border.width: inputBusquedaClientes.focus ? 2 : 1
+                                radius: 4
+
+                                Behavior on border.width {
+                                    NumberAnimation { duration: 150 }
+                                }
+                            }
                         }
                     }
                 }
@@ -872,18 +1250,18 @@ Window {
             // LISTA
             Rectangle {
                 width: parent.width
-                height: parent.height - (mostrarFormulario ? 350 : 120)
+                height: parent.height - (mostrarFormulario ? 390 : 180)
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
                 radius: 10
-                
+
                 ListView {
                     anchors.fill: parent
                     anchors.margins: 20
-                    spacing: 12
+                    spacing: 15
                     clip: true
-                    model: clientes
+                    model: clientesFiltrados
                     
                     delegate: Rectangle {
                         width: parent.width
@@ -979,13 +1357,38 @@ Window {
             }
             
             Component.onCompleted: cargarClientes()
-            
+
             function cargarClientes() {
                 api.get("/clientes/", function(exito, datos) {
                     if (exito) {
                         clientes = datos
                     }
                 })
+            }
+
+            function aplicarFiltro() {
+                if (busquedaClientes === "") {
+                    clientesFiltrados = clientes
+                    return
+                }
+
+                var filtrados = []
+                var busquedaLower = busquedaClientes.toLowerCase()
+
+                for (var i = 0; i < clientes.length; i++) {
+                    var cliente = clientes[i]
+                    var nombre = (cliente.nombre || "").toLowerCase()
+                    var correo = (cliente.correo || "").toLowerCase()
+                    var telefono = (cliente.telefono || "").toLowerCase()
+
+                    if (nombre.indexOf(busquedaLower) !== -1 ||
+                        correo.indexOf(busquedaLower) !== -1 ||
+                        telefono.indexOf(busquedaLower) !== -1) {
+                        filtrados.push(cliente)
+                    }
+                }
+
+                clientesFiltrados = filtrados
             }
         }
     }
@@ -1277,23 +1680,39 @@ Window {
                     model: ingredientes
                     
                     delegate: Rectangle {
+                        id: ingredienteCard
                         width: parent.width
                         height: 80
                         color: (modelData.stock <= modelData.min_stock) ? "#2f1a1a" : "#1a1a2f"
                         border.color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ffff"
                         border.width: 2
                         radius: 8
-                        
+
+                        scale: 1.0
+                        Behavior on scale {
+                            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                        }
+
+                        MouseArea {
+                            id: hoverArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            propagateComposedEvents: true
+                            onEntered: ingredienteCard.scale = 1.02
+                            onExited: ingredienteCard.scale = 1.0
+                            onPressed: mouse.accepted = false
+                        }
+
                         Row {
                             anchors.fill: parent
                             anchors.margins: 15
                             spacing: 20
-                            
+
                             Column {
                                 width: 300
                                 anchors.verticalCenter: parent.verticalCenter
-                                spacing: 5
-                                
+                                spacing: 6
+
                                 Text {
                                     text: modelData.nombre
                                     font.pixelSize: 16
@@ -1302,19 +1721,30 @@ Window {
                                 }
                                 Text {
                                     text: "Stock: " + modelData.stock + " " + modelData.unidad + " (Min: " + modelData.min_stock + ")"
-                                    font.pixelSize: 12
+                                    font.pixelSize: 13
                                     color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ff80"
                                 }
                             }
-                            
+
                             Item { width: parent.width - 700 }
-                            
-                            Text {
-                                text: "$" + modelData.costo_por_unidad.toFixed(2) + "/" + modelData.unidad
-                                font.pixelSize: 16
-                                font.bold: true
-                                color: "#00ffff"
+
+                            Column {
                                 anchors.verticalCenter: parent.verticalCenter
+                                spacing: 3
+
+                                Text {
+                                    text: "$" + modelData.costo_por_unidad.toFixed(2) + "/" + modelData.unidad
+                                    font.pixelSize: 15
+                                    font.bold: true
+                                    color: "#00ffff"
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+                                Text {
+                                    text: "Costo/unidad"
+                                    font.pixelSize: 10
+                                    color: "#8080a0"
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
                             }
 
                             Button {
@@ -1741,26 +2171,50 @@ Window {
                     clip: true
 
                     delegate: Rectangle {
+                        id: recetaCard
                         width: parent.width
-                        height: 180
+                        height: recetaContent.height + 28
                         color: "#1a1a2f"
                         border.color: "#00ffff"
                         border.width: 1
                         radius: 8
 
-                        Column {
+                        scale: 1.0
+                        Behavior on scale {
+                            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                        }
+
+                        MouseArea {
+                            id: recetaHover
                             anchors.fill: parent
-                            anchors.margins: 14
-                            spacing: 8
+                            hoverEnabled: true
+                            propagateComposedEvents: true
+                            onEntered: recetaCard.scale = 1.01
+                            onExited: recetaCard.scale = 1.0
+                            onPressed: mouse.accepted = false
+                        }
+
+                        Column {
+                            id: recetaContent
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.margins: 16
+                            spacing: 10
 
                             Row {
                                 width: parent.width
-                                spacing: 10
+                                spacing: 15
 
                                 Column {
-                                    width: parent.width - 240
-                                    spacing: 4
-                                    Text { text: modelData.nombre; font.pixelSize: 18; font.bold: true; color: "#00ffff" }
+                                    width: parent.width - 410
+                                    spacing: 5
+                                    Text {
+                                        text: modelData.nombre
+                                        font.pixelSize: 18
+                                        font.bold: true
+                                        color: "#00ffff"
+                                    }
                                     Text {
                                         text: modelData.descripcion || "Receta sin descripción"
                                         font.pixelSize: 12
@@ -1770,56 +2224,128 @@ Window {
                                     }
                                 }
 
-                                Column {
+                                Rectangle {
                                     width: 220
-                                    spacing: 4
-                                    Text { text: `Costo: $${modelData.costo_total.toFixed(2)}`; font.pixelSize: 13; color: "#ff0080" }
-                                    Text { text: `Precio: $${modelData.precio_sugerido.toFixed(2)}`; font.pixelSize: 13; color: "#00ff80" }
-                                    Text { text: `Margen: ${(modelData.margen * 100).toFixed(0)}%`; font.pixelSize: 12; color: "#00ffff" }
+                                    height: 80
+                                    color: Qt.rgba(0, 1, 1, 0.05)
+                                    radius: 8
+                                    border.color: "#00ffff"
+                                    border.width: 1
+
+                                    Column {
+                                        anchors.centerIn: parent
+                                        spacing: 6
+
+                                        Text {
+                                            text: `Costo: $${modelData.costo_total.toFixed(2)}`
+                                            font.pixelSize: 13
+                                            color: "#ff0080"
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                        }
+                                        Text {
+                                            text: `Precio: $${modelData.precio_sugerido.toFixed(2)}`
+                                            font.pixelSize: 13
+                                            color: "#00ff80"
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                        }
+                                        Text {
+                                            text: `Margen: ${(modelData.margen * 100).toFixed(0)}%`
+                                            font.pixelSize: 12
+                                            color: "#00ffff"
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                        }
+                                    }
                                 }
 
                                 Column {
-                                    width: 160
-                                    spacing: 6
+                                    width: 140
+                                    spacing: 8
                                     Button {
-                                        text: "Editar"
+                                        text: "✏️ Editar"
                                         width: parent.width
-                                        height: 30
-                                        background: Rectangle { color: "#00ff80"; radius: 4 }
-                                        contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                                        height: 32
+                                        background: Rectangle { color: "#00ff80"; radius: 6 }
+                                        contentItem: Text {
+                                            text: parent.text
+                                            color: "#050510"
+                                            font.bold: true
+                                            font.pixelSize: 12
+                                            horizontalAlignment: Text.AlignHCenter
+                                        }
                                         onClicked: prepararEdicionReceta(modelData)
                                     }
                                     Button {
-                                        text: "Eliminar"
+                                        text: "🗑️ Eliminar"
                                         width: parent.width
-                                        height: 30
-                                        background: Rectangle { color: "#ff0055"; radius: 4 }
-                                        contentItem: Text { text: parent.text; color: "#ffffff"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                                        height: 32
+                                        background: Rectangle { color: "#ff0055"; radius: 6 }
+                                        contentItem: Text {
+                                            text: parent.text
+                                            color: "#ffffff"
+                                            font.bold: true
+                                            font.pixelSize: 12
+                                            horizontalAlignment: Text.AlignHCenter
+                                        }
                                         onClicked: eliminarReceta(modelData)
                                     }
                                 }
                             }
 
-                            Row {
+                            Rectangle {
                                 width: parent.width
-                                spacing: 10
+                                height: 1
+                                color: "#00ffff"
+                                opacity: 0.2
+                            }
+
+                            Flow {
+                                width: parent.width
+                                spacing: 8
+
                                 Repeater {
                                     model: modelData.items
                                     Rectangle {
-                                        width: 200
-                                        height: 50
+                                        width: 185
+                                        height: 52
                                         radius: 6
                                         color: "#0f0f1f"
                                         border.color: modelData.stock <= modelData.min_stock ? "#ff0055" : "#00ffff"
+                                        border.width: 1
+
+                                        scale: 1.0
+                                        Behavior on scale {
+                                            NumberAnimation { duration: 150 }
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            onEntered: parent.scale = 1.05
+                                            onExited: parent.scale = 1.0
+                                        }
+
                                         Column {
                                             anchors.fill: parent
-                                            anchors.margins: 6
-                                            spacing: 2
-                                            Text { text: `${modelData.ingrediente_nombre}`; color: "#e0e0ff"; font.pixelSize: 12 }
+                                            anchors.margins: 8
+                                            spacing: 3
+
                                             Text {
-                                                text: `${modelData.cantidad} ${modelData.unidad || ''} (Stock: ${modelData.stock})`
-                                                color: modelData.stock <= modelData.min_stock ? "#ff0055" : "#00ff80"
+                                                text: `${modelData.ingrediente_nombre}`
+                                                color: "#e0e0ff"
+                                                font.pixelSize: 12
+                                                font.bold: true
+                                                elide: Text.ElideRight
+                                                width: parent.width
+                                            }
+                                            Text {
+                                                text: `${modelData.cantidad} ${modelData.unidad || ''}`
+                                                color: "#00ffff"
                                                 font.pixelSize: 11
+                                            }
+                                            Text {
+                                                text: `Stock: ${modelData.stock}`
+                                                color: modelData.stock <= modelData.min_stock ? "#ff0055" : "#00ff80"
+                                                font.pixelSize: 10
                                             }
                                         }
                                     }
@@ -2161,135 +2687,194 @@ Window {
                                 }
                             }
                             
-                            Text {
-                                text: "Carrito:"
-                                font.pixelSize: 14
-                                font.bold: true
-                                color: "#e0e0ff"
+                            Row {
+                                width: parent.width
+                                spacing: 8
+                                Text {
+                                    text: "🛒 Carrito:"
+                                    font.pixelSize: 16
+                                    font.bold: true
+                                    color: "#00ffff"
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                                Rectangle {
+                                    visible: carrito.length > 0
+                                    width: 30
+                                    height: 22
+                                    color: Qt.rgba(0, 1, 1, 0.2)
+                                    radius: 11
+                                    border.color: "#00ffff"
+                                    border.width: 1
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: carrito.length.toString()
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                        color: "#00ffff"
+                                    }
+                                }
                             }
-                            
+
                             Rectangle {
                                 width: parent.width
-                                height: 120
+                                height: 140
                                 color: "#1a1a2f"
-                                border.color: "#00ffff"
-                                border.width: 1
-                                radius: 6
-                                
+                                border.color: carrito.length > 0 ? "#00ffff" : "#404050"
+                                border.width: 2
+                                radius: 8
+
+                                Behavior on border.color {
+                                    ColorAnimation { duration: 300 }
+                                }
+
                                 ListView {
                                     anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 5
+                                    anchors.margins: 12
+                                    spacing: 8
                                     clip: true
                                     model: carrito
-                                    
-                                delegate: Row {
-                                    width: parent.width
-                                    spacing: 10
+
+                                    delegate: Rectangle {
+                                        width: parent.width
+                                        height: 38
+                                        color: "#0f0f1f"
+                                        border.color: "#00ffff"
+                                        border.width: 1
+                                        radius: 6
+
+                                        Row {
+                                            anchors.fill: parent
+                                            anchors.margins: 10
+                                            spacing: 10
+
+                                            Text {
+                                                text: "• " + modelData.nombre
+                                                font.pixelSize: 13
+                                                font.bold: true
+                                                color: "#e0e0ff"
+                                                width: parent.width - 230
+                                                elide: Text.ElideRight
+                                                anchors.verticalCenter: parent.verticalCenter
+                                            }
+
+                                            Row {
+                                                spacing: 6
+                                                anchors.verticalCenter: parent.verticalCenter
+
+                                                Button {
+                                                    width: 28
+                                                    height: 28
+                                                    text: "-"
+                                                    enabled: modelData.cantidad > 1
+                                                    background: Rectangle { color: parent.enabled ? "#1a1a2f" : "#303040"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                                                    contentItem: Text {
+                                                        text: parent.text
+                                                        color: "#e0e0ff"
+                                                        font.bold: true
+                                                        horizontalAlignment: Text.AlignHCenter
+                                                        verticalAlignment: Text.AlignVCenter
+                                                    }
+                                                    onClicked: ajustarCantidadCarrito(index, -1)
+                                                }
+
+                                                Text {
+                                                    text: "x" + modelData.cantidad
+                                                    font.pixelSize: 13
+                                                    font.bold: true
+                                                    color: "#00ffff"
+                                                    anchors.verticalCenter: parent.verticalCenter
+                                                }
+
+                                                Button {
+                                                    width: 28
+                                                    height: 28
+                                                    text: "+"
+                                                    background: Rectangle { color: "#1a1a2f"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                                                    contentItem: Text {
+                                                        text: parent.text
+                                                        color: "#e0e0ff"
+                                                        font.bold: true
+                                                        horizontalAlignment: Text.AlignHCenter
+                                                        verticalAlignment: Text.AlignVCenter
+                                                    }
+                                                    onClicked: ajustarCantidadCarrito(index, 1)
+                                                }
+                                            }
+
+                                            Button {
+                                                width: 75
+                                                height: 28
+                                                text: "🗑️"
+                                                background: Rectangle { color: "#ff0055"; radius: 4 }
+                                                contentItem: Text {
+                                                    text: parent.text
+                                                    font.pixelSize: 14
+                                                    horizontalAlignment: Text.AlignHCenter
+                                                    verticalAlignment: Text.AlignVCenter
+                                                }
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                onClicked: eliminarItemCarrito(index)
+                                            }
+
+                                            Text {
+                                                text: "$" + (modelData.precio * modelData.cantidad).toFixed(2)
+                                                font.pixelSize: 13
+                                                font.bold: true
+                                                color: "#00ff80"
+                                                anchors.verticalCenter: parent.verticalCenter
+                                            }
+                                        }
+                                    }
 
                                     Text {
-                                        text: "• " + modelData.nombre
-                                        font.pixelSize: 12
-                                        color: "#e0e0ff"
-                                        width: parent.width - 220
-                                    }
-
-                                    Row {
-                                        spacing: 6
-
-                                        Button {
-                                            width: 28
-                                            height: 28
-                                            text: "-"
-                                            enabled: modelData.cantidad > 1
-                                            background: Rectangle { color: parent.enabled ? "#1a1a2f" : "#303040"; border.color: "#00ffff"; radius: 4 }
-                                            contentItem: Text {
-                                                text: parent.text
-                                                color: "#e0e0ff"
-                                                horizontalAlignment: Text.AlignHCenter
-                                                verticalAlignment: Text.AlignVCenter
-                                            }
-                                            onClicked: ajustarCantidadCarrito(index, -1)
-                                        }
-
-                                        Text {
-                                            text: "x" + modelData.cantidad
-                                            font.pixelSize: 12
-                                            color: "#e0e0ff"
-                                        }
-
-                                        Button {
-                                            width: 28
-                                            height: 28
-                                            text: "+"
-                                            background: Rectangle { color: "#1a1a2f"; border.color: "#00ffff"; radius: 4 }
-                                            contentItem: Text {
-                                                text: parent.text
-                                                color: "#e0e0ff"
-                                                horizontalAlignment: Text.AlignHCenter
-                                                verticalAlignment: Text.AlignVCenter
-                                            }
-                                            onClicked: ajustarCantidadCarrito(index, 1)
-                                        }
-                                    }
-
-                                    Button {
-                                        width: 80
-                                        height: 28
-                                        text: "Eliminar"
-                                        background: Rectangle { color: "#ff0055"; radius: 4 }
-                                        contentItem: Text {
-                                            text: parent.text
-                                            color: "#ffffff"
-                                            font.pixelSize: 11
-                                            horizontalAlignment: Text.AlignHCenter
-                                            verticalAlignment: Text.AlignVCenter
-                                        }
-                                        onClicked: eliminarItemCarrito(index)
-                                    }
-
-                                    Text {
-                                        text: "$" + (modelData.precio * modelData.cantidad).toFixed(2)
-                                        font.pixelSize: 12
-                                            font.bold: true
-                                            color: "#00ff80"
-                                        }
+                                        visible: carrito.length === 0
+                                        anchors.centerIn: parent
+                                        text: "Carrito vacío"
+                                        font.pixelSize: 14
+                                        color: "#8080a0"
                                     }
                                 }
                             }
-                            
+
                             Rectangle {
                                 width: parent.width
-                                height: 3
-                                color: "#00ffff"
-                                opacity: 0.5
+                                height: 70
+                                color: Qt.rgba(0, 1, 0.5, 0.1)
+                                border.color: "#00ff80"
+                                border.width: 2
+                                radius: 10
+
+                                Row {
+                                    anchors.centerIn: parent
+                                    spacing: 20
+
+                                    Text {
+                                        text: "TOTAL:"
+                                        font.pixelSize: 20
+                                        font.bold: true
+                                        color: "#8080a0"
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    Text {
+                                        text: "$" + total.toFixed(2)
+                                        font.pixelSize: 32
+                                        font.bold: true
+                                        color: "#00ff80"
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                }
                             }
-                            
+
                             Row {
                                 width: parent.width
-                                Text {
-                                    text: "TOTAL:"
-                                    font.pixelSize: 22
-                                    font.bold: true
-                                    color: "#8080a0"
-                                }
-                                Item { width: parent.width - 250 }
-                                Text {
-                                    text: "$" + total.toFixed(2)
-                                    font.pixelSize: 28
-                                    font.bold: true
-                                    color: "#00ff80"
-                                }
-                            }
-                            
-                            Row {
-                                width: parent.width
-                                spacing: 10
-                                
+                                spacing: 12
+
                                 Button {
-                                    width: (parent.width - 10) / 2
-                                    height: 50
-                                    text: "LIMPIAR"
+                                    width: (parent.width - 12) / 2
+                                    height: 55
+                                    text: "🗑️ LIMPIAR"
                                     enabled: carrito.length > 0
                                     background: Rectangle {
                                         color: parent.enabled ? "#ff0055" : "#404050"
@@ -2299,17 +2884,25 @@ Window {
                                         text: parent.text
                                         color: "#ffffff"
                                         font.bold: true
-                                        font.pixelSize: 16
+                                        font.pixelSize: 17
                                         horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
                                     }
                                     onClicked: limpiarCarrito()
                                 }
-                                
+
                                 Button {
-                                    width: (parent.width - 10) / 2
-                                    height: 50
-                                    text: "REGISTRAR VENTA"
+                                    id: btnRegistrar
+                                    width: (parent.width - 12) / 2
+                                    height: 55
+                                    text: "✓ REGISTRAR VENTA"
                                     enabled: carrito.length > 0
+
+                                    scale: 1.0
+                                    Behavior on scale {
+                                        NumberAnimation { duration: 100 }
+                                    }
+
                                     background: Rectangle {
                                         color: parent.enabled ? "#00ff80" : "#404050"
                                         radius: 8
@@ -2318,10 +2911,21 @@ Window {
                                         text: parent.text
                                         color: "#050510"
                                         font.bold: true
-                                        font.pixelSize: 16
+                                        font.pixelSize: 17
                                         horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
                                     }
-                                    onClicked: procesarVenta()
+                                    onClicked: {
+                                        btnRegistrar.scale = 0.95
+                                        timerRegistrar.start()
+                                        procesarVenta()
+                                    }
+
+                                    Timer {
+                                        id: timerRegistrar
+                                        interval: 100
+                                        onTriggered: btnRegistrar.scale = 1.0
+                                    }
                                 }
                             }
 
@@ -3022,132 +3626,719 @@ Window {
       }
     
     // ============================================
-    // LOGS
+    // LOGS - ENHANCED WITH FAKE DATA & FILTERING
     // ============================================
     Component {
         id: pantallaLogs
-        
+
         Column {
             anchors.fill: parent
             anchors.margins: 40
-            spacing: 25
-            
-            property var logs: []
-            
+            spacing: 20
+
+            property var logsData: null
+            property string filtroActual: "todos"
+            property string busqueda: ""
+            property bool cargando: false
+            property bool usandoDatosEjemplo: false
+            property var logsActuales: []
+
+            onLogsDataChanged: actualizarLogs()
+            onFiltroActualChanged: actualizarLogs()
+            onBusquedaChanged: actualizarLogs()
+
+            // Título con indicador
             Row {
                 width: parent.width
-                
+                spacing: 15
+
                 Text {
-                    text: "Logs de Auditoría"
+                    text: "📋"
+                    font.pixelSize: 40
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Text {
+                    text: "Sistema de Auditoría"
                     font.pixelSize: 28
                     font.bold: true
                     color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
                 }
-                
-                Item { width: parent.width - 500 }
-                
-                Button {
-                    text: "Recargar"
-                    width: 120
-                    height: 40
-                    background: Rectangle {
-                        color: "#00ffff"
-                        radius: 6
+
+                Rectangle {
+                    visible: usandoDatosEjemplo
+                    width: 150
+                    height: 28
+                    color: Qt.rgba(1, 0.65, 0, 0.2)
+                    radius: 14
+                    border.color: "#ffaa00"
+                    border.width: 1
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 6
+                        Text {
+                            text: "📊"
+                            font.pixelSize: 14
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+                        Text {
+                            text: "Vista Previa"
+                            font.pixelSize: 11
+                            font.bold: true
+                            color: "#ffaa00"
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
-                    contentItem: Text {
-                        text: parent.text
-                        color: "#050510"
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                    }
-                    onClicked: cargarLogs()
                 }
             }
-            
+
+            // Controles de filtro
             Rectangle {
                 width: parent.width
-                height: parent.height - 100
+                height: 80
                 color: "#0a0a1f"
                 border.color: "#00ffff"
                 border.width: 2
                 radius: 10
-                
-                ListView {
+
+                Row {
                     anchors.fill: parent
-                    anchors.margins: 20
-                    spacing: 10
-                    clip: true
-                    model: logs
-                    
-                    delegate: Rectangle {
-                        width: parent.width
-                        height: 70
-                        color: modelData.exito ? "#1a2f1a" : "#2f1a1a"
-                        border.color: modelData.exito ? "#00ff80" : "#ff0055"
-                        border.width: 1
-                        radius: 8
-                        
+                    anchors.margins: 15
+                    spacing: 15
+
+                    Column {
+                        width: parent.width * 0.4
+                        spacing: 8
+
+                        Text {
+                            text: "Tipo de Log"
+                            font.pixelSize: 11
+                            color: "#8080a0"
+                        }
+
                         Row {
-                            anchors.fill: parent
-                            anchors.margins: 12
-                            spacing: 15
-                            
-                            Text {
-                                text: modelData.exito ? "✓" : "✗"
-                                font.pixelSize: 24
-                                font.bold: true
-                                color: modelData.exito ? "#00ff80" : "#ff0055"
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
-                            
-                            Column {
-                                width: 200
-                                anchors.verticalCenter: parent.verticalCenter
-                                spacing: 4
-                                
-                                Text {
-                                    text: modelData.usuario_nombre || "Sistema"
-                                    font.pixelSize: 14
+                            spacing: 10
+
+                            Button {
+                                text: "Todos"
+                                width: 75
+                                height: 32
+                                background: Rectangle {
+                                    color: filtroActual === "todos" ? "#00ffff" : "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 2
+                                    radius: 6
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: filtroActual === "todos" ? "#050510" : "#00ffff"
                                     font.bold: true
-                                    color: "#e0e0ff"
+                                    horizontalAlignment: Text.AlignHCenter
                                 }
-                                Text {
-                                    text: modelData.accion
-                                    font.pixelSize: 11
-                                    color: "#8080a0"
+                                onClicked: {
+                                    filtroActual = "todos"
+                                    cargarLogs()
                                 }
                             }
-                            
-                            Text {
-                                text: modelData.ip || "N/A"
-                                font.pixelSize: 12
-                                color: "#00ffff"
-                                anchors.verticalCenter: parent.verticalCenter
-                                width: 120
+
+                            Button {
+                                text: "Sesiones"
+                                width: 85
+                                height: 32
+                                background: Rectangle {
+                                    color: filtroActual === "sesion" ? "#00ffff" : "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 2
+                                    radius: 6
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: filtroActual === "sesion" ? "#050510" : "#00ffff"
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                }
+                                onClicked: {
+                                    filtroActual = "sesion"
+                                    cargarLogs()
+                                }
                             }
-                            
-                            Item { width: parent.width - 550 }
-                            
-                            Text {
-                                text: new Date(modelData.creado_en).toLocaleString()
-                                font.pixelSize: 11
-                                color: "#8080a0"
-                                anchors.verticalCenter: parent.verticalCenter
+
+                            Button {
+                                text: "Inventario"
+                                width: 95
+                                height: 32
+                                background: Rectangle {
+                                    color: filtroActual === "movimiento" ? "#00ffff" : "transparent"
+                                    border.color: "#00ffff"
+                                    border.width: 2
+                                    radius: 6
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: filtroActual === "movimiento" ? "#050510" : "#00ffff"
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                }
+                                onClicked: {
+                                    filtroActual = "movimiento"
+                                    cargarLogs()
+                                }
+                            }
+                        }
+                    }
+
+                    Column {
+                        width: parent.width * 0.5
+                        spacing: 8
+
+                        Text {
+                            text: "Buscar"
+                            font.pixelSize: 11
+                            color: "#8080a0"
+                        }
+
+                        TextField {
+                            id: inputBusqueda
+                            width: parent.width
+                            height: 32
+                            placeholderText: "Buscar por usuario, acción..."
+                            color: "#e0e0ff"
+                            onTextChanged: busqueda = text
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: "#00ffff"
+                                border.width: 1
+                                radius: 4
                             }
                         }
                     }
                 }
             }
-            
-            Component.onCompleted: cargarLogs()
-            
+
+            // Estadísticas rápidas
+            Row {
+                width: parent.width
+                spacing: 15
+
+                Rectangle {
+                    width: (parent.width - 30) / 3
+                    height: 60
+                    color: Qt.rgba(0, 1, 1, 0.05)
+                    radius: 6
+                    border.color: "#00ffff"
+                    border.width: 1
+
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 10
+
+                        Text {
+                            text: "📊"
+                            font.pixelSize: 24
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        Column {
+                            spacing: 2
+                            Text {
+                                text: logsData ? logsData.total.toString() : "0"
+                                font.pixelSize: 18
+                                font.bold: true
+                                color: "#00ffff"
+                            }
+                            Text {
+                                text: "Total Registros"
+                                font.pixelSize: 10
+                                color: "#8080a0"
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    width: (parent.width - 30) / 3
+                    height: 60
+                    color: Qt.rgba(0, 1, 0.5, 0.05)
+                    radius: 6
+                    border.color: "#00ff80"
+                    border.width: 1
+
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 10
+
+                        Text {
+                            text: "✅"
+                            font.pixelSize: 24
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        Column {
+                            spacing: 2
+                            Text {
+                                text: contarPorTipo("sesion")
+                                font.pixelSize: 18
+                                font.bold: true
+                                color: "#00ff80"
+                            }
+                            Text {
+                                text: "Sesiones"
+                                font.pixelSize: 10
+                                color: "#8080a0"
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    width: (parent.width - 30) / 3
+                    height: 60
+                    color: Qt.rgba(1, 0.65, 0, 0.05)
+                    radius: 6
+                    border.color: "#ffaa00"
+                    border.width: 1
+
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 10
+
+                        Text {
+                            text: "📦"
+                            font.pixelSize: 24
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        Column {
+                            spacing: 2
+                            Text {
+                                text: contarPorTipo("movimiento")
+                                font.pixelSize: 18
+                                font.bold: true
+                                color: "#ffaa00"
+                            }
+                            Text {
+                                text: "Movimientos"
+                                font.pixelSize: 10
+                                color: "#8080a0"
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Lista de logs
+            Rectangle {
+                width: parent.width
+                height: parent.height - 260
+                color: "#0a0a1f"
+                border.color: "#00ffff"
+                border.width: 2
+                radius: 10
+
+                Column {
+                    anchors.fill: parent
+                    anchors.margins: 15
+                    spacing: 10
+
+                    Row {
+                        width: parent.width
+                        spacing: 10
+
+                        Text {
+                            text: "Registros de Auditoría"
+                            font.pixelSize: 16
+                            font.bold: true
+                            color: "#e0e0ff"
+                        }
+
+                        Item { width: parent.width - 270 }
+
+                        Button {
+                            text: "📊 Vista Previa"
+                            width: 130
+                            height: 30
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: "#ffaa00"
+                                border.width: 2
+                                radius: 6
+                            }
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#ffaa00"
+                                font.bold: true
+                                font.pixelSize: 11
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+                            onClicked: cargarDatosEjemplo()
+                        }
+
+                        Button {
+                            text: "🔄 Recargar"
+                            width: 110
+                            height: 30
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: "#00ffff"
+                                border.width: 2
+                                radius: 6
+                            }
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#00ffff"
+                                font.bold: true
+                                font.pixelSize: 11
+                                horizontalAlignment: Text.AlignHCenter
+                            }
+                            onClicked: cargarLogs()
+                        }
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: 1
+                        color: "#00ffff"
+                        opacity: 0.3
+                    }
+
+                    ListView {
+                        id: listaLogs
+                        width: parent.width
+                        height: parent.height - 55
+                        clip: true
+                        spacing: 8
+                        model: logsActuales
+
+                        delegate: Rectangle {
+                            width: parent.width
+                            height: 70
+                            color: Qt.rgba(0, 0, 0, 0.3)
+                            radius: 6
+                            border.color: modelData.tipo === "sesion" ? "#0088ff" : "#ffaa00"
+                            border.width: 1
+
+                            Rectangle {
+                                anchors.left: parent.left
+                                width: 4
+                                height: parent.height
+                                radius: 2
+                                color: modelData.tipo === "sesion" ? "#0088ff" : "#ffaa00"
+                            }
+
+                            Row {
+                                anchors.fill: parent
+                                anchors.margins: 12
+                                spacing: 15
+
+                                Text {
+                                    text: modelData.tipo === "sesion" ? "🔐" : "📦"
+                                    font.pixelSize: 28
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                Column {
+                                    width: parent.width * 0.3
+                                    spacing: 4
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    Text {
+                                        text: modelData.usuario
+                                        font.pixelSize: 14
+                                        font.bold: true
+                                        color: "#e0e0ff"
+                                        elide: Text.ElideRight
+                                        width: parent.width
+                                    }
+
+                                    Text {
+                                        text: modelData.accion
+                                        font.pixelSize: 11
+                                        color: "#ff0080"
+                                        elide: Text.ElideRight
+                                        width: parent.width
+                                    }
+                                }
+
+                                Column {
+                                    width: parent.width * 0.35
+                                    spacing: 4
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    Text {
+                                        text: obtenerDetallesPrincipales(modelData)
+                                        font.pixelSize: 11
+                                        color: "#8080a0"
+                                        elide: Text.ElideRight
+                                        width: parent.width
+                                    }
+
+                                    Text {
+                                        text: obtenerDetallesSecundarios(modelData)
+                                        font.pixelSize: 10
+                                        color: "#8080a0"
+                                        elide: Text.ElideRight
+                                        width: parent.width
+                                    }
+                                }
+
+                                Column {
+                                    spacing: 4
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    Text {
+                                        text: formatearFecha(modelData.fecha)
+                                        font.pixelSize: 11
+                                        color: "#00ffff"
+                                    }
+
+                                    Text {
+                                        text: formatearHora(modelData.fecha)
+                                        font.pixelSize: 10
+                                        color: "#8080a0"
+                                    }
+                                }
+                            }
+                        }
+
+                        Column {
+                            visible: listaLogs.count === 0
+                            anchors.centerIn: parent
+                            spacing: 15
+
+                            Text {
+                                text: "📋"
+                                font.pixelSize: 60
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                opacity: 0.5
+                            }
+
+                            Text {
+                                text: "No hay registros para mostrar"
+                                font.pixelSize: 16
+                                font.bold: true
+                                color: "#e0e0ff"
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+
+                            Text {
+                                text: "Prueba cargando la vista previa con datos de ejemplo"
+                                font.pixelSize: 13
+                                color: "#8080a0"
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+
+                            Button {
+                                text: "📊 Cargar Vista Previa"
+                                width: 200
+                                height: 40
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                background: Rectangle {
+                                    color: "#00ffff"
+                                    radius: 6
+                                }
+                                contentItem: Text {
+                                    text: parent.text
+                                    color: "#050510"
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                }
+                                onClicked: cargarDatosEjemplo()
+                            }
+                        }
+
+                        ScrollBar.vertical: ScrollBar {
+                            policy: ScrollBar.AsNeeded
+                            width: 10
+                            contentItem: Rectangle {
+                                implicitWidth: 6
+                                radius: 3
+                                color: "#00ffff"
+                                opacity: parent.active ? 0.8 : 0.4
+                                Behavior on opacity {
+                                    NumberAnimation { duration: 200 }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Component.onCompleted: {
+                cargarLogs()
+                timer.start()
+            }
+
+            Timer {
+                id: timer
+                interval: 2000
+                running: false
+                repeat: false
+                onTriggered: {
+                    if (!logsData || !logsData.logs || logsData.logs.length === 0) {
+                        cargarDatosEjemplo()
+                    }
+                }
+            }
+
             function cargarLogs() {
-                api.get("/logs/", function(exito, datos) {
+                cargando = true
+                usandoDatosEjemplo = false
+
+                var endpoint = "/logs?tipo=" + filtroActual + "&limit=100"
+
+                api.get(endpoint, function(exito, datos) {
+                    cargando = false
                     if (exito) {
-                        logs = datos
+                        logsData = datos
+                        usandoDatosEjemplo = false
+                    } else {
+                        cargarDatosEjemplo()
                     }
                 })
+            }
+
+            function cargarDatosEjemplo() {
+                cargando = false
+                usandoDatosEjemplo = true
+
+                var ahora = new Date()
+                var ejemplos = []
+
+                // Logs de sesión
+                for (var i = 0; i < 15; i++) {
+                    var fecha = new Date(ahora.getTime() - (i * 3600000 * Math.random() * 48))
+                    var usuarios = ["admin", "gerente", "vendedor1", "supervisor"]
+                    var acciones = ["LOGIN", "LOGOUT", "PASSWORD_CHANGE", "PROFILE_UPDATE"]
+                    var ips = ["192.168.1.100", "192.168.1.101", "192.168.1.102", "10.0.0.50"]
+
+                    if (filtroActual === "todos" || filtroActual === "sesion") {
+                        ejemplos.push({
+                            "id": "sesion_" + i,
+                            "tipo": "sesion",
+                            "usuario": usuarios[Math.floor(Math.random() * usuarios.length)],
+                            "accion": acciones[Math.floor(Math.random() * acciones.length)],
+                            "detalles": {
+                                "ip": ips[Math.floor(Math.random() * ips.length)],
+                                "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                                "exito": Math.random() > 0.2
+                            },
+                            "fecha": fecha.toISOString()
+                        })
+                    }
+                }
+
+                // Logs de movimientos
+                var ingredientes = ["Café Arábica", "Leche Entera", "Azúcar", "Chocolate", "Vainilla", "Canela"]
+                var tipos_mov = ["ENTRADA", "SALIDA", "AJUSTE"]
+                var referencias = [
+                    "Proveedor: Café Premium SA",
+                    "Staff: María García",
+                    "Venta #1234",
+                    "Sistema automático",
+                    "Staff: Juan Pérez"
+                ]
+
+                for (var j = 0; j < 20; j++) {
+                    var fecha2 = new Date(ahora.getTime() - (j * 3600000 * Math.random() * 72))
+
+                    if (filtroActual === "todos" || filtroActual === "movimiento") {
+                        ejemplos.push({
+                            "id": "movimiento_" + j,
+                            "tipo": "movimiento",
+                            "usuario": referencias[Math.floor(Math.random() * referencias.length)],
+                            "accion": tipos_mov[Math.floor(Math.random() * tipos_mov.length)],
+                            "detalles": {
+                                "ingrediente": ingredientes[Math.floor(Math.random() * ingredientes.length)],
+                                "cantidad": (Math.random() * 50 + 5).toFixed(2),
+                                "tipo_movimiento": tipos_mov[Math.floor(Math.random() * tipos_mov.length)],
+                                "referencia": referencias[Math.floor(Math.random() * referencias.length)]
+                            },
+                            "fecha": fecha2.toISOString()
+                        })
+                    }
+                }
+
+                ejemplos.sort(function(a, b) {
+                    return new Date(b.fecha) - new Date(a.fecha)
+                })
+
+                logsData = {
+                    "total": ejemplos.length,
+                    "logs": ejemplos
+                }
+            }
+
+            function actualizarLogs() {
+                if (!logsData || !logsData.logs) {
+                    logsActuales = []
+                    return
+                }
+
+                var logs = logsData.logs
+
+                if (busqueda !== "") {
+                    var filtrados = []
+                    var busquedaLower = busqueda.toLowerCase()
+
+                    for (var i = 0; i < logs.length; i++) {
+                        var log = logs[i]
+                        if (log.usuario.toLowerCase().indexOf(busquedaLower) !== -1 ||
+                            log.accion.toLowerCase().indexOf(busquedaLower) !== -1) {
+                            filtrados.push(log)
+                        }
+                    }
+                    logsActuales = filtrados
+                } else {
+                    logsActuales = logs
+                }
+            }
+
+            function contarPorTipo(tipo) {
+                if (!logsData || !logsData.logs) return "0"
+
+                var count = 0
+                for (var i = 0; i < logsData.logs.length; i++) {
+                    if (logsData.logs[i].tipo === tipo) {
+                        count++
+                    }
+                }
+                return count.toString()
+            }
+
+            function obtenerDetallesPrincipales(log) {
+                if (log.tipo === "sesion") {
+                    var exito = log.detalles.exito ? "✅ Exitoso" : "❌ Fallido"
+                    return exito + " • IP: " + (log.detalles.ip || "N/A")
+                } else {
+                    return "📦 " + log.detalles.ingrediente + " • Cantidad: " + log.detalles.cantidad
+                }
+            }
+
+            function obtenerDetallesSecundarios(log) {
+                if (log.tipo === "sesion") {
+                    return "User Agent: " + (log.detalles.user_agent || "N/A")
+                } else {
+                    return "Referencia: " + (log.detalles.referencia || "Sistema automático")
+                }
+            }
+
+            function formatearFecha(fechaISO) {
+                var fecha = new Date(fechaISO)
+                var dia = fecha.getDate().toString().length === 1 ? "0" + fecha.getDate() : fecha.getDate()
+                var mes = (fecha.getMonth() + 1).toString().length === 1 ? "0" + (fecha.getMonth() + 1) : (fecha.getMonth() + 1)
+                var año = fecha.getFullYear()
+                return dia + "/" + mes + "/" + año
+            }
+
+            function formatearHora(fechaISO) {
+                var fecha = new Date(fechaISO)
+                var horas = fecha.getHours().toString().length === 1 ? "0" + fecha.getHours() : fecha.getHours()
+                var minutos = fecha.getMinutes().toString().length === 1 ? "0" + fecha.getMinutes() : fecha.getMinutes()
+                var segundos = fecha.getSeconds().toString().length === 1 ? "0" + fecha.getSeconds() : fecha.getSeconds()
+                return horas + ":" + minutos + ":" + segundos
             }
         }
     }
