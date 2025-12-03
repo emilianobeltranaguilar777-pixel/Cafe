@@ -38,19 +38,26 @@ Rectangle {
                 
                 Text {
                     width: parent.width
-                    text: "EL CAFÉ SIN\nLÍMITES"
+                    text: "LUA's Place"
                     font.family: PaletaNeon.fuentePrincipal
-                    font.pixelSize: 18
+                    font.pixelSize: 20
                     font.bold: true
-                    color: PaletaNeon.primario
+                    font.letterSpacing: 1.2
+                    color: "#00eaff"
                     horizontalAlignment: Text.AlignHCenter
-                    
+
+                    SequentialAnimation on color {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00ff95"; duration: 3000; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00eaff"; duration: 3000; easing.type: Easing.InOutSine }
+                    }
+
                     layer.enabled: true
                     layer.effect: Glow {
                         samples: 17
-                        color: PaletaNeon.primario
+                        color: "#00eaff"
                         spread: 0.5
-                        radius: 8
+                        radius: 10
                     }
                 }
                 
@@ -102,42 +109,55 @@ Rectangle {
                 clip: true
                 
                 model: ListModel {
-                    ListElement { nombre: "Dashboard"; icono: "📊"; pantalla: "pantalla_dashboard.qml"; recurso: "reportes" }
-                    ListElement { nombre: "Clientes"; icono: "👥"; pantalla: "pantalla_clientes.qml"; recurso: "clientes" }
-                    ListElement { nombre: "Ingredientes"; icono: "🥫"; pantalla: "pantalla_ingredientes.qml"; recurso: "inventario" }
-                    ListElement { nombre: "Recetas"; icono: "🍰"; pantalla: "pantalla_recetas.qml"; recurso: "inventario" }
-                    ListElement { nombre: "Ventas"; icono: "🛒"; pantalla: "pantalla_ventas.qml"; recurso: "ventas" }
-                    ListElement { nombre: "Reportes"; icono: "📈"; pantalla: "pantalla_reportes.qml"; recurso: "reportes" }
-                    ListElement { nombre: "Logs"; icono: "📋"; pantalla: "pantalla_logs.qml"; recurso: "reportes" }
-                    ListElement { nombre: "Usuarios"; icono: "👤"; pantalla: "pantalla_usuarios.qml"; recurso: "usuarios" }
+                    ListElement { nombre: "Command Bridge"; icono: ""; pantalla: "pantalla_dashboard.qml"; recurso: "reportes" }
+                    ListElement { nombre: "Stellar Guests"; icono: ""; pantalla: "pantalla_clientes.qml"; recurso: "clientes" }
+                    ListElement { nombre: "Core Supplies"; icono: ""; pantalla: "pantalla_ingredientes.qml"; recurso: "inventario" }
+                    ListElement { nombre: "Alchemy Lab"; icono: ""; pantalla: "pantalla_recetas.qml"; recurso: "inventario" }
+                    ListElement { nombre: "Cosmic Register"; icono: ""; pantalla: "pantalla_ventas.qml"; recurso: "ventas" }
+                    ListElement { nombre: "Analytics Hub"; icono: ""; pantalla: "pantalla_reportes.qml"; recurso: "reportes" }
+                    ListElement { nombre: "Digital Footprints"; icono: ""; pantalla: "pantalla_logs.qml"; recurso: "reportes" }
+                    ListElement { nombre: "Crew Members"; icono: ""; pantalla: "pantalla_usuarios.qml"; recurso: "usuarios" }
                 }
                 
                 delegate: Rectangle {
                     width: parent.width
                     height: 50
-                    color: mouseArea.containsMouse ? Qt.rgba(0, 1, 1, 0.2) : "transparent"
+                    color: mouseArea.containsMouse ? Qt.rgba(0, 0.92, 1, 0.15) : "transparent"
                     radius: 6
-                    border.color: cargadorContenido.source.toString().indexOf(model.pantalla) !== -1 ? PaletaNeon.primario : "transparent"
+                    border.color: cargadorContenido.source.toString().indexOf(model.pantalla) !== -1 ? "#00eaff" : "transparent"
                     border.width: 2
-                    
+
                     visible: GestorAuth.tienePermiso(model.recurso, "ver")
                     
                     Row {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
-                        anchors.leftMargin: 15
-                        spacing: 15
-                        
-                        Text {
-                            text: model.icono
-                            font.pixelSize: 24
+                        anchors.leftMargin: 20
+                        spacing: 10
+
+                        Rectangle {
+                            width: 4
+                            height: 20
+                            radius: 2
+                            color: cargadorContenido.source.toString().indexOf(model.pantalla) !== -1 ? "#00eaff" : "#00ff95"
+                            anchors.verticalCenter: parent.verticalCenter
+                            opacity: cargadorContenido.source.toString().indexOf(model.pantalla) !== -1 ? 1.0 : 0.3
+
+                            SequentialAnimation on color {
+                                loops: Animation.Infinite
+                                running: cargadorContenido.source.toString().indexOf(model.pantalla) !== -1
+                                ColorAnimation { to: "#00ff95"; duration: 2000; easing.type: Easing.InOutSine }
+                                ColorAnimation { to: "#00eaff"; duration: 2000; easing.type: Easing.InOutSine }
+                            }
                         }
-                        
+
                         Text {
                             text: model.nombre
                             font.family: PaletaNeon.fuentePrincipal
-                            font.pixelSize: 14
-                            color: PaletaNeon.texto
+                            font.pixelSize: 13
+                            font.bold: cargadorContenido.source.toString().indexOf(model.pantalla) !== -1
+                            font.letterSpacing: 0.5
+                            color: cargadorContenido.source.toString().indexOf(model.pantalla) !== -1 ? "#00eaff" : PaletaNeon.texto
                         }
                     }
                     
@@ -155,9 +175,9 @@ Rectangle {
                     layer.enabled: mouseArea.containsMouse
                     layer.effect: Glow {
                         samples: 17
-                        color: PaletaNeon.primario
-                        spread: 0.3
-                        radius: 8
+                        color: "#00eaff"
+                        spread: 0.4
+                        radius: 10
                     }
                 }
             }

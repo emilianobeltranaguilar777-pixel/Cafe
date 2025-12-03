@@ -7,7 +7,7 @@ Window {
     visible: true
     width: 1400
     height: 900
-    title: "EL CAFÉ SIN LÍMITES - v2.0 FINAL"
+    title: "LUA's Place"
     color: "#050510"
     
     property string backendUrl: "http://localhost:8000"
@@ -196,16 +196,23 @@ Window {
                         
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "EL CAFÉ SIN LÍMITES"
-                            font.pixelSize: 24
+                            text: "LUA's Place"
+                            font.pixelSize: 28
                             font.bold: true
-                            color: "#00ffff"
+                            color: "#00eaff"
+
+                            SequentialAnimation on color {
+                                loops: Animation.Infinite
+                                ColorAnimation { to: "#00ff95"; duration: 2000; easing.type: Easing.InOutSine }
+                                ColorAnimation { to: "#00eaff"; duration: 2000; easing.type: Easing.InOutSine }
+                            }
                         }
-                        
+
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Sistema de Gestión v2.0"
-                            font.pixelSize: 14
+                            text: "Where every cup tastes like stardust."
+                            font.pixelSize: 13
+                            font.italic: true
                             color: "#8080a0"
                         }
                     }
@@ -491,68 +498,89 @@ Window {
 
             property var stats: null
 
-            Row {
+            Column {
                 width: parent.width
-                spacing: 20
+                spacing: 8
 
-                Text {
-                    text: "📊 Dashboard"
-                    font.pixelSize: 32
-                    font.bold: true
-                    color: "#00ffff"
-                    anchors.verticalCenter: parent.verticalCenter
-                }
+                Row {
+                    width: parent.width
+                    spacing: 20
 
-                Item { width: parent.width - 700 }
+                    Text {
+                        text: "Command Bridge"
+                        font.pixelSize: 34
+                        font.bold: true
+                        font.letterSpacing: 1.5
+                        color: "#00eaff"
+                        anchors.verticalCenter: parent.verticalCenter
 
-                // Creadores Badge with Pulsing Glow
+                        SequentialAnimation on color {
+                            loops: Animation.Infinite
+                            ColorAnimation { to: "#00ff95"; duration: 3000; easing.type: Easing.InOutSine }
+                            ColorAnimation { to: "#00eaff"; duration: 3000; easing.type: Easing.InOutSine }
+                        }
+                    }
+
+                    Item { width: parent.width - 700 }
+
+                // The Lunar Bros Badge with Cyber Neon Pulse
                 Rectangle {
                     id: creadorBadge
-                    width: 450
+                    width: 350
                     height: 50
-                    color: Qt.rgba(1, 0, 0.5, 0.15)
+                    color: Qt.rgba(0, 0.92, 1, 0.1)
                     radius: 25
-                    border.color: "#ff0080"
+                    border.color: "#00eaff"
                     border.width: 2
                     anchors.verticalCenter: parent.verticalCenter
 
                     opacity: 1.0
                     SequentialAnimation on opacity {
                         loops: Animation.Infinite
-                        NumberAnimation { to: 0.6; duration: 1500; easing.type: Easing.InOutSine }
-                        NumberAnimation { to: 1.0; duration: 1500; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 0.7; duration: 1800; easing.type: Easing.InOutSine }
+                        NumberAnimation { to: 1.0; duration: 1800; easing.type: Easing.InOutSine }
+                    }
+
+                    SequentialAnimation on border.color {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00ff95"; duration: 2500; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00eaff"; duration: 2500; easing.type: Easing.InOutSine }
                     }
 
                     Row {
                         anchors.centerIn: parent
-                        spacing: 12
+                        spacing: 10
 
                         Text {
-                            text: "💎"
-                            font.pixelSize: 24
+                            text: "🌙"
+                            font.pixelSize: 22
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
-                        Column {
-                            spacing: 2
+                        Text {
+                            text: "The Lunar Bros"
+                            font.pixelSize: 17
+                            font.bold: true
+                            font.letterSpacing: 1.5
+                            color: "#00eaff"
                             anchors.verticalCenter: parent.verticalCenter
 
-                            Text {
-                                text: "Desarrollado por"
-                                font.pixelSize: 10
-                                color: "#8080a0"
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-
-                            Text {
-                                text: "Jose Beltrán & ChatGPT"
-                                font.pixelSize: 16
-                                font.bold: true
-                                color: "#ff0080"
-                                anchors.horizontalCenter: parent.horizontalCenter
+                            SequentialAnimation on color {
+                                loops: Animation.Infinite
+                                ColorAnimation { to: "#00ff95"; duration: 2500; easing.type: Easing.InOutSine }
+                                ColorAnimation { to: "#00eaff"; duration: 2500; easing.type: Easing.InOutSine }
                             }
                         }
                     }
+                }
+                }
+
+                Text {
+                    text: "A cosmic overview of sales, activity and performance."
+                    font.pixelSize: 14
+                    font.italic: true
+                    color: "#8080a0"
+                    anchors.horizontalCenter: parent.horizontalCenter
                 }
             }
 
@@ -566,9 +594,15 @@ Window {
                     width: 260
                     height: 140
                     color: "#0a0a1f"
-                    border.color: "#00ff80"
+                    border.color: "#00ff95"
                     border.width: 2
                     radius: 12
+
+                    SequentialAnimation on border.color {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00eaff"; duration: 2000; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00ff95"; duration: 2000; easing.type: Easing.InOutSine }
+                    }
 
                     Column {
                         anchors.centerIn: parent
@@ -576,8 +610,9 @@ Window {
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "💰 Ventas Hoy"
+                            text: "Sales Today"
                             font.pixelSize: 13
+                            font.letterSpacing: 0.8
                             color: "#8080a0"
                         }
 
@@ -586,12 +621,12 @@ Window {
                             text: stats ? "$" + stats.ventas_hoy.toFixed(2) : "$0.00"
                             font.pixelSize: 28
                             font.bold: true
-                            color: "#00ff80"
+                            color: "#00ff95"
                         }
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: stats ? stats.num_ventas_hoy + " transacciones" : "0 transacciones"
+                            text: stats ? stats.num_ventas_hoy + " transactions" : "0 transactions"
                             font.pixelSize: 11
                             color: "#8080a0"
                         }
@@ -602,9 +637,15 @@ Window {
                     width: 260
                     height: 140
                     color: "#0a0a1f"
-                    border.color: "#00ffff"
+                    border.color: "#00eaff"
                     border.width: 2
                     radius: 12
+
+                    SequentialAnimation on border.color {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00ff95"; duration: 2200; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00eaff"; duration: 2200; easing.type: Easing.InOutSine }
+                    }
 
                     Column {
                         anchors.centerIn: parent
@@ -612,8 +653,9 @@ Window {
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "📈 Ventas Semana"
+                            text: "Weekly Sales"
                             font.pixelSize: 13
+                            font.letterSpacing: 0.8
                             color: "#8080a0"
                         }
 
@@ -622,12 +664,12 @@ Window {
                             text: stats ? "$" + (stats.ventas_mes * 0.25).toFixed(2) : "$0.00"
                             font.pixelSize: 28
                             font.bold: true
-                            color: "#00ffff"
+                            color: "#00eaff"
                         }
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Últimos 7 días"
+                            text: "Last 7 days"
                             font.pixelSize: 11
                             color: "#8080a0"
                         }
@@ -638,9 +680,16 @@ Window {
                     width: 260
                     height: 140
                     color: "#0a0a1f"
-                    border.color: stats && stats.alertas_stock > 0 ? "#ff0055" : "#00ffff"
+                    border.color: stats && stats.alertas_stock > 0 ? "#ff0055" : "#00ff95"
                     border.width: 2
                     radius: 12
+
+                    SequentialAnimation on border.color {
+                        loops: Animation.Infinite
+                        running: !(stats && stats.alertas_stock > 0)
+                        ColorAnimation { to: "#00eaff"; duration: 2400; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00ff95"; duration: 2400; easing.type: Easing.InOutSine }
+                    }
 
                     Column {
                         anchors.centerIn: parent
@@ -648,8 +697,9 @@ Window {
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "⚠️ Alertas Stock"
+                            text: "Stock Alerts"
                             font.pixelSize: 13
+                            font.letterSpacing: 0.8
                             color: "#8080a0"
                         }
 
@@ -658,12 +708,12 @@ Window {
                             text: stats ? stats.alertas_stock.toString() : "0"
                             font.pixelSize: 28
                             font.bold: true
-                            color: stats && stats.alertas_stock > 0 ? "#ff0055" : "#00ff80"
+                            color: stats && stats.alertas_stock > 0 ? "#ff0055" : "#00ff95"
                         }
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Ingredientes bajos"
+                            text: "Low inventory"
                             font.pixelSize: 11
                             color: "#8080a0"
                         }
@@ -674,9 +724,15 @@ Window {
                     width: 260
                     height: 140
                     color: "#0a0a1f"
-                    border.color: "#ff0080"
+                    border.color: "#00eaff"
                     border.width: 2
                     radius: 12
+
+                    SequentialAnimation on border.color {
+                        loops: Animation.Infinite
+                        ColorAnimation { to: "#00ff95"; duration: 1800; easing.type: Easing.InOutSine }
+                        ColorAnimation { to: "#00eaff"; duration: 1800; easing.type: Easing.InOutSine }
+                    }
 
                     Column {
                         anchors.centerIn: parent
@@ -684,8 +740,9 @@ Window {
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "👥 Usuarios Activos"
+                            text: "Active Users"
                             font.pixelSize: 13
+                            font.letterSpacing: 0.8
                             color: "#8080a0"
                         }
 
@@ -694,12 +751,12 @@ Window {
                             text: "3"
                             font.pixelSize: 28
                             font.bold: true
-                            color: "#ff0080"
+                            color: "#00eaff"
                         }
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "En sesión"
+                            text: "In session"
                             font.pixelSize: 11
                             color: "#8080a0"
                         }
@@ -750,7 +807,7 @@ Window {
                             spacing: 10
 
                             Repeater {
-                                model: ["Latte Vainilla", "Cappuccino Clásico", "Americano Doble", "Mocha Especial", "Espresso"]
+                                model: ["Latte Vainilla", "Cappuccino Clásico", "Americano Doble", "Mocha Especial"]
                                 Rectangle {
                                     width: parent.width
                                     height: 36
