@@ -2961,9 +2961,9 @@ Window {
                         color: "#e9fffd"
                         layer.enabled: true
                         layer.effect: Glow {
-                            radius: 4
+                            radius: 3
                             samples: 10
-                            color: "#00eaff66"
+                            color: "#00eaff55"
                         }
                     }
                     
@@ -2977,8 +2977,8 @@ Window {
                         layer.enabled: true
                         layer.effect: Glow {
                             radius: 6
-                            samples: 12
-                            color: "#00ffff40"
+                            samples: 14
+                            color: "#00ffff44"
                         }
                         
                         Column {
@@ -3003,6 +3003,18 @@ Window {
                                     model: recetas
                                     textRole: "nombre"
                                     onActivated: mensajeVenta = ""
+                                    background: Rectangle {
+                                        color: "#0f1125"
+                                        radius: 8
+                                        border.color: selectorReceta.activeFocus ? "#00ffff" : "#00ffff55"
+                                        border.width: 2
+                                        layer.enabled: true
+                                        layer.effect: Glow {
+                                            radius: 4
+                                            samples: 10
+                                            color: "#00ffff30"
+                                        }
+                                    }
                                 }
 
                                 TextField {
@@ -3012,6 +3024,19 @@ Window {
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     validator: DoubleValidator { bottom: 0.01 }
                                     placeholderText: "Cantidad"
+                                    color: "#e0e0ff"
+                                    background: Rectangle {
+                                        color: "#0f1125"
+                                        radius: 8
+                                        border.color: inputCantidadVenta.activeFocus ? "#00ff80" : "#00ff8055"
+                                        border.width: 2
+                                        layer.enabled: true
+                                        layer.effect: Glow {
+                                            radius: 4
+                                            samples: 10
+                                            color: "#00ff8025"
+                                        }
+                                    }
                                 }
 
                                 Button {
@@ -3022,6 +3047,14 @@ Window {
                                     background: Rectangle {
                                         color: parent.enabled ? "#00ff80" : "#404050"
                                         radius: 8
+                                        border.color: parent.enabled ? "#00ff80" : "#404050"
+                                        border.width: 2
+                                        layer.enabled: true
+                                        layer.effect: Glow {
+                                            radius: 5
+                                            samples: 12
+                                            color: parent.enabled ? "#00ff8045" : "#00000000"
+                                        }
                                     }
                                     contentItem: Text {
                                         text: parent.text
@@ -3046,20 +3079,26 @@ Window {
                                 spacing: 12
                                 clip: true
                                 model: recetas
-                                
+
                                 delegate: Rectangle {
                                     width: parent.width
                                     height: 60
-                                    color: "#1a1a2f"
+                                    color: "#12132a"
                                     border.color: "#00ffff"
                                     border.width: 1
-                                    radius: 8
-                                    
+                                    radius: 10
+                                    layer.enabled: true
+                                    layer.effect: Glow {
+                                        radius: 5
+                                        samples: 12
+                                        color: "#00ffff33"
+                                    }
+
                                     Row {
                                         anchors.fill: parent
                                         anchors.margins: 15
                                         spacing: 15
-                                        
+
                                         Text {
                                             text: modelData.nombre
                                             font.pixelSize: 15
@@ -3067,15 +3106,24 @@ Window {
                                             color: "#e0e0ff"
                                             anchors.verticalCenter: parent.verticalCenter
                                             width: parent.width - 150
+                                            elide: Text.ElideRight
                                         }
-                                        
+
                                         Button {
                                             text: "+"
                                             width: 45
                                             height: 45
                                             background: Rectangle {
                                                 color: "#00ffff"
-                                                radius: 8
+                                                radius: 9
+                                                border.color: "#00ffff"
+                                                border.width: 2
+                                                layer.enabled: true
+                                                layer.effect: Glow {
+                                                    radius: 5
+                                                    samples: 12
+                                                    color: "#00ffff44"
+                                                }
                                             }
                                             contentItem: Text {
                                                 text: parent.text
@@ -3129,11 +3177,17 @@ Window {
 
                             Rectangle {
                                 width: parent.width
-                                height: 140
-                                color: "#1a1a2f"
+                                height: 160
+                                color: "#0f1125"
                                 border.color: carrito.length > 0 ? "#00ffff" : "#404050"
                                 border.width: 2
-                                radius: 8
+                                radius: 10
+                                layer.enabled: true
+                                layer.effect: Glow {
+                                    radius: 6
+                                    samples: 12
+                                    color: carrito.length > 0 ? "#00ffff33" : "#00000000"
+                                }
 
                                 Behavior on border.color {
                                     ColorAnimation { duration: 300 }
@@ -3148,11 +3202,17 @@ Window {
 
                                     delegate: Rectangle {
                                         width: parent.width
-                                        height: 38
-                                        color: "#0f0f1f"
+                                        height: 42
+                                        color: "#13162d"
                                         border.color: "#00ffff"
                                         border.width: 1
-                                        radius: 6
+                                        radius: 7
+                                        layer.enabled: true
+                                        layer.effect: Glow {
+                                            radius: 4
+                                            samples: 10
+                                            color: "#00ffff22"
+                                        }
 
                                         Row {
                                             anchors.fill: parent
@@ -3178,7 +3238,18 @@ Window {
                                                     height: 28
                                                     text: "-"
                                                     enabled: modelData.cantidad > 1
-                                                    background: Rectangle { color: parent.enabled ? "#1a1a2f" : "#303040"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                                                    background: Rectangle {
+                                                        color: parent.enabled ? "#1a1d37" : "#303040"
+                                                        border.color: "#00ffff"
+                                                        border.width: 1
+                                                        radius: 5
+                                                        layer.enabled: parent.enabled
+                                                        layer.effect: Glow {
+                                                            radius: 4
+                                                            samples: 10
+                                                            color: "#00ffff33"
+                                                        }
+                                                    }
                                                     contentItem: Text {
                                                         text: parent.text
                                                         color: "#e0e0ff"
@@ -3201,7 +3272,18 @@ Window {
                                                     width: 28
                                                     height: 28
                                                     text: "+"
-                                                    background: Rectangle { color: "#1a1a2f"; border.color: "#00ffff"; border.width: 1; radius: 4 }
+                                                    background: Rectangle {
+                                                        color: "#1a1d37"
+                                                        border.color: "#00ffff"
+                                                        border.width: 1
+                                                        radius: 5
+                                                        layer.enabled: true
+                                                        layer.effect: Glow {
+                                                            radius: 4
+                                                            samples: 10
+                                                            color: "#00ffff33"
+                                                        }
+                                                    }
                                                     contentItem: Text {
                                                         text: parent.text
                                                         color: "#e0e0ff"
@@ -3217,10 +3299,22 @@ Window {
                                                 width: 75
                                                 height: 28
                                                 text: "×"
-                                                background: Rectangle { color: "#ff0055"; radius: 4 }
+                                                background: Rectangle {
+                                                    color: "#ff2e72"
+                                                    radius: 6
+                                                    border.color: "#ff5c9c"
+                                                    border.width: 1
+                                                    layer.enabled: true
+                                                    layer.effect: Glow {
+                                                        radius: 4
+                                                        samples: 10
+                                                        color: "#ff5c9c44"
+                                                    }
+                                                }
                                                 contentItem: Text {
                                                     text: parent.text
                                                     font.pixelSize: 14
+                                                    color: "#050510"
                                                     horizontalAlignment: Text.AlignHCenter
                                                     verticalAlignment: Text.AlignVCenter
                                                 }
@@ -3250,11 +3344,17 @@ Window {
 
                             Rectangle {
                                 width: parent.width
-                                height: 70
-                                color: Qt.rgba(0, 1, 0.5, 0.1)
+                                height: 80
+                                color: "#0c121f"
                                 border.color: "#00ff80"
                                 border.width: 2
-                                radius: 10
+                                radius: 12
+                                layer.enabled: true
+                                layer.effect: Glow {
+                                    radius: 6
+                                    samples: 12
+                                    color: "#00ff8040"
+                                }
 
                                 Row {
                                     anchors.centerIn: parent
@@ -3264,13 +3364,19 @@ Window {
                                         text: "TOTAL:"
                                         font.pixelSize: 20
                                         font.bold: true
-                                        color: "#8080a0"
+                                        color: "#cfe8ff"
                                         anchors.verticalCenter: parent.verticalCenter
+                                        layer.enabled: true
+                                        layer.effect: Glow {
+                                            radius: 3
+                                            samples: 10
+                                            color: "#00ffff33"
+                                        }
                                     }
 
                                     Text {
                                         text: "$" + total.toFixed(2)
-                                        font.pixelSize: 32
+                                        font.pixelSize: 34
                                         font.bold: true
                                         color: "#00ff80"
                                         anchors.verticalCenter: parent.verticalCenter
@@ -3285,15 +3391,23 @@ Window {
                                 Button {
                                     width: (parent.width - 12) / 2
                                     height: 55
-                                    text: "CLEAR"
+                                    text: "Limpiar"
                                     enabled: carrito.length > 0
                                     background: Rectangle {
-                                        color: parent.enabled ? "#ff0055" : "#404050"
-                                        radius: 8
+                                        color: parent.enabled ? "#ff2e72" : "#404050"
+                                        radius: 10
+                                        border.color: parent.enabled ? "#ff5c9c" : "#404050"
+                                        border.width: 2
+                                        layer.enabled: parent.enabled
+                                        layer.effect: Glow {
+                                            radius: 6
+                                            samples: 12
+                                            color: "#ff5c9c44"
+                                        }
                                     }
                                     contentItem: Text {
                                         text: parent.text
-                                        color: "#ffffff"
+                                        color: "#050510"
                                         font.bold: true
                                         font.pixelSize: 17
                                         horizontalAlignment: Text.AlignHCenter
@@ -3306,7 +3420,7 @@ Window {
                                     id: btnRegistrar
                                     width: (parent.width - 12) / 2
                                     height: 55
-                                    text: "REGISTER SALE"
+                                    text: "Registrar Venta"
                                     enabled: carrito.length > 0
 
                                     scale: 1.0
@@ -3316,7 +3430,15 @@ Window {
 
                                     background: Rectangle {
                                         color: parent.enabled ? "#00ff80" : "#404050"
-                                        radius: 8
+                                        radius: 10
+                                        border.color: parent.enabled ? "#00ff80" : "#404050"
+                                        border.width: 2
+                                        layer.enabled: parent.enabled
+                                        layer.effect: Glow {
+                                            radius: 6
+                                            samples: 12
+                                            color: parent.enabled ? "#00ff8044" : "#00000000"
+                                        }
                                     }
                                     contentItem: Text {
                                         text: parent.text
@@ -3356,47 +3478,65 @@ Window {
                 width: parent.width * 0.45
                 height: parent.height
                 color: "#050510"
-                
+
                 Column {
                     anchors.fill: parent
                     anchors.margins: 40
                     spacing: 25
-                    
+
                     Text {
                         text: "Ventas Recientes"
                         font.pixelSize: 24
                         font.bold: true
-                        color: "#00ffff"
+                        color: "#e9fffd"
+                        layer.enabled: true
+                        layer.effect: Glow {
+                            radius: 4
+                            samples: 12
+                            color: "#00eaff55"
+                        }
                     }
-                    
+
                     Rectangle {
                         width: parent.width
                         height: parent.height - 100
                         color: "#0a0a1f"
                         border.color: "#00ffff"
                         border.width: 2
-                        radius: 10
-                        
+                        radius: 12
+                        layer.enabled: true
+                        layer.effect: Glow {
+                            radius: 6
+                            samples: 12
+                            color: "#00ffff40"
+                        }
+
                         ListView {
                             anchors.fill: parent
                             anchors.margins: 20
                             spacing: 12
                             clip: true
                             model: ventas
-                            
+
                             delegate: Rectangle {
                                 width: parent.width
                                 height: 65
-                                color: "#1a1a2f"
+                                color: "#12132a"
                                 border.color: "#00ffff"
                                 border.width: 1
-                                radius: 8
-                                
+                                radius: 10
+                                layer.enabled: true
+                                layer.effect: Glow {
+                                    radius: 5
+                                    samples: 12
+                                    color: "#00ffff33"
+                                }
+
                                 Row {
                                     anchors.fill: parent
                                     anchors.margins: 12
                                     spacing: 15
-                                    
+
                                     Text {
                                         text: "#" + modelData.id
                                         font.pixelSize: 14
@@ -3405,7 +3545,7 @@ Window {
                                         width: 50
                                         anchors.verticalCenter: parent.verticalCenter
                                     }
-                                    
+
                                     Column {
                                         anchors.verticalCenter: parent.verticalCenter
                                         spacing: 4
@@ -3421,9 +3561,9 @@ Window {
                                             color: "#8080a0"
                                         }
                                     }
-                                    
+
                                     Item { width: parent.width - 300 }
-                                    
+
                                     Text {
                                         text: "$" + modelData.total.toFixed(2)
                                         font.pixelSize: 17
