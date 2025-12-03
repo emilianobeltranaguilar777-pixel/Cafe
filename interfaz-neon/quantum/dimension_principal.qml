@@ -108,6 +108,7 @@ Rectangle {
                     ListElement { nombre: "Recetas"; icono: "🍰"; pantalla: "pantalla_recetas.qml"; recurso: "inventario" }
                     ListElement { nombre: "Ventas"; icono: "🛒"; pantalla: "pantalla_ventas.qml"; recurso: "ventas" }
                     ListElement { nombre: "Reportes"; icono: "📈"; pantalla: "pantalla_reportes.qml"; recurso: "reportes" }
+                    ListElement { nombre: "Logs"; icono: "📋"; pantalla: "pantalla_logs.qml"; recurso: "reportes" }
                     ListElement { nombre: "Usuarios"; icono: "👤"; pantalla: "pantalla_usuarios.qml"; recurso: "usuarios" }
                 }
                 
