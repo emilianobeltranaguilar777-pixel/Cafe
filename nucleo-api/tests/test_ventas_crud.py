@@ -5,6 +5,7 @@ from typing import Iterator
 import math
 
 from sqlmodel import Session, SQLModel, create_engine
+from sqlalchemy.pool import StaticPool
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 if str(BASE_DIR) not in sys.path:
@@ -13,7 +14,11 @@ if str(BASE_DIR) not in sys.path:
 from sistema.entidades import Ingrediente, Rol  # noqa: E402
 from sistema.rutas import recetas_rutas, ventas_rutas  # noqa: E402
 
-engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+engine = create_engine(
+    "sqlite:///:memory:",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
 
 
 def reset_db():

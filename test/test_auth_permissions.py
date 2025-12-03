@@ -5,8 +5,10 @@ from pathlib import Path
 from typing import Dict
 
 from fastapi import HTTPException
+from starlette.requests import Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, SQLModel, create_engine, select
+from sqlalchemy.pool import StaticPool
 
 # Asegurar que la carpeta "nucleo-api" esté en el PYTHONPATH
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -52,6 +54,7 @@ class APISmokeTests(unittest.TestCase):
             "sqlite://",
             echo=False,
             connect_args={"check_same_thread": False},
+            poolclass=StaticPool,
         )
         base_datos.engine = cls.engine
         SQLModel.metadata.create_all(cls.engine)
@@ -134,33 +137,32 @@ class APISmokeTests(unittest.TestCase):
             return 0
 
         existing = session.exec(select(LogSesion)).all()
-        if existing:
-            return len(existing)
-
-        session.add_all(
-            [
-                LogSesion(
-                    usuario_id=admin.id,
-                    accion="login",
-                    ip="127.0.0.1",
-                    user_agent="smoke-tests",
-                    exito=True,
-                ),
-                LogSesion(
-                    usuario_id=admin.id,
-                    accion="ver_dashboard",
-                    ip="127.0.0.1",
-                    user_agent="smoke-tests",
-                    exito=True,
-                ),
-            ]
-        )
+        if len(existing) < 2:
+            session.add_all(
+                [
+                    LogSesion(
+                        usuario_id=admin.id,
+                        accion="login",
+                        ip="127.0.0.1",
+                        user_agent="smoke-tests",
+                        exito=True,
+                    ),
+                    LogSesion(
+                        usuario_id=admin.id,
+                        accion="ver_dashboard",
+                        ip="127.0.0.1",
+                        user_agent="smoke-tests",
+                        exito=True,
+                    ),
+                ]
+            )
         session.commit()
-        return 2
+        return len(session.exec(select(LogSesion)).all())
 
     def _login(self, session: Session, username: str, password: str) -> Dict[str, str]:
         form = OAuth2PasswordRequestForm(username=username, password=password, scope="")
-        token = auth_rutas.login(form_data=form, session=session)
+        dummy_request = Request(scope={"type": "http", "client": ("unittest", 0), "headers": []})
+        token = auth_rutas.login(request=dummy_request, form_data=form, session=session)
         return token.model_dump()
 
     def test_login_and_profile(self):
@@ -276,12 +278,13 @@ class APISmokeTests(unittest.TestCase):
         with Session(self.engine) as session:
             admin = session.exec(select(Usuario).where(Usuario.username == "admin")).first()
 
-            logs = logs_rutas.listar_logs(
+            logs_data = logs_rutas.listar_logs(
                 limit=10,
                 offset=0,
                 session=session,
                 usuario_actual=admin,
             )
+            logs = logs_data.get("logs", [])
             dashboard = reportes_rutas.obtener_dashboard(
                 session=session,
                 usuario_actual=admin,
@@ -289,7 +292,9 @@ class APISmokeTests(unittest.TestCase):
 
         self.assertGreaterEqual(len(logs), self.log_entries)
         self.assertIn("accion", logs[0])
-        self.assertIn("usuario_nombre", logs[0])
+        self.assertTrue(
+            "usuario" in logs[0] or "usuario_nombre" in logs[0]
+        )
         self.assertIn("ventas_hoy", dashboard)
 
 

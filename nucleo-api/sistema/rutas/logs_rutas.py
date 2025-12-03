@@ -29,6 +29,8 @@ def listar_logs(
     - movimiento: Solo movimientos de inventario (reabastecimientos, etc)
     - todos: Ambos tipos combinados (default)
     """
+    if not isinstance(tipo, str):
+        tipo = None
     logs_combinados = []
 
     # Obtener logs de sesión
