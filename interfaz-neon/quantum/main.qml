@@ -1411,30 +1411,60 @@ Window {
             
             Row {
                 width: parent.width
-                
+                spacing: 15
+
+                Text {
+                    text: "🥫"
+                    font.pixelSize: 40
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
                 Text {
                     text: "Gestión de Ingredientes"
                     font.pixelSize: 28
                     font.bold: true
                     color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
+
+                    // Subtle readable glow
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 9
+                        color: "#00ffff"
+                        spread: 0.2
+                        radius: 4
+                    }
                 }
 
-                Item { width: parent.width - 550 }
+                Item { width: parent.width - 650 }
 
                 Button {
-                    text: mostrarFormulario ? "Cancelar" : "+ Nuevo Ingrediente"
+                    id: btnNuevoIng
+                    text: mostrarFormulario ? "✕ Cancelar" : "+ Nuevo Ingrediente"
                     width: 200
                     height: 40
+                    anchors.verticalCenter: parent.verticalCenter
+
                     background: Rectangle {
                         color: mostrarFormulario ? "#ff0055" : "#00ffff"
                         radius: 6
+                        border.color: mostrarFormulario ? "#ff0055" : "#00ffff"
+                        border.width: 2
+
+                        layer.enabled: btnNuevoIng.hovered
+                        layer.effect: Glow {
+                            samples: 9
+                            color: mostrarFormulario ? "#ff0055" : "#00ffff"
+                            spread: 0.2
+                            radius: 6
+                        }
                     }
                     contentItem: Text {
-                        text: parent.text
+                        text: btnNuevoIng.text
                         color: mostrarFormulario ? "#ffffff" : "#050510"
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
                     }
                     onClicked: {
                         if (mostrarFormulario) {
@@ -1448,18 +1478,40 @@ Window {
                 }
 
                 Button {
-                    text: "Recargar"
-                    width: 120
+                    id: btnRecargarIng
+                    text: "🔄 Recargar"
+                    width: 130
                     height: 40
+                    anchors.verticalCenter: parent.verticalCenter
+
                     background: Rectangle {
-                        color: "#00ffff"
+                        color: btnRecargarIng.hovered ? "#00ffff" : Qt.rgba(0, 1, 1, 0.2)
                         radius: 6
+                        border.color: "#00ffff"
+                        border.width: 2
+
+                        Behavior on color {
+                            ColorAnimation { duration: 200 }
+                        }
+
+                        layer.enabled: btnRecargarIng.hovered
+                        layer.effect: Glow {
+                            samples: 9
+                            color: "#00ffff"
+                            spread: 0.2
+                            radius: 6
+                        }
                     }
                     contentItem: Text {
-                        text: parent.text
-                        color: "#050510"
+                        text: btnRecargarIng.text
+                        color: btnRecargarIng.hovered ? "#050510" : "#00ffff"
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+
+                        Behavior on color {
+                            ColorAnimation { duration: 200 }
+                        }
                     }
                     onClicked: cargarIngredientes()
                 }
@@ -1473,11 +1525,20 @@ Window {
                 color: "#0a0a1f"
                 border.color: ingredienteEditando ? "#00ff80" : "#00ffff"
                 border.width: 2
-                radius: 10
+                radius: 6
                 clip: true
 
                 Behavior on height {
-                    NumberAnimation { duration: 200 }
+                    NumberAnimation { duration: 300; easing.type: Easing.OutCubic }
+                }
+
+                // Subtle glow for form
+                layer.enabled: true
+                layer.effect: Glow {
+                    samples: 9
+                    color: ingredienteEditando ? "#00ff80" : "#00ffff"
+                    spread: 0.1
+                    radius: 6
                 }
 
                 Column {
@@ -1880,7 +1941,13 @@ Window {
 
             Row {
                 width: parent.width
-                spacing: 12
+                spacing: 15
+
+                Text {
+                    text: "🍰"
+                    font.pixelSize: 40
+                    anchors.verticalCenter: parent.verticalCenter
+                }
 
                 Text {
                     text: "Gestión de Recetas"
@@ -1888,20 +1955,46 @@ Window {
                     font.bold: true
                     color: "#00ffff"
                     anchors.verticalCenter: parent.verticalCenter
+
+                    // Subtle readable glow
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 9
+                        color: "#00ffff"
+                        spread: 0.2
+                        radius: 4
+                    }
                 }
 
-                Item { width: parent.width - 340 }
+                Item { width: parent.width - 640 }
 
                 Button {
-                    text: mostrarFormulario ? "✕ Cancelar" : "＋ Nueva receta"
+                    id: btnNuevaReceta
+                    text: mostrarFormulario ? "✕ Cancelar" : "+ Nueva Receta"
                     width: 180
                     height: 40
-                    background: Rectangle { color: mostrarFormulario ? "#ff0055" : "#00ff80"; radius: 6 }
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    background: Rectangle {
+                        color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                        radius: 6
+                        border.color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                        border.width: 2
+
+                        layer.enabled: btnNuevaReceta.hovered
+                        layer.effect: Glow {
+                            samples: 9
+                            color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                            spread: 0.2
+                            radius: 6
+                        }
+                    }
                     contentItem: Text {
-                        text: parent.text
+                        text: btnNuevaReceta.text
                         color: "#050510"
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
                     }
                     onClicked: {
                         mostrarFormulario = !mostrarFormulario
@@ -1912,18 +2005,40 @@ Window {
                 }
 
                 Button {
-                    text: "Recargar"
-                    width: 120
+                    id: btnRecargarReceta
+                    text: "🔄 Recargar"
+                    width: 130
                     height: 40
+                    anchors.verticalCenter: parent.verticalCenter
+
                     background: Rectangle {
-                        color: "#00ffff"
+                        color: btnRecargarReceta.hovered ? "#00ffff" : Qt.rgba(0, 1, 1, 0.2)
                         radius: 6
+                        border.color: "#00ffff"
+                        border.width: 2
+
+                        Behavior on color {
+                            ColorAnimation { duration: 200 }
+                        }
+
+                        layer.enabled: btnRecargarReceta.hovered
+                        layer.effect: Glow {
+                            samples: 9
+                            color: "#00ffff"
+                            spread: 0.2
+                            radius: 6
+                        }
                     }
                     contentItem: Text {
-                        text: parent.text
-                        color: "#050510"
+                        text: btnRecargarReceta.text
+                        color: btnRecargarReceta.hovered ? "#050510" : "#00ffff"
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+
+                        Behavior on color {
+                            ColorAnimation { duration: 200 }
+                        }
                     }
                     onClicked: {
                         cargarRecetas()
@@ -1939,10 +2054,19 @@ Window {
                 color: "#0a0a1f"
                 border.color: recetaEditando ? "#00ff80" : "#00ffff"
                 border.width: 2
-                radius: 10
+                radius: 6
                 clip: true
 
-                Behavior on height { NumberAnimation { duration: 250; easing.type: Easing.InOutQuad } }
+                Behavior on height { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+
+                // Subtle glow for form
+                layer.enabled: true
+                layer.effect: Glow {
+                    samples: 9
+                    color: recetaEditando ? "#00ff80" : "#00ffff"
+                    spread: 0.1
+                    radius: 6
+                }
 
                 Column {
                     anchors.fill: parent
@@ -2560,27 +2684,57 @@ Window {
                     anchors.fill: parent
                     anchors.margins: 40
                     spacing: 25
-                    
-                    Text {
-                        text: "Punto de Venta"
-                        font.pixelSize: 28
-                        font.bold: true
-                        color: "#00ffff"
+
+                    Row {
+                        width: parent.width
+                        spacing: 15
+
+                        Text {
+                            text: "🛒"
+                            font.pixelSize: 40
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
+                        Text {
+                            text: "Punto de Venta"
+                            font.pixelSize: 28
+                            font.bold: true
+                            color: "#00ffff"
+                            anchors.verticalCenter: parent.verticalCenter
+
+                            // Subtle readable glow
+                            layer.enabled: true
+                            layer.effect: Glow {
+                                samples: 9
+                                color: "#00ffff"
+                                spread: 0.2
+                                radius: 4
+                            }
+                        }
                     }
-                    
+
                     Rectangle {
                         width: parent.width
-                        height: parent.height - 100
+                        height: parent.height - 130
                         color: "#0a0a1f"
                         border.color: "#00ffff"
                         border.width: 2
-                        radius: 10
-                        
+                        radius: 6
+
+                        // Subtle glow
+                        layer.enabled: true
+                        layer.effect: Glow {
+                            samples: 9
+                            color: "#00ffff"
+                            spread: 0.1
+                            radius: 6
+                        }
+
                         Column {
                             anchors.fill: parent
                             anchors.margins: 25
                             spacing: 20
-                            
+
                             Text {
                                 text: "Productos disponibles:"
                                 font.pixelSize: 16
@@ -3192,63 +3346,110 @@ Window {
               property int usuarioEditando: -1
               property var rolesDisponibles: ["ADMIN", "DUENO", "GERENTE", "VENDEDOR"]
 
-              Item {
+              Row {
                   width: parent.width
                   height: 50
+                  spacing: 15
 
                   Text {
-                      anchors.left: parent.left
+                      text: "👤"
+                      font.pixelSize: 40
                       anchors.verticalCenter: parent.verticalCenter
+                  }
+
+                  Text {
                       text: "Gestión de Usuarios"
                       font.pixelSize: 28
                       font.bold: true
                       color: "#00ffff"
+                      anchors.verticalCenter: parent.verticalCenter
+
+                      // Subtle readable glow
+                      layer.enabled: true
+                      layer.effect: Glow {
+                          samples: 9
+                          color: "#00ffff"
+                          spread: 0.2
+                          radius: 4
+                      }
                   }
 
-                  Row {
-                      anchors.right: parent.right
+                  Item { width: parent.width - 640 }
+
+                  Button {
+                      id: btnNuevoUsuario
+                      text: mostrarFormulario ? "✕ Cancelar" : "+ Nuevo Usuario"
+                      width: 180
+                      height: 40
                       anchors.verticalCenter: parent.verticalCenter
-                      spacing: 12
 
-                      Button {
-                          text: mostrarFormulario ? "Cancelar" : "+ Nuevo Usuario"
-                          width: 170
-                          height: 40
-                          background: Rectangle {
+                      background: Rectangle {
+                          color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                          radius: 6
+                          border.color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                          border.width: 2
+
+                          layer.enabled: btnNuevoUsuario.hovered
+                          layer.effect: Glow {
+                              samples: 9
                               color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                              spread: 0.2
                               radius: 6
                           }
-                          contentItem: Text {
-                              text: parent.text
-                              color: "#050510"
-                              font.bold: true
-                              horizontalAlignment: Text.AlignHCenter
-                          }
-                          onClicked: {
-                              if (mostrarFormulario) {
-                                  limpiarFormulario()
-                              } else {
-                                  prepararNuevo()
-                              }
+                      }
+                      contentItem: Text {
+                          text: btnNuevoUsuario.text
+                          color: "#050510"
+                          font.bold: true
+                          horizontalAlignment: Text.AlignHCenter
+                          verticalAlignment: Text.AlignVCenter
+                      }
+                      onClicked: {
+                          if (mostrarFormulario) {
+                              limpiarFormulario()
+                          } else {
+                              prepararNuevo()
                           }
                       }
+                  }
 
-                      Button {
-                          text: "Recargar"
-                          width: 120
-                          height: 40
-                          background: Rectangle {
+                  Button {
+                      id: btnRecargarUsuarios
+                      text: "🔄 Recargar"
+                      width: 130
+                      height: 40
+                      anchors.verticalCenter: parent.verticalCenter
+
+                      background: Rectangle {
+                          color: btnRecargarUsuarios.hovered ? "#00ffff" : Qt.rgba(0, 1, 1, 0.2)
+                          radius: 6
+                          border.color: "#00ffff"
+                          border.width: 2
+
+                          Behavior on color {
+                              ColorAnimation { duration: 200 }
+                          }
+
+                          layer.enabled: btnRecargarUsuarios.hovered
+                          layer.effect: Glow {
+                              samples: 9
                               color: "#00ffff"
+                              spread: 0.2
                               radius: 6
                           }
-                          contentItem: Text {
-                              text: parent.text
-                              color: "#050510"
-                              font.bold: true
-                              horizontalAlignment: Text.AlignHCenter
-                          }
-                          onClicked: cargarUsuarios()
                       }
+                      contentItem: Text {
+                          text: btnRecargarUsuarios.text
+                          color: btnRecargarUsuarios.hovered ? "#050510" : "#00ffff"
+                          font.bold: true
+                          horizontalAlignment: Text.AlignHCenter
+                          verticalAlignment: Text.AlignVCenter
+
+                          Behavior on color {
+                              ColorAnimation { duration: 200 }
+                          }
+                      }
+                      onClicked: cargarUsuarios()
                   }
               }
 
@@ -3259,7 +3460,16 @@ Window {
                   color: "#0a0a1f"
                   border.color: "#00ffff"
                   border.width: 2
-                  radius: 10
+                  radius: 6
+
+                  // Subtle glow for form
+                  layer.enabled: true
+                  layer.effect: Glow {
+                      samples: 9
+                      color: "#00ffff"
+                      spread: 0.1
+                      radius: 6
+                  }
 
                   Column {
                       anchors.fill: parent

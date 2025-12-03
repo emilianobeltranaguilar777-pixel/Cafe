@@ -18,7 +18,17 @@ Rectangle {
         height: parent.height
         color: PaletaNeon.tarjeta
         border.color: PaletaNeon.primario
-        border.width: 1
+        border.width: 2
+        radius: 0
+
+        // Subtle glow for sidebar
+        layer.enabled: true
+        layer.effect: Glow {
+            samples: 17
+            color: PaletaNeon.primario
+            spread: 0.1
+            radius: 6
+        }
         
         Column {
             anchors.fill: parent
@@ -44,13 +54,14 @@ Rectangle {
                     font.bold: true
                     color: PaletaNeon.primario
                     horizontalAlignment: Text.AlignHCenter
-                    
+
+                    // Reduced glow for better readability
                     layer.enabled: true
                     layer.effect: Glow {
-                        samples: 17
+                        samples: 9
                         color: PaletaNeon.primario
-                        spread: 0.5
-                        radius: 8
+                        spread: 0.2
+                        radius: 4
                     }
                 }
                 
@@ -115,49 +126,71 @@ Rectangle {
                 delegate: Rectangle {
                     width: parent.width
                     height: 50
-                    color: mouseArea.containsMouse ? Qt.rgba(0, 1, 1, 0.2) : "transparent"
+                    color: {
+                        var isSelected = cargadorContenido.source.toString().indexOf(model.pantalla) !== -1
+                        if (isSelected) return Qt.rgba(0, 1, 1, 0.25)
+                        if (mouseArea.containsMouse) return Qt.rgba(0, 1, 1, 0.15)
+                        return "transparent"
+                    }
                     radius: 6
                     border.color: cargadorContenido.source.toString().indexOf(model.pantalla) !== -1 ? PaletaNeon.primario : "transparent"
                     border.width: 2
-                    
+
                     visible: GestorAuth.tienePermiso(model.recurso, "ver")
-                    
+
+                    // Smooth transitions
+                    Behavior on color {
+                        ColorAnimation { duration: 200 }
+                    }
+                    Behavior on scale {
+                        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+                    }
+
+                    property bool isSelected: cargadorContenido.source.toString().indexOf(model.pantalla) !== -1
+                    scale: mouseArea.containsMouse ? 1.03 : 1.0
+
                     Row {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: 15
                         spacing: 15
-                        
+
                         Text {
                             text: model.icono
                             font.pixelSize: 24
                         }
-                        
+
                         Text {
                             text: model.nombre
                             font.family: PaletaNeon.fuentePrincipal
                             font.pixelSize: 14
-                            color: PaletaNeon.texto
+                            font.bold: parent.parent.isSelected
+                            color: parent.parent.isSelected ? PaletaNeon.primario : PaletaNeon.texto
+
+                            Behavior on color {
+                                ColorAnimation { duration: 200 }
+                            }
                         }
                     }
-                    
+
                     MouseArea {
                         id: mouseArea
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        
+
                         onClicked: {
                             cargadorContenido.source = "pantallas/" + model.pantalla
                         }
                     }
-                    
-                    layer.enabled: mouseArea.containsMouse
+
+                    // Enhanced glow effect - subtle but visible
+                    layer.enabled: mouseArea.containsMouse || isSelected
                     layer.effect: Glow {
-                        samples: 17
+                        samples: 9
                         color: PaletaNeon.primario
-                        spread: 0.3
-                        radius: 8
+                        spread: 0.2
+                        radius: 6
                     }
                 }
             }
