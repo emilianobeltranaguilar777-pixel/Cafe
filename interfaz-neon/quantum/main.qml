@@ -1803,42 +1803,38 @@ Window {
                 
                 Column {
                     anchors.fill: parent
-                    anchors.margins: 40
-                    spacing: 25
-                    
+                    anchors.margins: 30
+                    spacing: 15
+
                     Text {
                         text: "Punto de Venta"
-                        font.pixelSize: 28
+                        font.pixelSize: 24
                         font.bold: true
                         color: "#00ffff"
                     }
-                    
+
+                    Text {
+                        text: "Productos disponibles:"
+                        font.pixelSize: 14
+                        font.bold: true
+                        color: "#e0e0ff"
+                    }
+
+                    // Lista de productos
                     Rectangle {
                         width: parent.width
-                        height: parent.height - 100
+                        height: 200
                         color: "#0a0a1f"
                         border.color: "#00ffff"
                         border.width: 2
-                        radius: 10
-                        
-                        Column {
+                        radius: 8
+
+                        ListView {
                             anchors.fill: parent
-                            anchors.margins: 25
-                            spacing: 20
-                            
-                            Text {
-                                text: "Productos disponibles:"
-                                font.pixelSize: 16
-                                font.bold: true
-                                color: "#e0e0ff"
-                            }
-                            
-                            ListView {
-                                width: parent.width
-                                height: 250
-                                spacing: 12
-                                clip: true
-                                model: recetas
+                            anchors.margins: 15
+                            spacing: 10
+                            clip: true
+                            model: recetas
                                 
                                 delegate: Rectangle {
                                     width: parent.width
@@ -1885,20 +1881,21 @@ Window {
                                 }
                             }
                             
-                            Text {
-                                text: "Carrito:"
-                                font.pixelSize: 14
-                                font.bold: true
-                                color: "#e0e0ff"
-                            }
-                            
-                            Rectangle {
-                                width: parent.width
-                                height: 120
-                                color: "#1a1a2f"
-                                border.color: "#00ffff"
-                                border.width: 1
-                                radius: 6
+                    Text {
+                        text: "Carrito:"
+                        font.pixelSize: 14
+                        font.bold: true
+                        color: "#e0e0ff"
+                    }
+
+                    // Carrito
+                    Rectangle {
+                        width: parent.width
+                        height: 120
+                        color: "#1a1a2f"
+                        border.color: "#00ffff"
+                        border.width: 1
+                        radius: 6
                                 
                                 ListView {
                                     anchors.fill: parent
@@ -1925,61 +1922,63 @@ Window {
                                             color: "#00ff80"
                                         }
                                     }
-                                }
+                        }
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: 2
+                        color: "#00ffff"
+                        opacity: 0.5
+                    }
+
+                    // Total
+                    Row {
+                        width: parent.width
+                        Text {
+                            text: "TOTAL:"
+                            font.pixelSize: 20
+                            font.bold: true
+                            color: "#8080a0"
+                        }
+                        Item { width: parent.width - 220 }
+                        Text {
+                            text: "$" + total.toFixed(2)
+                            font.pixelSize: 24
+                            font.bold: true
+                            color: "#00ff80"
+                        }
+                    }
+
+                    // Botones
+                    Row {
+                        width: parent.width
+                        spacing: 10
+
+                        Button {
+                            width: (parent.width - 10) / 2
+                            height: 45
+                            text: "LIMPIAR"
+                            enabled: carrito.length > 0
+                            background: Rectangle {
+                                color: parent.enabled ? "#ff0055" : "#404050"
+                                radius: 8
                             }
-                            
-                            Rectangle {
-                                width: parent.width
-                                height: 3
-                                color: "#00ffff"
-                                opacity: 0.5
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#ffffff"
+                                font.bold: true
+                                font.pixelSize: 14
+                                horizontalAlignment: Text.AlignHCenter
                             }
-                            
-                            Row {
-                                width: parent.width
-                                Text {
-                                    text: "TOTAL:"
-                                    font.pixelSize: 22
-                                    font.bold: true
-                                    color: "#8080a0"
-                                }
-                                Item { width: parent.width - 250 }
-                                Text {
-                                    text: "$" + total.toFixed(2)
-                                    font.pixelSize: 28
-                                    font.bold: true
-                                    color: "#00ff80"
-                                }
-                            }
-                            
-                            Row {
-                                width: parent.width
-                                spacing: 10
-                                
-                                Button {
-                                    width: (parent.width - 10) / 2
-                                    height: 50
-                                    text: "LIMPIAR"
-                                    enabled: carrito.length > 0
-                                    background: Rectangle {
-                                        color: parent.enabled ? "#ff0055" : "#404050"
-                                        radius: 8
-                                    }
-                                    contentItem: Text {
-                                        text: parent.text
-                                        color: "#ffffff"
-                                        font.bold: true
-                                        font.pixelSize: 16
-                                        horizontalAlignment: Text.AlignHCenter
-                                    }
-                                    onClicked: limpiarCarrito()
-                                }
-                                
-                                Button {
-                                    width: (parent.width - 10) / 2
-                                    height: 50
-                                    text: "PROCESAR VENTA"
-                                    enabled: carrito.length > 0
+                            onClicked: limpiarCarrito()
+                        }
+
+                        Button {
+                            width: (parent.width - 10) / 2
+                            height: 45
+                            text: "PROCESAR VENTA"
+                            enabled: carrito.length > 0
                                     background: Rectangle {
                                         color: parent.enabled ? "#00ff80" : "#404050"
                                         radius: 8
