@@ -687,20 +687,23 @@ Window {
             property bool mostrarFormulario: false
             property int clienteEditando: -1
             
-            Row {
+            // Header con título y botón
+            Item {
                 width: parent.width
-                
+                height: 50
+
                 Text {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
                     text: "Gestión de Clientes"
                     font.pixelSize: 28
                     font.bold: true
                     color: "#00ffff"
-                    anchors.verticalCenter: parent.verticalCenter
                 }
-                
-                Item { width: parent.width - 500 }
-                
+
                 Button {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
                     text: mostrarFormulario ? "Cancelar" : "+ Nuevo Cliente"
                     width: 180
                     height: 40
@@ -1068,20 +1071,23 @@ Window {
             property bool mostrarFormulario: false
             property int ingredienteEditando: -1
 
-            Row {
+            // Header con título y botón
+            Item {
                 width: parent.width
+                height: 50
 
                 Text {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
                     text: "Gestión de Ingredientes"
                     font.pixelSize: 28
                     font.bold: true
                     color: "#00ffff"
-                    anchors.verticalCenter: parent.verticalCenter
                 }
 
-                Item { width: parent.width - 400 }
-
                 Button {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
                     text: mostrarFormulario ? "Cancelar" : "+ Nuevo Ingrediente"
                     width: 200
                     height: 40

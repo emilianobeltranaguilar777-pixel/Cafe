@@ -36,7 +36,7 @@ QtObject {
         xhr.open("POST", backendUrl + endpoint)
         xhr.setRequestHeader("Authorization", "Bearer " + token)
         xhr.setRequestHeader("Content-Type", "application/json")
-        
+
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status >= 200 && xhr.status < 300) {
@@ -44,15 +44,30 @@ QtObject {
                         var response = xhr.responseText ? JSON.parse(xhr.responseText) : {}
                         callback(true, response)
                     } catch(e) {
-                        callback(false, "Error parsing response")
+                        console.log("Error parsing POST response:", e)
+                        callback(false, "Error parsing response: " + e)
                     }
                 } else {
-                    callback(false, "HTTP Error " + xhr.status)
+                    var errorMsg = "HTTP " + xhr.status
+                    try {
+                        var errorData = JSON.parse(xhr.responseText)
+                        if (errorData.detail) {
+                            errorMsg += ": " + errorData.detail
+                        }
+                    } catch(e) {
+                        if (xhr.responseText) {
+                            errorMsg += ": " + xhr.responseText
+                        }
+                    }
+                    console.log("POST Error:", errorMsg)
+                    callback(false, errorMsg)
                 }
             }
         }
-        
-        xhr.send(JSON.stringify(data))
+
+        var jsonData = JSON.stringify(data)
+        console.log("POST", backendUrl + endpoint, jsonData)
+        xhr.send(jsonData)
     }
     
     // PUT request
@@ -61,7 +76,7 @@ QtObject {
         xhr.open("PUT", backendUrl + endpoint)
         xhr.setRequestHeader("Authorization", "Bearer " + token)
         xhr.setRequestHeader("Content-Type", "application/json")
-        
+
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status >= 200 && xhr.status < 300) {
@@ -69,15 +84,30 @@ QtObject {
                         var response = xhr.responseText ? JSON.parse(xhr.responseText) : {}
                         callback(true, response)
                     } catch(e) {
-                        callback(false, "Error parsing response")
+                        console.log("Error parsing PUT response:", e)
+                        callback(false, "Error parsing response: " + e)
                     }
                 } else {
-                    callback(false, "HTTP Error " + xhr.status)
+                    var errorMsg = "HTTP " + xhr.status
+                    try {
+                        var errorData = JSON.parse(xhr.responseText)
+                        if (errorData.detail) {
+                            errorMsg += ": " + errorData.detail
+                        }
+                    } catch(e) {
+                        if (xhr.responseText) {
+                            errorMsg += ": " + xhr.responseText
+                        }
+                    }
+                    console.log("PUT Error:", errorMsg)
+                    callback(false, errorMsg)
                 }
             }
         }
-        
-        xhr.send(JSON.stringify(data))
+
+        var jsonData = JSON.stringify(data)
+        console.log("PUT", backendUrl + endpoint, jsonData)
+        xhr.send(jsonData)
     }
     
     // DELETE request
