@@ -1,6 +1,8 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
+import QtGraphicalEffects 1.0
+import quantum 1.0
 
 Window {
     id: root
@@ -389,38 +391,45 @@ Window {
                             
                             Repeater {
                                 model: [
-                                    {texto: "Dashboard", id: "dashboard"},
-                                    {texto: "Clientes", id: "clientes"},
-                                    {texto: "Ingredientes", id: "ingredientes"},
-                                    {texto: "Recetas", id: "recetas"},
-                                    {texto: "Ventas", id: "ventas"},
-                                    {texto: "Usuarios", id: "usuarios"},
-                                    {texto: "Logs", id: "logs"},
-                                    {texto: "Permisos", id: "permisos", nombre: "Permisos", pantalla: "permisos", icono: "🔑"}
+                                    {texto: "Dashboard", id: "dashboard", recurso: "", accion: ""},
+                                    {texto: "Clientes", id: "clientes", recurso: "clientes", accion: "ver"},
+                                    {texto: "Ingredientes", id: "ingredientes", recurso: "inventario", accion: "ver"},
+                                    {texto: "Recetas", id: "recetas", recurso: "recetas", accion: "ver"},
+                                    {texto: "Ventas", id: "ventas", recurso: "ventas", accion: "ver"},
+                                    {texto: "Usuarios", id: "usuarios", recurso: "usuarios", accion: "ver"},
+                                    {texto: "Logs", id: "logs", recurso: "logs", accion: "ver"},
+                                    {texto: "Permisos", id: "permisos", recurso: "", accion: ""}
                                 ]
-                                
+
                                 Rectangle {
                                     width: parent.width
                                     height: 45
-                                    color: root.pantallaActual === modelData.id ? "#00ffff30" : (mouseArea.containsMouse ? "#00ffff20" : "transparent")
-                                    border.color: root.pantallaActual === modelData.id ? "#00ffff" : "transparent"
+                                    property bool itemHabilitado: modelData.recurso === "" || GestorAuth.tienePermiso(modelData.recurso, modelData.accion)
+                                    color: root.pantallaActual === modelData.id ? (itemHabilitado ? "#00ffff30" : "#40405050") : (mouseArea.containsMouse && itemHabilitado ? "#00ffff20" : "transparent")
+                                    border.color: root.pantallaActual === modelData.id ? (itemHabilitado ? "#00ffff" : "#808080") : "transparent"
                                     border.width: 2
                                     radius: 6
-                                    
+                                    opacity: itemHabilitado ? 1.0 : 0.5
+
                                     Text {
                                         anchors.centerIn: parent
                                         text: modelData.texto
                                         font.pixelSize: 13
                                         font.bold: root.pantallaActual === modelData.id
-                                        color: "#e0e0ff"
+                                        color: itemHabilitado ? "#e0e0ff" : "#606060"
                                     }
-                                    
+
                                     MouseArea {
                                         id: mouseArea
                                         anchors.fill: parent
                                         hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: root.pantallaActual = modelData.id
+                                        enabled: parent.itemHabilitado
+                                        cursorShape: parent.itemHabilitado ? Qt.PointingHandCursor : Qt.ForbiddenCursor
+                                        onClicked: {
+                                            if (parent.itemHabilitado) {
+                                                root.pantallaActual = modelData.id
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -482,7 +491,10 @@ Window {
 
     Component {
         id: pantalla_permisos
-        source: "pantallas/pantalla_permisos.qml"
+        Loader {
+            anchors.fill: parent
+            source: "pantallas/pantalla_permisos.qml"
+        }
     }
 
     // ============================================
@@ -1036,8 +1048,9 @@ Window {
                     text: mostrarFormulario ? "✕ Cancelar" : "+ Nuevo Cliente"
                     width: 160
                     height: 40
+                    enabled: mostrarFormulario || GestorAuth.tienePermiso("clientes", "crear")
                     background: Rectangle {
-                        color: mostrarFormulario ? "#ff0055" : "#00ffff"
+                        color: mostrarFormulario ? "#ff0055" : (parent.enabled ? "#00ffff" : "#404050")
                         radius: 6
                     }
                     contentItem: Text {
@@ -1206,13 +1219,14 @@ Window {
                         text: clienteEditando >= 0 ? "ACTUALIZAR CLIENTE" : "GUARDAR CLIENTE"
                         width: 220
                         height: 40
+                        enabled: clienteEditando >= 0 ? GestorAuth.tienePermiso("clientes", "editar") : GestorAuth.tienePermiso("clientes", "crear")
                         background: Rectangle {
-                            color: "#00ff80"
+                            color: parent.enabled ? "#00ff80" : "#404050"
                             radius: 6
                         }
                         contentItem: Text {
                             text: parent.text
-                            color: "#050510"
+                            color: parent.enabled ? "#050510" : "#808080"
                             font.bold: true
                             horizontalAlignment: Text.AlignHCenter
                         }
@@ -1315,13 +1329,14 @@ Window {
                                 width: 90
                                 height: 35
                                 anchors.verticalCenter: parent.verticalCenter
+                                enabled: GestorAuth.tienePermiso("clientes", "editar")
                                 background: Rectangle {
-                                    color: "#00ff80"
+                                    color: parent.enabled ? "#00ff80" : "#404050"
                                     radius: 6
                                 }
                                 contentItem: Text {
                                     text: parent.text
-                                    color: "#050510"
+                                    color: parent.enabled ? "#050510" : "#808080"
                                     font.bold: true
                                     horizontalAlignment: Text.AlignHCenter
                                 }
@@ -1339,13 +1354,14 @@ Window {
                                 width: 90
                                 height: 35
                                 anchors.verticalCenter: parent.verticalCenter
+                                enabled: GestorAuth.tienePermiso("clientes", "borrar")
                                 background: Rectangle {
-                                    color: "#ff0055"
+                                    color: parent.enabled ? "#ff0055" : "#404050"
                                     radius: 6
                                 }
                                 contentItem: Text {
                                     text: parent.text
-                                    color: "#ffffff"
+                                    color: parent.enabled ? "#ffffff" : "#808080"
                                     font.bold: true
                                     horizontalAlignment: Text.AlignHCenter
                                 }
@@ -1451,14 +1467,15 @@ Window {
                     width: 200
                     height: 40
                     anchors.verticalCenter: parent.verticalCenter
+                    enabled: mostrarFormulario || GestorAuth.tienePermiso("inventario", "crear")
 
                     background: Rectangle {
-                        color: mostrarFormulario ? "#ff0055" : "#00ffff"
+                        color: mostrarFormulario ? "#ff0055" : (parent.enabled ? "#00ffff" : "#404050")
                         radius: 6
-                        border.color: mostrarFormulario ? "#ff0055" : "#00ffff"
+                        border.color: mostrarFormulario ? "#ff0055" : (parent.enabled ? "#00ffff" : "#404050")
                         border.width: 2
 
-                        layer.enabled: btnNuevoIng.hovered
+                        layer.enabled: btnNuevoIng.hovered && parent.enabled
                         layer.effect: Glow {
                             samples: 9
                             color: mostrarFormulario ? "#ff0055" : "#00ffff"
@@ -1468,7 +1485,7 @@ Window {
                     }
                     contentItem: Text {
                         text: btnNuevoIng.text
-                        color: mostrarFormulario ? "#ffffff" : "#050510"
+                        color: mostrarFormulario ? "#ffffff" : (parent.enabled ? "#050510" : "#808080")
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -1652,10 +1669,11 @@ Window {
                             text: ingredienteEditando ? "ACTUALIZAR INGREDIENTE" : "GUARDAR INGREDIENTE"
                             width: 220
                             height: 40
-                            background: Rectangle { color: "#00ff80"; radius: 6 }
+                            enabled: ingredienteEditando ? GestorAuth.tienePermiso("inventario", "editar") : GestorAuth.tienePermiso("inventario", "crear")
+                            background: Rectangle { color: parent.enabled ? "#00ff80" : "#404050"; radius: 6 }
                             contentItem: Text {
                                 text: parent.text
-                                color: "#050510"
+                                color: parent.enabled ? "#050510" : "#808080"
                                 font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
                             }
@@ -1820,10 +1838,11 @@ Window {
                                 width: 90
                                 height: 35
                                 anchors.verticalCenter: parent.verticalCenter
-                                background: Rectangle { color: "#00ff80"; radius: 6 }
+                                enabled: GestorAuth.tienePermiso("inventario", "editar")
+                                background: Rectangle { color: parent.enabled ? "#00ff80" : "#404050"; radius: 6 }
                                 contentItem: Text {
                                     text: parent.text
-                                    color: "#050510"
+                                    color: parent.enabled ? "#050510" : "#808080"
                                     font.bold: true
                                     horizontalAlignment: Text.AlignHCenter
                                 }
@@ -1835,13 +1854,14 @@ Window {
                                 width: 120
                                 height: 35
                                 anchors.verticalCenter: parent.verticalCenter
+                                enabled: GestorAuth.tienePermiso("inventario", "editar")
                                 background: Rectangle {
-                                    color: (modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ff80"
+                                    color: parent.enabled ? ((modelData.stock <= modelData.min_stock) ? "#ff0055" : "#00ff80") : "#404050"
                                     radius: 6
                                 }
                                 contentItem: Text {
                                     text: parent.text
-                                    color: "#050510"
+                                    color: parent.enabled ? "#050510" : "#808080"
                                     font.bold: true
                                     font.pixelSize: 11
                                     horizontalAlignment: Text.AlignHCenter
@@ -1857,10 +1877,11 @@ Window {
                                 width: 90
                                 height: 35
                                 anchors.verticalCenter: parent.verticalCenter
-                                background: Rectangle { color: "#ff0055"; radius: 6 }
+                                enabled: GestorAuth.tienePermiso("inventario", "borrar")
+                                background: Rectangle { color: parent.enabled ? "#ff0055" : "#404050"; radius: 6 }
                                 contentItem: Text {
                                     text: parent.text
-                                    color: "#ffffff"
+                                    color: parent.enabled ? "#ffffff" : "#808080"
                                     font.bold: true
                                     horizontalAlignment: Text.AlignHCenter
                                 }
@@ -1981,14 +2002,15 @@ Window {
                     width: 180
                     height: 40
                     anchors.verticalCenter: parent.verticalCenter
+                    enabled: mostrarFormulario || GestorAuth.tienePermiso("recetas", "crear")
 
                     background: Rectangle {
-                        color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                        color: mostrarFormulario ? "#ff0055" : (parent.enabled ? "#00ff80" : "#404050")
                         radius: 6
-                        border.color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                        border.color: mostrarFormulario ? "#ff0055" : (parent.enabled ? "#00ff80" : "#404050")
                         border.width: 2
 
-                        layer.enabled: btnNuevaReceta.hovered
+                        layer.enabled: btnNuevaReceta.hovered && parent.enabled
                         layer.effect: Glow {
                             samples: 9
                             color: mostrarFormulario ? "#ff0055" : "#00ff80"
@@ -1998,7 +2020,7 @@ Window {
                     }
                     contentItem: Text {
                         text: btnNuevaReceta.text
-                        color: "#050510"
+                        color: parent.enabled ? "#050510" : "#808080"
                         font.bold: true
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -2269,8 +2291,9 @@ Window {
                             text: recetaEditando ? "Actualizar" : "Guardar"
                             width: 140
                             height: 38
-                            background: Rectangle { color: "#00ff80"; radius: 6 }
-                            contentItem: Text { text: parent.text; color: "#050510"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
+                            enabled: recetaEditando ? GestorAuth.tienePermiso("recetas", "editar") : GestorAuth.tienePermiso("recetas", "crear")
+                            background: Rectangle { color: parent.enabled ? "#00ff80" : "#404050"; radius: 6 }
+                            contentItem: Text { text: parent.text; color: parent.enabled ? "#050510" : "#808080"; font.bold: true; horizontalAlignment: Text.AlignHCenter }
                             onClicked: enviarReceta()
                         }
 
@@ -2395,10 +2418,11 @@ Window {
                                         text: "✏️ Editar"
                                         width: parent.width
                                         height: 32
-                                        background: Rectangle { color: "#00ff80"; radius: 6 }
+                                        enabled: GestorAuth.tienePermiso("recetas", "editar")
+                                        background: Rectangle { color: parent.enabled ? "#00ff80" : "#404050"; radius: 6 }
                                         contentItem: Text {
                                             text: parent.text
-                                            color: "#050510"
+                                            color: parent.enabled ? "#050510" : "#808080"
                                             font.bold: true
                                             font.pixelSize: 12
                                             horizontalAlignment: Text.AlignHCenter
@@ -2409,10 +2433,11 @@ Window {
                                         text: "🗑️ Eliminar"
                                         width: parent.width
                                         height: 32
-                                        background: Rectangle { color: "#ff0055"; radius: 6 }
+                                        enabled: GestorAuth.tienePermiso("recetas", "borrar")
+                                        background: Rectangle { color: parent.enabled ? "#ff0055" : "#404050"; radius: 6 }
                                         contentItem: Text {
                                             text: parent.text
-                                            color: "#ffffff"
+                                            color: parent.enabled ? "#ffffff" : "#808080"
                                             font.bold: true
                                             font.pixelSize: 12
                                             horizontalAlignment: Text.AlignHCenter
@@ -3057,7 +3082,7 @@ Window {
                                     width: (parent.width - 12) / 2
                                     height: 55
                                     text: "✓ REGISTRAR VENTA"
-                                    enabled: carrito.length > 0
+                                    enabled: carrito.length > 0 && GestorAuth.tienePermiso("ventas", "crear")
 
                                     scale: 1.0
                                     Behavior on scale {
@@ -3070,7 +3095,7 @@ Window {
                                     }
                                     contentItem: Text {
                                         text: parent.text
-                                        color: "#050510"
+                                        color: parent.enabled ? "#050510" : "#808080"
                                         font.bold: true
                                         font.pixelSize: 17
                                         horizontalAlignment: Text.AlignHCenter
@@ -3389,14 +3414,15 @@ Window {
                       width: 180
                       height: 40
                       anchors.verticalCenter: parent.verticalCenter
+                      enabled: mostrarFormulario || GestorAuth.tienePermiso("usuarios", "crear")
 
                       background: Rectangle {
-                          color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                          color: mostrarFormulario ? "#ff0055" : (parent.enabled ? "#00ff80" : "#404050")
                           radius: 6
-                          border.color: mostrarFormulario ? "#ff0055" : "#00ff80"
+                          border.color: mostrarFormulario ? "#ff0055" : (parent.enabled ? "#00ff80" : "#404050")
                           border.width: 2
 
-                          layer.enabled: btnNuevoUsuario.hovered
+                          layer.enabled: btnNuevoUsuario.hovered && parent.enabled
                           layer.effect: Glow {
                               samples: 9
                               color: mostrarFormulario ? "#ff0055" : "#00ff80"
@@ -3406,7 +3432,7 @@ Window {
                       }
                       contentItem: Text {
                           text: btnNuevoUsuario.text
-                          color: "#050510"
+                          color: parent.enabled ? "#050510" : "#808080"
                           font.bold: true
                           horizontalAlignment: Text.AlignHCenter
                           verticalAlignment: Text.AlignVCenter
@@ -3592,13 +3618,14 @@ Window {
                               text: usuarioEditando >= 0 ? "ACTUALIZAR USUARIO" : "GUARDAR USUARIO"
                               width: 210
                               height: 40
+                              enabled: usuarioEditando >= 0 ? GestorAuth.tienePermiso("usuarios", "editar") : GestorAuth.tienePermiso("usuarios", "crear")
                               background: Rectangle {
-                                  color: "#00ff80"
+                                  color: parent.enabled ? "#00ff80" : "#404050"
                                   radius: 6
                               }
                               contentItem: Text {
                                   text: parent.text
-                                  color: "#050510"
+                                  color: parent.enabled ? "#050510" : "#808080"
                                   font.bold: true
                                   horizontalAlignment: Text.AlignHCenter
                               }
@@ -3702,6 +3729,7 @@ Window {
 
                                   Switch {
                                       checked: modelData.activo
+                                      enabled: GestorAuth.tienePermiso("usuarios", "editar")
                                       onToggled: cambiarEstado(modelData.id, checked)
                                   }
                               }
@@ -3713,13 +3741,14 @@ Window {
                                   width: 100
                                   height: 35
                                   anchors.verticalCenter: parent.verticalCenter
+                                  enabled: GestorAuth.tienePermiso("usuarios", "editar")
                                   background: Rectangle {
-                                      color: "#00ff80"
+                                      color: parent.enabled ? "#00ff80" : "#404050"
                                       radius: 6
                                   }
                                   contentItem: Text {
                                       text: parent.text
-                                      color: "#050510"
+                                      color: parent.enabled ? "#050510" : "#808080"
                                       font.bold: true
                                       horizontalAlignment: Text.AlignHCenter
                                   }
@@ -3733,13 +3762,14 @@ Window {
                                   width: 110
                                   height: 35
                                   anchors.verticalCenter: parent.verticalCenter
+                                  enabled: GestorAuth.tienePermiso("usuarios", "editar")
                                   background: Rectangle {
-                                      color: modelData.activo ? "#ff0055" : "#00ffff"
+                                      color: parent.enabled ? (modelData.activo ? "#ff0055" : "#00ffff") : "#404050"
                                       radius: 6
                                   }
                                   contentItem: Text {
                                       text: parent.text
-                                      color: "#050510"
+                                      color: parent.enabled ? "#050510" : "#808080"
                                       font.bold: true
                                       horizontalAlignment: Text.AlignHCenter
                                   }

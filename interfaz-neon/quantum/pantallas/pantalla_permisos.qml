@@ -773,7 +773,6 @@ Item {
             }
         }
     }
-    }
 
     // Modal agregar permiso
     Rectangle {
