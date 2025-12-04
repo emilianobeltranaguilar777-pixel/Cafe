@@ -7,7 +7,8 @@ class Receta(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str = Field(max_length=100, index=True, unique=True)
     descripcion: Optional[str] = Field(default=None, max_length=500)
-    margen: Optional[float] = Field(default=None, ge=0, le=5)
+    # Margen sin restricciones para permitir edición libre desde UI
+    margen: Optional[float] = Field(default=None)
     creado_en: datetime = Field(default_factory=datetime.utcnow)
 
 class RecetaItem(SQLModel, table=True):

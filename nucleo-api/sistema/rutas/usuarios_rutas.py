@@ -67,6 +67,27 @@ def crear_usuario(
     return nuevo_usuario
 
 
+@router.get("/{usuario_id}", response_model=UsuarioOut)
+def obtener_usuario(
+    usuario_id: int,
+    session: Session = Depends(obtener_sesion),
+    usuario_actual: Usuario = Depends(requiere_roles(["ADMIN", "DUENO"]))
+):
+    """
+    🔍 Obtener detalle de usuario
+    Requiere rol ADMIN o DUENO
+    """
+    usuario = session.get(Usuario, usuario_id)
+
+    if not usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Usuario no encontrado",
+        )
+
+    return usuario
+
+
 @router.put("/{usuario_id}", response_model=UsuarioOut)
 def actualizar_usuario(
     usuario_id: int,
@@ -85,6 +106,18 @@ def actualizar_usuario(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Usuario no encontrado"
         )
+
+    # Validar cambio de username
+    if datos.username and datos.username != usuario.username:
+        existente = session.exec(
+            select(Usuario).where(Usuario.username == datos.username)
+        ).first()
+        if existente:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"El username '{datos.username}' ya existe",
+            )
+        usuario.username = datos.username
 
     # Actualizar campos
     if datos.nombre is not None:
