@@ -16,6 +16,7 @@ Item {
     }
 
     property string tabActual: "usuario" // usuario | rol
+    property string debugInfo: "" // DEBUG: URL, status, body
 
     // Usuario
     property string usuarioId: ""
@@ -70,26 +71,38 @@ Item {
             return
         }
         cargandoUsuario = true
-        api.get("/permisos/usuario/" + usuarioId.trim(), function(exito, resp) {
+        var endpoint = "/permisos/usuario/" + usuarioId.trim()
+        debugInfo = "GET " + GestorAuth.urlBackend + endpoint
+
+        GestorAuth.request("GET", endpoint, null, function(exito, resp) {
             cargandoUsuario = false
             if (exito) {
                 permisosUsuario = resp || []
-                mostrarMensaje("Permisos del usuario cargados")
+                mostrarMensaje("Permisos del usuario cargados: " + permisosUsuario.length)
+                debugInfo = "OK: " + permisosUsuario.length + " permisos"
             } else {
-                mostrarMensaje("Error al cargar permisos de usuario")
+                mostrarMensaje("Error: " + resp)
+                debugInfo = "ERROR: " + resp
+                permisosUsuario = []
             }
         })
     }
 
     function cargarPermisosRol() {
         cargandoRol = true
-        api.get("/permisos/rol/" + rolSeleccionado, function(exito, resp) {
+        var endpoint = "/permisos/rol/" + rolSeleccionado
+        debugInfo = "GET " + GestorAuth.urlBackend + endpoint
+
+        GestorAuth.request("GET", endpoint, null, function(exito, resp) {
             cargandoRol = false
             if (exito) {
                 permisosRol = resp || []
-                mostrarMensaje("Permisos del rol cargados")
+                mostrarMensaje("Permisos del rol cargados: " + permisosRol.length)
+                debugInfo = "OK: " + permisosRol.length + " permisos"
             } else {
-                mostrarMensaje("Error al cargar permisos del rol")
+                mostrarMensaje("Error: " + resp)
+                debugInfo = "ERROR: " + resp
+                permisosRol = []
             }
         })
     }
@@ -115,26 +128,26 @@ Item {
                 return
             }
             guardandoPermiso = true
-            api.post("/permisos/usuario/" + usuarioId.trim(), payload, function(exito) {
+            GestorAuth.request("POST", "/permisos/usuario/" + usuarioId.trim(), payload, function(exito, resp) {
                 guardandoPermiso = false
                 if (exito) {
                     mostrarMensaje("Permiso guardado")
                     cerrarModal()
                     cargarPermisosUsuario()
                 } else {
-                    mostrarMensaje("Error al guardar permiso")
+                    mostrarMensaje("Error: " + resp)
                 }
             })
         } else {
             guardandoPermiso = true
-            api.post("/permisos/rol/" + rolSeleccionado, payload, function(exito) {
+            GestorAuth.request("POST", "/permisos/rol/" + rolSeleccionado, payload, function(exito, resp) {
                 guardandoPermiso = false
                 if (exito) {
                     mostrarMensaje("Permiso guardado")
                     cerrarModal()
                     cargarPermisosRol()
                 } else {
-                    mostrarMensaje("Error al guardar permiso")
+                    mostrarMensaje("Error: " + resp)
                 }
             })
         }
@@ -148,12 +161,12 @@ Item {
         var endpoint = "/permisos/usuario/" + usuarioId.trim()
                 + "?recurso=" + encodeURIComponent(dato.recurso)
                 + "&accion=" + encodeURIComponent(dato.accion)
-        api.del(endpoint, function(exito) {
+        GestorAuth.request("DELETE", endpoint, null, function(exito, resp) {
             if (exito) {
                 mostrarMensaje("Permiso eliminado")
                 cargarPermisosUsuario()
             } else {
-                mostrarMensaje("No se pudo eliminar")
+                mostrarMensaje("Error: " + resp)
             }
         })
     }
@@ -162,12 +175,12 @@ Item {
         var endpoint = "/permisos/rol/" + rolSeleccionado
                 + "?recurso=" + encodeURIComponent(dato.recurso)
                 + "&accion=" + encodeURIComponent(dato.accion)
-        api.del(endpoint, function(exito) {
+        GestorAuth.request("DELETE", endpoint, null, function(exito, resp) {
             if (exito) {
                 mostrarMensaje("Permiso eliminado")
                 cargarPermisosRol()
             } else {
-                mostrarMensaje("No se pudo eliminar")
+                mostrarMensaje("Error: " + resp)
             }
         })
     }
@@ -214,20 +227,31 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
             }
 
-            Text {
-                text: "Gestor de Permisos"
-                font.family: PaletaNeon.fuentePrincipal
-                font.pixelSize: PaletaNeon.tamañoFuenteTitulo
-                font.bold: true
-                color: PaletaNeon.primario
+            Column {
+                spacing: 4
                 anchors.verticalCenter: parent.verticalCenter
 
-                layer.enabled: true
-                layer.effect: Glow {
+                Text {
+                    text: "Gestor de Permisos"
+                    font.family: PaletaNeon.fuentePrincipal
+                    font.pixelSize: PaletaNeon.tamañoFuenteTitulo
+                    font.bold: true
                     color: PaletaNeon.primario
-                    samples: 12
-                    radius: 8
-                    spread: 0.3
+
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        color: PaletaNeon.primario
+                        samples: 12
+                        radius: 8
+                        spread: 0.3
+                    }
+                }
+
+                Text {
+                    text: debugInfo
+                    color: PaletaNeon.textoSecundario
+                    font.pixelSize: PaletaNeon.tamañoFuentePequeña
+                    visible: debugInfo !== ""
                 }
             }
         }
