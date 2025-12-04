@@ -286,36 +286,20 @@ Window {
                             
                             onClicked: {
                                 errorMsg.text = ""
-                                var xhr = new XMLHttpRequest()
-                                xhr.open("POST", root.backendUrl + "/auth/login")
-                                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-                                
-                                xhr.onreadystatechange = function() {
-                                    if (xhr.readyState === XMLHttpRequest.DONE) {
-                                        if (xhr.status === 200) {
-                                            var response = JSON.parse(xhr.responseText)
-                                            root.token = response.access_token
-                                            cargarPerfil()
-                                        } else {
-                                            errorMsg.text = "Credenciales incorrectas"
-                                        }
+                                GestorAuth.login(inputUser.text, inputPass.text, function(exito, mensaje) {
+                                    if (exito) {
+                                        // Sincronizar datos del usuario con main.qml
+                                        root.token = GestorAuth.token
+                                        root.datosUsuario = GestorAuth.datosUsuario
+                                        stackView.push(mainPage)
+                                    } else {
+                                        errorMsg.text = mensaje || "Credenciales incorrectas"
                                     }
-                                }
-                                
-                                xhr.send("username=" + inputUser.text + "&password=" + inputPass.text)
+                                })
                             }
                         }
                     }
                 }
-            }
-            
-            function cargarPerfil() {
-                api.get("/auth/me", function(exito, datos) {
-                    if (exito) {
-                        root.datosUsuario = datos
-                        stackView.push(mainPage)
-                    }
-                })
             }
         }
     }
