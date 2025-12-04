@@ -20,6 +20,7 @@ from sistema.rutas import (
     reportes_router
 )
 from sistema.rutas.logs_rutas import router as logs_router
+from sistema.rutas.permisos_rutas import router as permisos_router
 
 # Obtener configuración
 ajustes = obtener_ajustes()
@@ -98,6 +99,7 @@ app.include_router(proveedores_router)
 app.include_router(recetas_router)
 app.include_router(ventas_router)
 app.include_router(reportes_router)
+app.include_router(permisos_router)
 app.include_router(logs_router)
 
 
