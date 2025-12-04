@@ -21,6 +21,7 @@ from sistema.rutas import (
 )
 from sistema.rutas.logs_rutas import router as logs_router
 from sistema.rutas.permisos_rutas import router as permisos_router
+from sistema.rutas.permisos_usuario_rutas import router as permisos_usuario_router
 
 # Obtener configuración
 ajustes = obtener_ajustes()
@@ -101,6 +102,7 @@ app.include_router(ventas_router)
 app.include_router(reportes_router)
 app.include_router(logs_router)
 app.include_router(permisos_router)
+app.include_router(permisos_usuario_router)
 
 
 if __name__ == "__main__":

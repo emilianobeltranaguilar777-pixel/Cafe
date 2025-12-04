@@ -1,5 +1,6 @@
 from .usuario import Usuario, Rol
 from .permiso import PermisoRol, UsuarioPermiso, Accion
+PermisoUsuario = UsuarioPermiso
 from .cliente import Cliente
 from .proveedor import Proveedor
 from .ingrediente import Ingrediente
@@ -10,7 +11,7 @@ from .log_sesion import LogSesion
 
 __all__ = [
     "Usuario", "Rol",
-    "PermisoRol", "UsuarioPermiso", "Accion",
+    "PermisoRol", "UsuarioPermiso", "PermisoUsuario", "Accion",
     "Cliente", "Proveedor", "Ingrediente",
     "Receta", "RecetaItem",
     "Venta", "VentaItem",
