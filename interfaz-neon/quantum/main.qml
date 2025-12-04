@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
 import QtQuick.Controls 2.15
+import QtGraphicalEffects 1.0
 import quantum 1.0
 
 Window {
@@ -490,7 +491,10 @@ Window {
 
     Component {
         id: pantalla_permisos
-        source: "pantallas/pantalla_permisos.qml"
+        Loader {
+            anchors.fill: parent
+            source: "pantallas/pantalla_permisos.qml"
+        }
     }
 
     // ============================================
