@@ -7,6 +7,7 @@ from .receta import Receta, RecetaItem
 from .venta import Venta, VentaItem
 from .movimiento import Movimiento, TipoMovimiento
 from .log_sesion import LogSesion
+from .audit_log import AuditLog
 
 __all__ = [
     "Usuario", "Rol",
@@ -16,4 +17,5 @@ __all__ = [
     "Venta", "VentaItem",
     "Movimiento", "TipoMovimiento",
     "LogSesion",
+    "AuditLog",
 ]
