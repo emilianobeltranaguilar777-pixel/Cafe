@@ -23,6 +23,7 @@ class UsuarioCreate(BaseModel):
 
 class UsuarioUpdate(BaseModel):
     """Datos para actualizar usuario"""
+    username: Optional[str] = Field(None, min_length=3, max_length=50)
     nombre: Optional[str] = None
     rol: Optional[Rol] = None
     password: Optional[str] = Field(None, min_length=6)

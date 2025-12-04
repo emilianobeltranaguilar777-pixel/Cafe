@@ -7,6 +7,7 @@ import "../componentes"
 
 Item {
     id: pantallaUsuarios
+    objectName: "pantallaUsuarios"
     anchors.fill: parent
 
     property var usuarios: []
@@ -55,6 +56,19 @@ Item {
         formPassword = ""
         formRol = usuario.rol || rolesDisponibles[0]
         mostrandoModal = true
+
+        debugInfo = "GET /usuarios/" + usuario.id
+        GestorAuth.request("GET", "/usuarios/" + usuario.id, null, function(exito, resp) {
+            if (exito && resp) {
+                formUsername = resp.username || formUsername
+                formNombre = resp.nombre || ""
+                formRol = resp.rol || rolesDisponibles[0]
+                debugInfo = "Usuario " + usuario.id + " listo para editar"
+            } else {
+                mensaje = resp || "No se pudo cargar el usuario"
+                debugInfo = "GET /usuarios/" + usuario.id + " → " + resp
+            }
+        })
     }
 
     function cerrarModal() {
@@ -99,8 +113,9 @@ Item {
                 return
             }
 
-            GestorAuth.request("POST", "/usuarios/", payload, function(exito) {
-                mensaje = exito ? "Usuario creado" : "Error al crear usuario"
+            GestorAuth.request("POST", "/usuarios/", payload, function(exito, resp) {
+                mensaje = exito ? "Usuario creado" : (resp || "Error al crear usuario")
+                debugInfo = "POST /usuarios/ → " + (exito ? "ok" : resp)
                 if (exito) {
                     cerrarModal()
                     cargarUsuarios()
@@ -113,8 +128,11 @@ Item {
             if (formPassword && formPassword.length > 0)
                 payload.password = formPassword
 
-            GestorAuth.request("PUT", "/usuarios/" + usuarioActual.id, payload, function(exito) {
-                mensaje = exito ? "Usuario actualizado" : "Error al actualizar usuario"
+            payload.username = formUsername
+
+            GestorAuth.request("PUT", "/usuarios/" + usuarioActual.id, payload, function(exito, resp) {
+                mensaje = exito ? "Usuario actualizado" : (resp || "Error al actualizar usuario")
+                debugInfo = "PUT /usuarios/" + usuarioActual.id + " → " + (exito ? "ok" : resp)
                 if (exito) {
                     cerrarModal()
                     cargarUsuarios()
@@ -128,8 +146,9 @@ Item {
             return
 
         var endpoint = usuario.activo ? "/usuarios/" + usuario.id + "/desactivar" : "/usuarios/" + usuario.id + "/activar"
-        GestorAuth.request("PATCH", endpoint, {}, function(exito) {
-            mensaje = exito ? "Estado actualizado" : "No se pudo cambiar estado"
+        GestorAuth.request("PATCH", endpoint, {}, function(exito, resp) {
+            mensaje = exito ? "Estado actualizado" : (resp || "No se pudo cambiar estado")
+            debugInfo = endpoint + " → " + (exito ? "ok" : resp)
             if (exito)
                 cargarUsuarios()
         })
@@ -414,7 +433,6 @@ Item {
                     objectName: "inputUsername"
                     width: parent.width
                     placeholderText: "Username"
-                    enabled: !modoEdicion
                     text: formUsername
                     onTextChanged: formUsername = text
                 }

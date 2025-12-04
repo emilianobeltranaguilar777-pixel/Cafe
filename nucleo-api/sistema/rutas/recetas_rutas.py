@@ -14,10 +14,11 @@ router = APIRouter(prefix="/recetas", tags=["🍰 Recetas"])
 
 ajustes = obtener_ajustes()
 
-permiso_crear_receta = requiere_permiso("inventario", "crear")
-permiso_ver_recetas = requiere_permiso("inventario", "ver")
-permiso_editar_receta = requiere_permiso("inventario", "editar")
-permiso_eliminar_receta = requiere_permiso("inventario", "eliminar")
+# RBAC alineado con recurso "recetas" que consume la UI
+permiso_crear_receta = requiere_permiso("recetas", "crear")
+permiso_ver_recetas = requiere_permiso("recetas", "ver")
+permiso_editar_receta = requiere_permiso("recetas", "editar")
+permiso_eliminar_receta = requiere_permiso("recetas", "borrar")
 
 
 class RecetaItemPayload(BaseModel):
@@ -32,8 +33,12 @@ class RecetaCreate(BaseModel):
     """Datos para crear receta"""
     nombre: str
     descripcion: Optional[str] = None
-    margen: Optional[float] = Field(default=None, ge=0, le=5)
+    margen: Optional[float] = Field(default=None)
+    # Aceptamos tanto "items" como "ingredientes" para compatibilidad UI
     items: List[RecetaItemPayload] = Field(default_factory=list)
+    ingredientes: List[RecetaItemPayload] = Field(default_factory=list)
+
+    model_config = {"populate_by_name": True}
 
 
 class RecetaUpdate(RecetaCreate):
@@ -118,6 +123,16 @@ def _calcular_detalle_receta(receta: Receta, session: Session) -> RecetaConCosto
     )
 
 
+def _items_desde_payload(datos: RecetaCreate) -> List[RecetaItemPayload]:
+    """Normaliza items recibidos desde UI."""
+
+    items = datos.items or datos.ingredientes
+    if not items:
+        raise HTTPException(status_code=422, detail="Agrega al menos un ingrediente")
+
+    return items
+
+
 def _guardar_items(receta: Receta, items: List[RecetaItemPayload], session: Session) -> None:
     """Guarda o reemplaza los items de una receta."""
 
@@ -148,21 +163,20 @@ def crear_receta(
     usuario_actual: Usuario = Depends(permiso_crear_receta)
 ):
     """➕ Crear nueva receta con ingredientes"""
-    if not datos.items:
-        raise HTTPException(status_code=422, detail="Agrega al menos un ingrediente")
+    items = _items_desde_payload(datos)
 
     # Crear receta
     receta = Receta(
         nombre=datos.nombre,
         descripcion=datos.descripcion,
-        margen=datos.margen or ajustes.MARGIN_DEFAULT
+        margen=ajustes.MARGIN_DEFAULT if datos.margen is None else datos.margen,
     )
 
     session.add(receta)
     session.commit()
     session.refresh(receta)
 
-    _guardar_items(receta, datos.items, session)
+    _guardar_items(receta, items, session)
 
     session.commit()
 
@@ -207,18 +221,17 @@ def actualizar_receta(
     if not receta:
         raise HTTPException(status_code=404, detail="Receta no encontrada")
 
-    if not datos.items:
-        raise HTTPException(status_code=422, detail="Agrega al menos un ingrediente")
+    items = _items_desde_payload(datos)
 
     receta.nombre = datos.nombre
     receta.descripcion = datos.descripcion
-    receta.margen = datos.margen or ajustes.MARGIN_DEFAULT
+    receta.margen = ajustes.MARGIN_DEFAULT if datos.margen is None else datos.margen
 
     session.add(receta)
     session.commit()
     session.refresh(receta)
 
-    _guardar_items(receta, datos.items, session)
+    _guardar_items(receta, items, session)
     session.commit()
 
     return _calcular_detalle_receta(receta, session)

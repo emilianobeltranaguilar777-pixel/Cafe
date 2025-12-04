@@ -452,8 +452,9 @@ Window {
                     width: parent.width - 250
                     height: parent.height
                     color: "#050510"
-                    
+
                     Loader {
+                        id: loaderPantallas
                         anchors.fill: parent
                         sourceComponent: {
                             switch(root.pantallaActual) {
@@ -1944,12 +1945,15 @@ Window {
             anchors.margins: 40
             spacing: 20
 
+            objectName: "pantallaRecetas"
+
             property var recetas: []
             property var ingredientesDisponibles: []
             property var itemsSeleccionados: []
             property var recetaEditando: null
             property bool mostrarFormulario: false
             property string mensajeReceta: ""
+            property string debugReceta: ""
 
             Row {
                 width: parent.width
@@ -2119,7 +2123,6 @@ Window {
                                 width: parent.width
                                 color: "#e0e0ff"
                                 placeholderText: "0.3"
-                                validator: DoubleValidator { bottom: 0 }
                                 background: Rectangle { color: "transparent"; border.color: "#00ffff"; border.width: 1; radius: 4 }
                             }
                         }
@@ -2268,6 +2271,15 @@ Window {
                         visible: mensajeReceta.length > 0
                     }
 
+                    Text {
+                        text: debugReceta
+                        color: "#7fd5ff"
+                        font.pixelSize: 11
+                        visible: debugReceta.length > 0
+                        wrapMode: Text.Wrap
+                        width: parent.width
+                    }
+
                     Row {
                         spacing: 12
 
@@ -2302,6 +2314,7 @@ Window {
                 radius: 10
 
                 ListView {
+                    id: listaRecetas
                     anchors.fill: parent
                     anchors.margins: 20
                     spacing: 12
@@ -2509,6 +2522,7 @@ Window {
 
             function agregarIngredienteReceta() {
                 mensajeReceta = ""
+                debugReceta = ""
                 var ingrediente = ingredienteActual()
                 var cantidad = parseFloat(inputCantidadIngrediente.text)
                 var merma = parseFloat(inputMermaIngrediente.text)
@@ -2544,10 +2558,12 @@ Window {
                 itemsSeleccionados = itemsSeleccionados.slice()
                 inputCantidadIngrediente.text = ""
                 inputMermaIngrediente.text = ""
+                debugReceta = "Ingredientes en receta: " + itemsSeleccionados.length
             }
 
             function enviarReceta() {
                 mensajeReceta = ""
+                debugReceta = ""
                 var nombre = inputNombreReceta.text.trim()
                 var descripcion = inputDescripcionReceta.text.trim()
                 var margen = parseFloat(inputMargenReceta.text)
@@ -2576,6 +2592,8 @@ Window {
                     })
                 }
 
+                debugReceta = "Payload: " + JSON.stringify(payload)
+
                 if (recetaEditando) {
                     api.put("/recetas/" + recetaEditando, payload, function(exito, resp) {
                         if (exito) {
@@ -2585,6 +2603,7 @@ Window {
                             cargarRecetas()
                         } else {
                             mensajeReceta = resp && resp.detail ? resp.detail : "Error al actualizar"
+                            debugReceta = "PUT /recetas/" + recetaEditando + " → " + resp
                             notificacion.mostrar("Error al actualizar")
                         }
                     })
@@ -2597,6 +2616,7 @@ Window {
                             cargarRecetas()
                         } else {
                             mensajeReceta = resp && resp.detail ? resp.detail : "Error al crear"
+                            debugReceta = "POST /recetas/ → " + resp
                             notificacion.mostrar("Error al crear")
                         }
                     })
@@ -2607,18 +2627,28 @@ Window {
                 recetaEditando = datos.id
                 mostrarFormulario = true
                 mensajeReceta = ""
-                inputNombreReceta.text = datos.nombre
-                inputDescripcionReceta.text = datos.descripcion || ""
-                inputMargenReceta.text = datos.margen ? datos.margen.toString() : ""
-                itemsSeleccionados = datos.items.map(function(item) {
-                    return {
-                        ingrediente_id: item.ingrediente_id,
-                        ingrediente_nombre: item.ingrediente_nombre,
-                        cantidad: item.cantidad,
-                        merma: item.merma || 0,
-                        stock: item.stock,
-                        min_stock: item.min_stock,
-                        unidad: item.unidad
+                debugReceta = "Cargando receta " + datos.id
+                api.get("/recetas/" + datos.id, function(exito, info) {
+                    if (exito) {
+                        inputNombreReceta.text = info.nombre
+                        inputDescripcionReceta.text = info.descripcion || ""
+                        inputMargenReceta.text = info.margen !== undefined && info.margen !== null ? info.margen.toString() : ""
+                        itemsSeleccionados = info.items.map(function(item) {
+                            return {
+                                ingrediente_id: item.ingrediente_id,
+                                ingrediente_nombre: item.ingrediente_nombre,
+                                cantidad: item.cantidad,
+                                merma: item.merma || 0,
+                                stock: item.stock,
+                                min_stock: item.min_stock,
+                                unidad: item.unidad
+                            }
+                        })
+                        debugReceta = "Receta " + datos.id + " lista para editar"
+                    } else {
+                        mensajeReceta = info && info.detail ? info.detail : "No se pudo cargar la receta"
+                        debugReceta = "GET /recetas/" + datos.id + " → " + info
+                        recetaEditando = null
                     }
                 })
             }
@@ -2645,6 +2675,7 @@ Window {
             function limpiarFormularioReceta() {
                 recetaEditando = null
                 mensajeReceta = ""
+                debugReceta = ""
                 inputNombreReceta.text = ""
                 inputDescripcionReceta.text = ""
                 inputMargenReceta.text = ""
@@ -2657,8 +2688,10 @@ Window {
                 api.get("/recetas/", function(exito, datos) {
                     if (exito) {
                         recetas = datos
+                        debugReceta = "Recetas cargadas: " + recetas.length
                     } else {
                         mensajeReceta = "No se pudieron cargar las recetas"
+                        debugReceta = "GET /recetas/ → " + datos
                     }
                 })
             }
@@ -2667,6 +2700,9 @@ Window {
                 api.get("/ingredientes/?limit=500", function(exito, datos) {
                     if (exito) {
                         ingredientesDisponibles = datos
+                        debugReceta = "Ingredientes: " + ingredientesDisponibles.length
+                    } else {
+                        debugReceta = "GET /ingredientes/ → " + datos
                     }
                 })
             }
