@@ -212,8 +212,10 @@ QtObject {
     function tienePermiso(recurso, accion) {
         if (!datosUsuario) return false
 
-        // DUENO tiene acceso a todo siempre
-        if (datosUsuario.rol === "DUENO") return true
+        // DUENO y ADMIN tienen acceso total a todo
+        if (datosUsuario.rol === "DUENO" || datosUsuario.rol === "ADMIN") {
+            return true
+        }
 
         // Buscar en permisos resueltos
         var clave = recurso + ":" + accion
