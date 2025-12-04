@@ -395,7 +395,8 @@ Window {
                                     {texto: "Recetas", id: "recetas"},
                                     {texto: "Ventas", id: "ventas"},
                                     {texto: "Usuarios", id: "usuarios"},
-                                    {texto: "Logs", id: "logs"}
+                                    {texto: "Logs", id: "logs"},
+                                    {texto: "Permisos", id: "permisos", nombre: "Permisos", pantalla: "permisos", icono: "🔑"}
                                 ]
                                 
                                 Rectangle {
@@ -469,6 +470,7 @@ Window {
                                 case "ventas": return pantallaVentas
                                 case "usuarios": return pantallaUsuarios
                                 case "logs": return pantallaLogs
+                                case "permisos": return pantalla_permisos
                                 default: return pantallaDashboard
                             }
                         }
@@ -477,7 +479,12 @@ Window {
             }
         }
     }
-    
+
+    Component {
+        id: pantalla_permisos
+        source: "pantallas/pantalla_permisos.qml"
+    }
+
     // ============================================
     // DASHBOARD
     // ============================================
