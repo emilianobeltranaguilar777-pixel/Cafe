@@ -12,6 +12,8 @@ from sistema.utilidades.seed_inicial import inicializar_datos
 # Importar todos los routers
 from sistema.rutas import (
     auth_router,
+    usuarios_router,
+    permisos_router,
     clientes_router,
     ingredientes_router,
     proveedores_router,
@@ -92,6 +94,8 @@ def verificar_salud():
 # ==================== INCLUIR TODOS LOS ROUTERS ====================
 
 app.include_router(auth_router)
+app.include_router(usuarios_router)
+app.include_router(permisos_router)
 app.include_router(clientes_router)
 app.include_router(ingredientes_router)
 app.include_router(proveedores_router)

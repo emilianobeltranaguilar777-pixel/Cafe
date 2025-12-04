@@ -2,14 +2,15 @@
 
 # Resolve the project root based on this script's location
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-QML_PATH="$(cd "${SCRIPT_DIR}/.." && pwd)/quantum"
-QML_FILE="$QML_PATH/main.qml"
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+QML_FILE="$PROJECT_ROOT/quantum/main.qml"
 
 echo "🚀 Iniciando EL CAFÉ SIN LÍMITES v2.0 FINAL..."
-echo "📂 Ruta: $QML_PATH"
-echo "📄 Archivo: main.qml (Interfaz completa con todas las funcionalidades)"
+echo "📂 Ruta del módulo: $PROJECT_ROOT"
+echo "📄 Archivo: quantum/main.qml"
+echo ""
 
-export QML2_IMPORT_PATH="$QML_PATH"
+export QML2_IMPORT_PATH="$PROJECT_ROOT"
 
 if command -v qmlscene &> /dev/null; then
     echo "✅ Arrancando con Qt5..."

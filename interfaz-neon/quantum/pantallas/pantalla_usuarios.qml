@@ -12,6 +12,7 @@ Item {
     property var usuarios: []
     property bool cargando: false
     property string mensaje: ""
+    property string debugInfo: "" // DEBUG: URL, status, body
 
     // Expose controls for tests
     property alias btnNuevo: btnNuevo
@@ -63,12 +64,22 @@ Item {
     function cargarUsuarios() {
         cargando = true
         mensaje = ""
+        var url = GestorAuth.urlBackend + "/usuarios/"
+        debugInfo = "Cargando desde: " + url
+
         GestorAuth.request("GET", "/usuarios/", null, function(exito, resp) {
             cargando = false
             if (exito) {
                 usuarios = resp || []
+                debugInfo = "OK: " + usuarios.length + " usuarios cargados"
+                if (usuarios.length === 0) {
+                    mensaje = "No hay usuarios registrados"
+                }
             } else {
-                mensaje = resp || "No se pudieron cargar usuarios"
+                mensaje = resp || "Error al cargar usuarios"
+                debugInfo = "ERROR: " + resp
+                // Asegurar que la UI se renderiza aunque haya error
+                usuarios = []
             }
         })
     }
@@ -164,9 +175,10 @@ Item {
                 }
 
                 Text {
-                    text: cargando ? "Cargando usuarios..." : (mensaje || "")
+                    text: cargando ? "Cargando usuarios..." : (mensaje || debugInfo || "")
                     color: mensaje ? PaletaNeon.advertencia : PaletaNeon.textoSecundario
                     font.pixelSize: PaletaNeon.tamañoFuentePequeña
+                    visible: text !== ""
                 }
             }
 
