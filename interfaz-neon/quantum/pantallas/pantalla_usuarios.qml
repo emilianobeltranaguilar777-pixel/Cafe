@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
-import QtGraphicalEffects 1.15
+import QtGraphicalEffects 1.0
 import quantum 1.0
 
 Item {
@@ -29,33 +28,41 @@ Item {
         anchors.margins: 20
         spacing: 20
 
-        Row {
-            spacing: 12
-            Text {
-                text: "👥"
-                font.pixelSize: 36
+        Item {
+            width: parent.width
+            height: 48
+
+            Row {
                 anchors.verticalCenter: parent.verticalCenter
-            }
-            Text {
-                text: "Gestión de Usuarios"
-                font.family: PaletaNeon.fuentePrincipal
-                font.pixelSize: PaletaNeon.tamañoFuenteTitulo
-                font.bold: true
-                color: PaletaNeon.primario
-                anchors.verticalCenter: parent.verticalCenter
-                layer.enabled: true
-                layer.effect: Glow {
-                    samples: 9
+                spacing: 12
+                Text {
+                    text: "👥"
+                    font.pixelSize: 36
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Text {
+                    text: "Gestión de Usuarios"
+                    font.family: PaletaNeon.fuentePrincipal
+                    font.pixelSize: PaletaNeon.tamañoFuenteTitulo
+                    font.bold: true
                     color: PaletaNeon.primario
-                    spread: 0.2
-                    radius: 4
+                    anchors.verticalCenter: parent.verticalCenter
+                    layer.enabled: true
+                    layer.effect: Glow {
+                        samples: 9
+                        color: PaletaNeon.primario
+                        spread: 0.2
+                        radius: 4
+                    }
                 }
             }
-            Item { Layout.fillWidth: true }
+
             NeonButton {
                 id: btnNuevo
                 text: "Nuevo Usuario"
                 enabled: root.puedeCrear
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
                 onClicked: abrirModalNuevo()
             }
         }
@@ -144,7 +151,7 @@ Item {
             border.color: PaletaNeon.primario
             border.width: 2
 
-            ColumnLayout {
+            Column {
                 anchors.fill: parent
                 anchors.margins: 20
                 spacing: 12
@@ -159,7 +166,7 @@ Item {
 
                 NeonInput {
                     id: inputUsername
-                    Layout.fillWidth: true
+                    width: parent.width
                     placeholderText: "Username"
                     text: root.usuarioActual.username
                     onTextChanged: root.usuarioActual.username = text
@@ -167,7 +174,7 @@ Item {
 
                 NeonInput {
                     id: inputNombre
-                    Layout.fillWidth: true
+                    width: parent.width
                     placeholderText: "Nombre"
                     text: root.usuarioActual.nombre
                     onTextChanged: root.usuarioActual.nombre = text
@@ -175,7 +182,7 @@ Item {
 
                 NeonInput {
                     id: inputPassword
-                    Layout.fillWidth: true
+                    width: parent.width
                     placeholderText: "Contraseña"
                     echoMode: TextInput.Password
                     text: root.usuarioActual.password
@@ -184,7 +191,7 @@ Item {
 
                 ComboBox {
                     id: rolCombo
-                    Layout.fillWidth: true
+                    width: parent.width
                     model: ["DUENO", "ADMIN", "GERENTE", "VENDEDOR"]
                     currentIndex: Math.max(0, model.indexOf(root.usuarioActual.rol))
                     onCurrentTextChanged: root.usuarioActual.rol = currentText
@@ -198,10 +205,8 @@ Item {
                     onCheckedChanged: root.usuarioActual.activo = checked
                 }
 
-                Item { Layout.fillHeight: true }
-
-                RowLayout {
-                    Layout.alignment: Qt.AlignRight
+                Row {
+                    anchors.right: parent.right
                     spacing: 12
                     NeonButton {
                         text: "Cancelar"
