@@ -3,90 +3,110 @@
 Sistema de auditoría
 """
 from fastapi import APIRouter, Depends, Query
-from sqlmodel import Session, select
+from sqlmodel import Session, select, and_
 from typing import List, Optional
 from datetime import datetime
 
 from sistema.configuracion import obtener_sesion, requiere_roles
-from sistema.entidades import LogSesion, Usuario, Rol, Movimiento, Ingrediente, TipoMovimiento
+from sistema.entidades import AuditLog, Usuario, Rol
 
 router = APIRouter(prefix="/logs", tags=["📋 Logs"])
 
 
 @router.get("/")
 def listar_logs(
-    tipo: Optional[str] = Query(None, description="Tipo de log: sesion, movimiento, todos"),
+    action: Optional[str] = None,
+    entity: Optional[str] = None,
+    user_id: Optional[int] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    q: Optional[str] = None,
     limit: int = Query(100, le=500),
     offset: int = 0,
     session: Session = Depends(obtener_sesion),
     usuario_actual: Usuario = Depends(requiere_roles([Rol.ADMIN, Rol.DUENO]))
 ):
     """
-    📋 Listar logs del sistema (sesiones y movimientos de inventario)
+    📋 Listar logs de auditoría con filtros y paginación
 
-    Tipos de logs:
-    - sesion: Solo logs de login/logout
-    - movimiento: Solo movimientos de inventario (reabastecimientos, etc)
-    - todos: Ambos tipos combinados (default)
+    Filtros:
+    - action: Filtrar por acción específica
+    - entity: Filtrar por tipo de entidad
+    - user_id: Filtrar por usuario
+    - date_from: Fecha desde (ISO datetime)
+    - date_to: Fecha hasta (ISO datetime)
+    - q: Búsqueda de texto en action y details
     """
-    if not isinstance(tipo, str):
-        tipo = None
-    logs_combinados = []
+    # Construir filtros
+    filters = []
 
-    # Obtener logs de sesión
-    if tipo in [None, "todos", "sesion"]:
-        query_sesion = select(LogSesion).order_by(LogSesion.creado_en.desc())
-        logs_sesion = session.exec(query_sesion).all()
+    if action:
+        filters.append(AuditLog.action == action)
 
-        for log in logs_sesion:
-            usuario = session.get(Usuario, log.usuario_id) if log.usuario_id else None
-            logs_combinados.append({
-                "id": f"sesion_{log.id}",
-                "tipo": "sesion",
-                "usuario": usuario.username if usuario else "Sistema",
-                "accion": log.accion,
-                "detalles": {
-                    "ip": log.ip,
-                    "user_agent": log.user_agent,
-                    "exito": log.exito
-                },
-                "fecha": log.creado_en.isoformat(),
-                "creado_en": log.creado_en
-            })
+    if entity:
+        filters.append(AuditLog.entity == entity)
 
-    # Obtener logs de movimientos (reabastecimientos)
-    if tipo in [None, "todos", "movimiento"]:
-        query_movimiento = select(Movimiento).order_by(Movimiento.creado_en.desc())
-        movimientos = session.exec(query_movimiento).all()
+    if user_id is not None:
+        filters.append(AuditLog.user_id == user_id)
 
-        for mov in movimientos:
-            ingrediente = session.get(Ingrediente, mov.ingrediente_id)
-            logs_combinados.append({
-                "id": f"movimiento_{mov.id}",
-                "tipo": "movimiento",
-                "usuario": mov.referencia if mov.referencia else "Sistema",
-                "accion": f"{mov.tipo.value.upper()}",
-                "detalles": {
-                    "ingrediente": ingrediente.nombre if ingrediente else "Desconocido",
-                    "cantidad": mov.cantidad,
-                    "tipo_movimiento": mov.tipo.value,
-                    "referencia": mov.referencia
-                },
-                "fecha": mov.creado_en.isoformat(),
-                "creado_en": mov.creado_en
-            })
+    if date_from:
+        try:
+            dt_from = datetime.fromisoformat(date_from)
+            filters.append(AuditLog.timestamp >= dt_from)
+        except ValueError:
+            pass
 
-    # Ordenar por fecha descendente
-    logs_combinados.sort(key=lambda x: x["creado_en"], reverse=True)
+    if date_to:
+        try:
+            dt_to = datetime.fromisoformat(date_to)
+            filters.append(AuditLog.timestamp <= dt_to)
+        except ValueError:
+            pass
 
-    # Aplicar paginación
-    logs_paginados = logs_combinados[offset:offset + limit]
+    if q:
+        filters.append(AuditLog.action.contains(q))
 
-    # Remover campo creado_en temporal usado para ordenar
-    for log in logs_paginados:
-        del log["creado_en"]
+    # Query base con filtros
+    query = select(AuditLog)
+    if filters:
+        query = query.where(and_(*filters))
+
+    # Calcular total ANTES de paginación
+    total_query = query
+    total = len(session.exec(total_query).all())
+
+    # Aplicar orden y paginación
+    query = query.order_by(AuditLog.timestamp.desc())
+    query = query.offset(offset).limit(limit)
+
+    # Ejecutar query paginada
+    logs = session.exec(query).all()
+
+    # Formatear respuesta
+    logs_formatted = []
+    for log in logs:
+        # Resolver usuario
+        user = "Sistema"
+        if log.user_id is not None:
+            usuario = session.get(Usuario, log.user_id)
+            if usuario:
+                user = usuario.username
+
+        logs_formatted.append({
+            "id": log.id,
+            "timestamp": log.timestamp.isoformat(),
+            "user": user,
+            "user_id": log.user_id,
+            "action": log.action,
+            "entity": log.entity,
+            "entity_id": log.entity_id,
+            "ip": log.ip,
+            "user_agent": log.user_agent,
+            "success": log.success,
+            "details": log.get_details()
+        })
 
     return {
-        "total": len(logs_combinados),
-        "logs": logs_paginados
+        "total": total,
+        "logs": logs_formatted
     }

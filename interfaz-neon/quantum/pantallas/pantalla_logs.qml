@@ -563,17 +563,52 @@ Item {
         cargando = true
         usandoDatosEjemplo = false
 
-        var endpoint = "/logs?tipo=" + filtroActual + "&limit=100"
+        var endpoint = "/logs?limit=100"
+
+        // Mapear filtros del QML al nuevo API
+        if (filtroActual === "sesion") {
+            // Buscar acciones relacionadas con sesiones
+            endpoint += "&q=login"
+        } else if (filtroActual === "movimiento") {
+            // Buscar por entidad ingrediente (movimientos de stock)
+            endpoint += "&entity=ingrediente"
+        }
 
         GestorAuth.request("GET", endpoint, null, function(exito, datos) {
             cargando = false
             if (exito) {
                 console.log("✓ Logs recibidos:", datos.total, "logs totales")
                 console.log("✓ Logs en array:", datos.logs ? datos.logs.length : 0)
-                logsData = datos
+
+                // Adaptar formato para compatibilidad con UI existente
+                var logsAdaptados = {
+                    total: datos.total,
+                    logs: []
+                }
+
+                for (var i = 0; i < datos.logs.length; i++) {
+                    var log = datos.logs[i]
+                    var tipoLog = log.entity === "ingrediente" ? "movimiento" : "sesion"
+
+                    logsAdaptados.logs.push({
+                        id: log.id,
+                        tipo: tipoLog,
+                        usuario: log.user,
+                        accion: log.action.toUpperCase(),
+                        detalles: log.details,
+                        fecha: log.timestamp
+                    })
+                }
+
+                logsData = logsAdaptados
                 usandoDatosEjemplo = false
             } else {
                 console.log("❌ Error cargando logs:", datos)
+                // Verificar si es 403 (sin permisos)
+                if (datos && datos.status === 403) {
+                    // Mostrar mensaje de permisos
+                    console.log("⛔ No tienes permisos para ver logs")
+                }
                 // Si falla, usar datos de ejemplo para visualización
                 cargarDatosEjemplo()
             }
@@ -720,18 +755,40 @@ Item {
 
     function obtenerDetallesPrincipales(log) {
         if (log.tipo === "sesion") {
-            var exito = log.detalles.exito ? "✅ Exitoso" : "❌ Fallido"
-            return exito + " • IP: " + (log.detalles.ip || "N/A")
+            var exito = log.accion.indexOf("FAILED") === -1 ? "✅ Exitoso" : "❌ Fallido"
+            var ip = "N/A"
+            if (log.detalles && typeof log.detalles === "object") {
+                ip = log.detalles.ip || "N/A"
+            }
+            return exito + " • IP: " + ip
         } else {
-            return "📦 " + log.detalles.ingrediente + " • Cantidad: " + log.detalles.cantidad
+            var ingrediente = "N/A"
+            var cantidad = "N/A"
+            if (log.detalles && typeof log.detalles === "object") {
+                ingrediente = log.detalles.ingrediente_nombre || log.detalles.ingrediente || "N/A"
+                if (log.detalles.cantidad_agregada !== undefined) {
+                    cantidad = log.detalles.cantidad_agregada.toString()
+                } else if (log.detalles.cantidad !== undefined) {
+                    cantidad = log.detalles.cantidad.toString()
+                }
+            }
+            return "📦 " + ingrediente + " • Cantidad: " + cantidad
         }
     }
 
     function obtenerDetallesSecundarios(log) {
         if (log.tipo === "sesion") {
-            return "User Agent: " + (log.detalles.user_agent || "N/A")
+            var userAgent = "N/A"
+            if (log.detalles && typeof log.detalles === "object") {
+                userAgent = log.detalles.user_agent || "N/A"
+            }
+            return "User Agent: " + userAgent
         } else {
-            return "Referencia: " + (log.detalles.referencia || "Sistema automático")
+            var referencia = "Sistema automático"
+            if (log.detalles && typeof log.detalles === "object") {
+                referencia = log.detalles.referencia || "Sistema automático"
+            }
+            return "Referencia: " + referencia
         }
     }
 
