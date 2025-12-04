@@ -5,6 +5,7 @@ Sistema híbrido: permisos por rol + excepciones por usuario
 from datetime import datetime
 from enum import Enum
 from typing import Optional
+from pydantic import BaseModel, validator
 from sqlmodel import SQLModel, Field
 
 
@@ -14,6 +15,15 @@ class Accion(str, Enum):
     CREAR = "crear"
     EDITAR = "editar"
     ELIMINAR = "eliminar"
+
+
+RECURSOS_VALIDOS = {
+    "usuarios",
+    "inventario",
+    "ventas",
+    "reportes",
+    "clientes",
+}
 
 
 class PermisoRol(SQLModel, table=True):
@@ -57,3 +67,27 @@ class UsuarioPermiso(SQLModel, table=True):
     
     class Config:
         use_enum_values = True
+
+
+class PermisoRolBase(BaseModel):
+    recurso: str
+    accion: Accion
+
+    @validator("recurso")
+    def validar_recurso(cls, valor: str) -> str:
+        if valor not in RECURSOS_VALIDOS:
+            raise ValueError("Recurso no válido")
+        return valor
+
+
+class PermisoRolCreate(PermisoRolBase):
+    """Payload para crear o eliminar permisos de rol"""
+
+
+class PermisoRolResponse(PermisoRolBase):
+    id: int
+    rol: str
+    creado_en: datetime
+
+    class Config:
+        orm_mode = True
