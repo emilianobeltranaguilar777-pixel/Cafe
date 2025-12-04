@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 # Resolve the project root based on this script's location
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
