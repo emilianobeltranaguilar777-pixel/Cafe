@@ -7,6 +7,7 @@ from typing import List, Optional
 
 from sistema.configuracion import obtener_sesion, requiere_permiso
 from sistema.entidades import Ingrediente, Usuario
+from sistema.utilidades.audit_logger import log_event
 
 router = APIRouter(prefix="/ingredientes", tags=["🥫 Ingredientes"])
 
@@ -135,6 +136,9 @@ def actualizar_parcial_ingrediente(
     if not ingrediente:
         raise HTTPException(status_code=404, detail="Ingrediente no encontrado")
 
+    # Guardar stock anterior para auditoría
+    stock_anterior = ingrediente.stock if "stock" in datos else None
+
     for campo, valor in datos.items():
         if hasattr(ingrediente, campo) and valor is not None:
             setattr(ingrediente, campo, valor)
@@ -142,5 +146,21 @@ def actualizar_parcial_ingrediente(
     session.add(ingrediente)
     session.commit()
     session.refresh(ingrediente)
+
+    # Auditoría adicional si se actualizó el stock (restock)
+    if "stock" in datos and stock_anterior is not None:
+        log_event(
+            session=session,
+            event_type="stock_restock",
+            usuario_id=usuario_actual.id,
+            username=usuario_actual.username,
+            detalles={
+                "ingrediente_id": ingrediente.id,
+                "ingrediente_nombre": ingrediente.nombre,
+                "stock_anterior": stock_anterior,
+                "stock_nuevo": ingrediente.stock,
+                "diferencia": ingrediente.stock - stock_anterior
+            }
+        )
 
     return ingrediente

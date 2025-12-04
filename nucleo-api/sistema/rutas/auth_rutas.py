@@ -15,6 +15,7 @@ from sistema.entidades import Usuario, Rol, LogSesion
 from sistema.contratos.auth_contratos import (
     UsuarioCreate, UsuarioOut, TokenOut, UsuarioUpdate
 )
+from sistema.utilidades.audit_logger import log_event
 
 router = APIRouter(prefix="/auth", tags=["🔐 Autenticación"])
 
@@ -51,6 +52,17 @@ def login(
             session.add(log)
             session.commit()
 
+            # Auditoría adicional
+            log_event(
+                session=session,
+                event_type="login_failed",
+                usuario_id=usuario.id,
+                username=usuario.username,
+                ip_address=client_ip,
+                user_agent=user_agent,
+                detalles={"razon": "credenciales_incorrectas"}
+            )
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciales incorrectas"
@@ -84,6 +96,17 @@ def login(
     session.add(log)
     session.commit()
 
+    # Auditoría adicional
+    log_event(
+        session=session,
+        event_type="login_success",
+        usuario_id=usuario.id,
+        username=usuario.username,
+        ip_address=client_ip,
+        user_agent=user_agent,
+        detalles={"rol": usuario.rol}
+    )
+
     # Crear token
     token = crear_token(
         username=usuario.username,
@@ -114,6 +137,16 @@ def logout(
     )
     session.add(log)
     session.commit()
+
+    # Auditoría adicional
+    log_event(
+        session=session,
+        event_type="logout",
+        usuario_id=usuario_actual.id,
+        username=usuario_actual.username,
+        ip_address=client_ip,
+        user_agent=user_agent
+    )
 
     return {"message": "Logout exitoso"}
 
