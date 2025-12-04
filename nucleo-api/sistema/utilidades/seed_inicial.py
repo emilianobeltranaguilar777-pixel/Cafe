@@ -10,30 +10,62 @@ from sistema.configuracion import hash_password
 def inicializar_datos(session: Session):
     """
     Inicializa datos base del sistema:
-    1. Usuario admin (si no existe)
+    1. Usuarios iniciales (admin, dueno, gerente1, vendedor1)
     2. Permisos por rol
     """
     print("🌱 Verificando datos iniciales...")
-    
-    # ==================== USUARIO ADMIN ====================
-    admin_existente = session.exec(
-        select(Usuario).where(Usuario.username == "admin")
-    ).first()
-    
-    if not admin_existente:
-        print("   📝 Creando usuario admin...")
-        admin = Usuario(
-            username="admin",
-            nombre="Administrador",
-            password_hash=hash_password("admin123"),
-            rol=Rol.ADMIN,
-            activo=True
-        )
-        session.add(admin)
+
+    # ==================== USUARIOS INICIALES ====================
+    usuarios_iniciales = [
+        {
+            "username": "admin",
+            "nombre": "Administrador",
+            "password": "admin123",
+            "rol": Rol.ADMIN
+        },
+        {
+            "username": "dueno",
+            "nombre": "Dueño Principal",
+            "password": "dueno123",
+            "rol": Rol.DUENO
+        },
+        {
+            "username": "gerente1",
+            "nombre": "Gerente Principal",
+            "password": "gerente123",
+            "rol": Rol.GERENTE
+        },
+        {
+            "username": "vendedor1",
+            "nombre": "Vendedor Principal",
+            "password": "vendedor123",
+            "rol": Rol.VENDEDOR
+        }
+    ]
+
+    usuarios_creados = 0
+    for datos_usuario in usuarios_iniciales:
+        existe = session.exec(
+            select(Usuario).where(Usuario.username == datos_usuario["username"])
+        ).first()
+
+        if not existe:
+            nuevo_usuario = Usuario(
+                username=datos_usuario["username"],
+                nombre=datos_usuario["nombre"],
+                password_hash=hash_password(datos_usuario["password"]),
+                rol=datos_usuario["rol"],
+                activo=True
+            )
+            session.add(nuevo_usuario)
+            usuarios_creados += 1
+            print(f"   📝 Usuario '{datos_usuario['username']}' creado (pass: {datos_usuario['password']})")
+
+    if usuarios_creados > 0:
         session.commit()
-        print("   ✅ Usuario admin creado (user: admin, pass: admin123)")
+        print(f"   ✅ {usuarios_creados} usuarios creados")
     else:
-        print("   ℹ️  Usuario admin ya existe")
+        print("   ℹ️  Usuarios ya existen")
     
     # ==================== PERMISOS BASE ====================
     permisos_base = [

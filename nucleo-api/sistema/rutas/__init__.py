@@ -2,6 +2,8 @@
 📦 Módulo de rutas (routers) - ELCAFESIN
 """
 from .auth_rutas import router as auth_router
+from .usuarios_rutas import router as usuarios_router
+from .permisos_rutas import router as permisos_router
 from .clientes_rutas import router as clientes_router
 from .ingredientes_rutas import router as ingredientes_router
 from .proveedores_rutas import router as proveedores_router
@@ -11,6 +13,8 @@ from .reportes_rutas import router as reportes_router
 
 __all__ = [
     "auth_router",
+    "usuarios_router",
+    "permisos_router",
     "clientes_router",
     "ingredientes_router",
     "proveedores_router",
